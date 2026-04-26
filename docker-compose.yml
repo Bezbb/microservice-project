@@ -1,42 +1,102 @@
+version: '3.8'
+
 services:
-  # 1. Máy chủ Cơ sở dữ liệu MongoDB cho Product Service
   product-db:
-    image: mongo:latest
+    image: mongo:7
+    container_name: product-db
     ports:
       - "27018:27017"
+    volumes:
+      - product_data:/data/db
+    networks:
+      - app-network
 
-  # 2. Máy chủ Cơ sở dữ liệu MongoDB cho Order Service
   order-db:
-    image: mongo:latest
+    image: mongo:7
+    container_name: order-db
     ports:
-      - "27017:27017"
+      - "27020:27017"
+    volumes:
+      - order_data:/data/db
+    networks:
+      - app-network
 
-  # 2. Dịch vụ Sản phẩm (Chứa giao diện Web)
+  payment-db:
+    image: mongo:7
+    container_name: payment-db
+    ports:
+      - "27019:27017"
+    volumes:
+      - payment_data:/data/db
+    networks:
+      - app-network
+
   product-service:
-    build: ./web-ban-nuoc
+    build: ./product-service
+    container_name: product-service
     ports:
       - "3001:3001"
+    depends_on:
+      - product-db
+    networks:
+      - app-network
 
-  # 3. Dịch vụ Đặt hàng (Có kết nối Database)
   order-service:
     build: ./order-service
+    container_name: order-service
     ports:
       - "3002:3002"
     depends_on:
       - order-db
+    networks:
+      - app-network
 
-  # 4. DỊCH VỤ THANH TOÁN (MỚI BỔ SUNG)
   payment-service:
     build: ./payment-service
+    container_name: payment-service
     ports:
       - "3003:3003"
+    depends_on:
+      - payment-db
+    networks:
+      - app-network
 
-  # 5. API Gateway (Lễ tân)
+  user-service:
+    build: ./user-service
+    container_name: user-service
+    ports:
+      - "3005:3005"
+    networks:
+      - app-network
+
+  fe:
+    build: ./fe
+    container_name: fe
+    ports:
+      - "3004:3004"
+    depends_on:
+      - api-gateway
+    networks:
+      - app-network
+
   api-gateway:
     build: ./api-gateway
+    container_name: api-gateway
     ports:
       - "3000:3000"
     depends_on:
       - product-service
       - order-service
       - payment-service
+      - user-service
+    networks:
+      - app-network
+
+volumes:
+  product_data:
+  order_data:
+  payment_data:
+
+networks:
+  app-network:
+    driver: bridge

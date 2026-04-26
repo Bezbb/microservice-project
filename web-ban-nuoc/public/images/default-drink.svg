@@ -1,9 +1,0 @@
-<svg width="640" height="480" viewBox="0 0 640 480" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="640" height="480" fill="#F4E6D7"/>
-  <rect x="48" y="48" width="544" height="384" rx="32" fill="#FFF8F0"/>
-  <circle cx="320" cy="210" r="88" fill="#7A4A2C"/>
-  <circle cx="320" cy="210" r="62" fill="#F7E0C7"/>
-  <path d="M406 194H454C478.301 194 498 213.699 498 238V242C498 266.301 478.301 286 454 286H418" stroke="#7A4A2C" stroke-width="20" stroke-linecap="round"/>
-  <path d="M220 320H420" stroke="#7A4A2C" stroke-width="24" stroke-linecap="round"/>
-  <text x="320" y="385" text-anchor="middle" fill="#7A4A2C" font-family="Arial, sans-serif" font-size="28" font-weight="700">CoffeeHL</text>
-</svg>

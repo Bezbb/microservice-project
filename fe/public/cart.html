@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giỏ hàng | ShopOnline</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="topbar">
+        <div class="brand-wrap">
+            <a class="logo" href="/">ShopOnline</a>
+            <p class="tagline">Mua sắm tiện lợi, giao hàng nhanh</p>
+        </div>
+
+        <ul class="nav-links">
+            <li><a href="/">Trang chủ</a></li>
+            <li><a href="/">Sản phẩm</a></li>
+            <li><a href="login.html" class="auth-link">Đăng nhập</a></li>
+            <li>
+                <button id="cart-count" class="nav-cart" type="button" onclick="goToCart()">
+                    Giỏ hàng (0)
+                </button>
+            </li>
+        </ul>
+    </nav>
+
+    <main class="cart-page">
+        <section class="section-head">
+            <p class="section-kicker">Giỏ hàng của bạn</p>
+            <h2>Kiểm tra sản phẩm trước khi thanh toán</h2>
+            <p class="section-copy" id="cart-count-summary">0 sản phẩm trong giỏ hàng</p>
+        </section>
+
+        <section class="cart-layout">
+            <div class="cart-list" id="cart-items"></div>
+
+            <aside class="cart-summary">
+                <div class="summary-card">
+                    <h3>Tóm tắt đơn hàng</h3>
+                    <div class="summary-row">
+                        <span>Tổng tiền</span>
+                        <strong id="cart-total">0 VND</strong>
+                    </div>
+                    <button id="checkout-button" class="checkout-button" type="button">
+                        Thanh toán tất cả
+                    </button>
+                    <a class="continue-shopping" href="/">Tiếp tục mua hàng</a>
+                </div>
+            </aside>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopOnline | Mua sắm trực tuyến</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="topbar">
+        <div class="brand-wrap">
+            <a class="logo" href="/">ShopOnline</a>
+            <p class="tagline">Mua sắm tiện lợi, giao hàng nhanh</p>
+        </div>
+
+        <ul class="nav-links">
+            <li><a href="#home">Trang chủ</a></li>
+            <li><a href="#categories">Danh mục</a></li>
+            <li><a href="#products-section">Sản phẩm</a></li>
+            <li><a href="#about">Giới thiệu</a></li>
+            <li><a href="login.html" class="auth-link">Đăng nhập</a></li>
+            <li>
+                <button id="cart-count" class="nav-cart" type="button" onclick="goToCart()">
+                    Giỏ hàng (0)
+                </button>
+            </li>
+        </ul>
+    </nav>
+
+    <header class="hero" id="home">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <p class="eyebrow">Online Shopping Store</p>
+            <h1>Mua sắm trực tuyến dễ dàng, nhiều ưu đãi hấp dẫn</h1>
+            <p>Khám phá hàng loạt sản phẩm chất lượng với giao diện hiện đại, dễ chọn mua và thanh toán nhanh chóng.</p>
+
+            <div class="hero-actions">
+                <a class="primary-link" href="#products-section">Mua ngay</a>
+                <button class="secondary-link" type="button" onclick="goToCart()">Xem giỏ hàng</button>
+            </div>
+
+            <div class="hero-notes">
+                <div class="hero-note">
+                    <span class="hero-note-label">Ưu đãi</span>
+                    <strong>Giảm giá cho nhiều sản phẩm nổi bật</strong>
+                </div>
+                <div class="hero-note">
+                    <span class="hero-note-label">Giao hàng</span>
+                    <strong>Đặt hàng nhanh, xử lý đơn tiện lợi</strong>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="story-strip" id="about">
+            <div class="story-card">
+                <p class="section-kicker">Mua sắm online</p>
+                <h2>Giao diện bán hàng hiện đại và dễ sử dụng</h2>
+                <p class="section-copy">
+                    Thiết kế tập trung vào trải nghiệm mua hàng: dễ xem sản phẩm, dễ thêm giỏ hàng và dễ thanh toán.
+                </p>
+            </div>
+
+            <div class="story-stats">
+                <div class="stat-card">
+                    <span>24/7</span>
+                    <p>Hỗ trợ mua sắm trực tuyến</p>
+                </div>
+                <div class="stat-card">
+                    <span>100%</span>
+                    <p>Tích hợp giỏ hàng và thanh toán</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="categories-section" id="categories">
+            <div class="section-head">
+                <p class="section-kicker">Danh mục nổi bật</p>
+                <h2>Mua sắm theo nhu cầu</h2>
+                <p class="section-copy">Chọn nhanh nhóm sản phẩm bạn đang quan tâm.</p>
+            </div>
+
+            <div class="categories-grid">
+                <div class="category-card">Điện tử</div>
+                <div class="category-card">Thời trang</div>
+                <div class="category-card">Gia dụng</div>
+                <div class="category-card">Phụ kiện</div>
+            </div>
+        </section>
+
+        <section class="section-head" id="products-section">
+            <p class="section-kicker">Sản phẩm hôm nay</p>
+            <h2>Sản phẩm nổi bật</h2>
+            <p class="section-copy">
+                Danh sách sản phẩm được tải từ hệ thống backend và hiển thị trực tiếp lên giao diện.
+            </p>
+        </section>
+
+        <section class="products" id="products"></section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

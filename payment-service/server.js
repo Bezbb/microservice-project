@@ -7,7 +7,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect('mongodb://order-db:27017/revo_order_db')
+mongoose.connect('mongodb://payment-db:27017/revo_payment_db')
     .then(() => console.log('Payment Service da ket noi MongoDB'))
     .catch((err) => console.error('Loi ket noi MongoDB cua Payment Service:', err));
 
@@ -29,30 +29,45 @@ app.get('/health', (req, res) => {
 });
 
 app.get('/api/payments', async (req, res) => {
-    const list = await Payment.find();
-    res.json(list);
+    try {
+        const list = await Payment.find();
+        res.json(list);
+    } catch (error) {
+        res.status(500).json({ error: 'Không lấy được danh sách thanh toán.' });
+    }
 });
 
 app.post('/api/payments', async (req, res) => {
-    const { orderId, amount, method } = req.body;
+    try {
+        const { orderId, amount, method } = req.body;
 
-    if (!orderId || !amount || !method) {
-        return res.status(400).json({ error: 'orderId, amount và method là bắt buộc.' });
+        if (!orderId || !amount || !method) {
+            return res.status(400).json({ error: 'orderId, amount và method là bắt buộc.' });
+        }
+
+        const transactionId = `PAY-${Date.now()}`;
+        const payment = new Payment({
+            orderId,
+            amount,
+            method,
+            transactionId,
+            status: 'paid'
+        });
+
+        const savedPayment = await payment.save();
+
+        res.status(201).json({
+            message: 'Thanh toán thành công.',
+            orderId,
+            amount,
+            method,
+            transactionId,
+            status: 'paid',
+            payment: savedPayment
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Không thể tạo thanh toán.' });
     }
-
-    const transactionId = `PAY-${Date.now()}`;
-    const payment = new Payment({ orderId, amount, method, transactionId, status: 'paid' });
-    const savedPayment = await payment.save();
-
-    res.status(201).json({
-        message: 'Thanh toán thành công.',
-        orderId,
-        amount,
-        method,
-        transactionId,
-        status: 'paid',
-        payment: savedPayment
-    });
 });
 
 app.listen(3003, () => {

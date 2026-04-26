@@ -35,8 +35,12 @@ app.post('/api/orders', async (req, res) => {
 });
 
 app.get('/api/orders', async (req, res) => {
-    const danhSach = await Order.find();
-    res.json(danhSach);
+    try {
+        const danhSach = await Order.find();
+        res.json(danhSach);
+    } catch (error) {
+        res.status(500).json({ loi: 'Không thể lấy danh sách đơn hàng.' });
+    }
 });
 
 app.get('/api/orders/:id', async (req, res) => {

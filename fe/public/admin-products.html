@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý sản phẩm | ShopOnline</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <h2>Admin Panel</h2>
+            <ul>
+                <li><a href="/">Trang bán hàng</a></li>
+                <li><a href="admin-products.html" class="active">Quản lý sản phẩm</a></li>
+                <li><a href="cart.html">Giỏ hàng</a></li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            <header class="page-header">
+                <div>
+                    <p class="eyebrow">Product Management</p>
+                    <h1>Quản lý sản phẩm</h1>
+                    <p class="subtext">Thêm, sửa, xoá sản phẩm dễ dàng từ giao diện.</p>
+                </div>
+                <button class="refresh-button" onclick="loadProducts()">Tải lại</button>
+            </header>
+
+            <section class="form-section">
+                <h2 id="form-title">Thêm sản phẩm mới</h2>
+
+                <form id="product-form" class="product-form">
+                    <input type="hidden" id="product-id">
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="ten">Tên sản phẩm</label>
+                            <input type="text" id="ten" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="gia">Giá</label>
+                            <input type="number" id="gia" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="imageFile">Chọn ảnh từ máy</label>
+                            <input type="file" id="imageFile" accept="image/*">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="image">Đường dẫn ảnh</label>
+                            <input type="text" id="image" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="danhMuc">Danh mục</label>
+                            <input type="text" id="danhMuc">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="trangThai">Trạng thái</label>
+                            <select id="trangThai">
+                                <option value="Còn hàng">Còn hàng</option>
+                                <option value="Hết hàng">Hết hàng</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="moTa">Mô tả</label>
+                        <textarea id="moTa" rows="4"></textarea>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>Xem trước ảnh</label>
+                        <img id="preview-image" src="" alt="Preview" style="width: 140px; border-radius: 10px; background: #f3f4f6; padding: 6px;">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="primary-btn">Lưu sản phẩm</button>
+                        <button type="button" class="secondary-btn" onclick="resetForm()">Làm mới form</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="table-section">
+                <div class="table-header">
+                    <h2>Danh sách sản phẩm</h2>
+                    <p id="product-count">0 sản phẩm</p>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ảnh</th>
+                                <th>Tên</th>
+                                <th>Giá</th>
+                                <th>Danh mục</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="product-table-body"></tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="admin-products.js"></script>
+</body>
+</html>

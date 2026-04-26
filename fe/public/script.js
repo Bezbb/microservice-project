@@ -1,9 +1,5 @@
 const API_BASE = 'http://localhost:3000';
 const FALLBACK_IMAGE = 'images/default-drink.svg';
-const FEATURED_BADGES = {
-    'Phin Sữa Đá': 'Best Seller',
-    'Trà Thanh Đào': 'Highlands Pick'
-};
 
 function normalizeCart(rawCart) {
     return (rawCart || []).map((item) => ({
@@ -21,6 +17,44 @@ const currencyFormatter = new Intl.NumberFormat('vi-VN');
 
 function formatCurrency(value) {
     return `${currencyFormatter.format(value)} VND`;
+}
+
+function getToken() {
+    return localStorage.getItem('token');
+}
+
+function getCurrentUser() {
+    const raw = localStorage.getItem('user');
+    return raw ? JSON.parse(raw) : null;
+}
+
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login.html';
+}
+
+function renderAuthUI() {
+    const navLinks = document.querySelector('.nav-links');
+    if (!navLinks) return;
+
+    const user = getCurrentUser();
+    const oldAuthBox = document.getElementById('auth-box');
+    if (oldAuthBox) oldAuthBox.remove();
+
+    const authLi = document.createElement('li');
+    authLi.id = 'auth-box';
+
+    if (user) {
+        authLi.innerHTML = `
+            <span style="color:#fff;font-weight:700;">${user.hoTen} (${user.role})</span>
+            <button class="nav-cart" type="button" onclick="logout()" style="margin-left:10px;">Đăng xuất</button>
+        `;
+    } else {
+        authLi.innerHTML = `<a href="login.html" class="auth-link">Đăng nhập</a>`;
+    }
+
+    navLinks.appendChild(authLi);
 }
 
 function getTotalQuantity() {
@@ -45,7 +79,7 @@ function updateCartCount() {
 
     const cartCountSummary = document.getElementById('cart-count-summary');
     if (cartCountSummary) {
-        cartCountSummary.textContent = `${totalQuantity} món trong giỏ hàng`;
+        cartCountSummary.textContent = `${totalQuantity} sản phẩm trong giỏ hàng`;
     }
 }
 
@@ -54,7 +88,10 @@ function goToCart() {
 }
 
 function getItemImage(item) {
-    return item.image || FALLBACK_IMAGE;
+    if (!item.image) return FALLBACK_IMAGE;
+    if (item.image.startsWith('http')) return item.image;
+    if (item.image.startsWith('/')) return `${API_BASE}${item.image}`;
+    return item.image;
 }
 
 function addToCart(item) {
@@ -84,9 +121,7 @@ function removeItem(index) {
 
 function changeQuantity(index, delta) {
     const item = cart[index];
-    if (!item) {
-        return;
-    }
+    if (!item) return;
 
     item.quantity = Math.max(1, item.quantity + delta);
     saveCart();
@@ -95,11 +130,16 @@ function changeQuantity(index, delta) {
 }
 
 async function createOrdersFromCart() {
+    const token = getToken();
+
     const createdOrders = await Promise.all(
         cart.map((item) =>
             fetch(`${API_BASE}/api/orders`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
                 body: JSON.stringify({
                     sanPhamId: item.id,
                     tenSanPham: item.name,
@@ -110,15 +150,21 @@ async function createOrdersFromCart() {
         )
     );
 
-    const failedOrder = createdOrders.find((order) => order.loi);
+    const failedOrder = createdOrders.find((order) => order.loi || order.error || order.message);
     if (failedOrder) {
-        throw new Error(failedOrder.loi);
+        throw new Error(failedOrder.loi || failedOrder.error || failedOrder.message);
     }
 
     return createdOrders;
 }
 
 async function checkoutCart() {
+    if (!getToken()) {
+        alert('Bạn cần đăng nhập trước khi thanh toán');
+        window.location.href = 'login.html';
+        return;
+    }
+
     if (cart.length === 0) {
         alert('Giỏ hàng đang trống');
         return;
@@ -133,36 +179,17 @@ async function checkoutCart() {
     try {
         const createdOrders = await createOrdersFromCart();
         const totalAmount = getTotalAmount();
-        const orderId = createdOrders[0]?.donHang?._id || createdOrders[0]?._id || '';
+        const orderId = createdOrders[0]?.donHang?._id || createdOrders[0]?._id || `ORDER-${Date.now()}`;
 
-        if (!orderId) {
-            throw new Error('Không lấy được mã đơn hàng để thanh toán');
-        }
+        localStorage.setItem('pendingPayment', JSON.stringify({
+            orderId,
+            amount: totalAmount
+        }));
 
-        const paymentResponse = await fetch(`${API_BASE}/api/payments`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                orderId,
-                amount: totalAmount,
-                method: 'card'
-            })
-        });
-
-        const payment = await paymentResponse.json();
-
-        if (!paymentResponse.ok || payment.error) {
-            throw new Error(payment.error || 'Thanh toán thất bại');
-        }
-
-        cart = [];
-        saveCart();
-        updateCartCount();
-        renderCartPage();
-        alert(`Thanh toán thành công. Mã giao dịch: ${payment.transactionId}`);
+        window.location.href = 'payment.html';
     } catch (error) {
-        console.error('Lỗi thanh toán:', error);
-        alert(`Có lỗi khi thanh toán: ${error.message}`);
+        console.error('Lỗi khi chuyển sang thanh toán:', error);
+        alert(`Có lỗi: ${error.message}`);
     } finally {
         if (checkoutButton) {
             checkoutButton.disabled = false;
@@ -171,34 +198,32 @@ async function checkoutCart() {
     }
 }
 
-function renderProductsPage(drinks) {
+function renderProductsPage(products) {
     const container = document.getElementById('products');
-    if (!container) {
-        return;
-    }
+    if (!container) return;
 
     container.innerHTML = '';
 
-    drinks.forEach((drink) => {
+    products.forEach((product) => {
         const card = document.createElement('article');
-        card.className = 'card product-card';
+        card.className = 'product-card';
 
         const cartItem = {
-            id: drink._id || drink.id,
-            name: drink.ten,
-            price: drink.gia,
-            image: getItemImage(drink)
+            id: product._id || product.id,
+            name: product.ten,
+            price: product.gia,
+            image: product.image
         };
 
         card.innerHTML = `
             <div class="card-media">
-                ${FEATURED_BADGES[drink.ten] ? `<span class="product-badge">${FEATURED_BADGES[drink.ten]}</span>` : ''}
-                <img src="${getItemImage(drink)}" alt="${drink.ten}" loading="lazy">
+                <img src="${getItemImage(product)}" alt="${product.ten}" loading="lazy">
             </div>
             <div class="card-body">
-                <p class="card-eyebrow">Signature Drink</p>
-                <h3>${drink.ten}</h3>
-                <p class="card-price">${formatCurrency(drink.gia)}</p>
+                <p class="card-eyebrow">${product.danhMuc || 'Sản phẩm'}</p>
+                <h3>${product.ten}</h3>
+                <p>${product.moTa || 'Sản phẩm chất lượng, phù hợp nhu cầu mua sắm hằng ngày.'}</p>
+                <p class="card-price">${formatCurrency(product.gia)}</p>
                 <button type="button" class="card-button">Thêm vào giỏ</button>
             </div>
         `;
@@ -215,9 +240,7 @@ function renderProductsPage(drinks) {
 
 function renderCartPage() {
     const container = document.getElementById('cart-items');
-    if (!container) {
-        return;
-    }
+    if (!container) return;
 
     const totalElement = document.getElementById('cart-total');
     const checkoutButton = document.getElementById('checkout-button');
@@ -226,24 +249,17 @@ function renderCartPage() {
         container.innerHTML = `
             <div class="empty-cart">
                 <div class="empty-cart-badge">Giỏ hàng đang trống</div>
-                <h3>Chưa có món nào được chọn</h3>
-                <p>Quay lại menu để thêm cà phê, trà hoặc bạc xỉu vào đơn hàng.</p>
-                <a class="primary-link" href="/">Quay lại menu</a>
+                <h3>Chưa có sản phẩm nào được chọn</h3>
+                <p>Quay lại trang chủ để tiếp tục mua hàng.</p>
+                <a class="primary-link" href="/">Quay lại chọn sản phẩm</a>
             </div>
         `;
-        if (totalElement) {
-            totalElement.textContent = formatCurrency(0);
-        }
-        if (checkoutButton) {
-            checkoutButton.disabled = true;
-        }
+        if (totalElement) totalElement.textContent = formatCurrency(0);
+        if (checkoutButton) checkoutButton.disabled = true;
         return;
     }
 
-    if (checkoutButton) {
-        checkoutButton.disabled = false;
-    }
-
+    if (checkoutButton) checkoutButton.disabled = false;
     container.innerHTML = '';
 
     cart.forEach((item, index) => {
@@ -254,7 +270,7 @@ function renderCartPage() {
             <div class="cart-row-info">
                 <p class="card-eyebrow">Sản phẩm</p>
                 <h3>${item.name}</h3>
-                <p>${formatCurrency(item.price)} / món</p>
+                <p>${formatCurrency(item.price)} / sản phẩm</p>
             </div>
             <div class="cart-row-actions">
                 <div class="quantity-control">
@@ -285,24 +301,22 @@ function renderCartPage() {
 
 async function loadProducts() {
     const container = document.getElementById('products');
-    if (!container) {
-        return;
-    }
+    if (!container) return;
 
-    container.innerHTML = '<div class="loading-card">Đang tải menu từ Product Service...</div>';
+    container.innerHTML = '<div class="loading-card">Đang tải danh sách sản phẩm...</div>';
 
     try {
-        const response = await fetch(`${API_BASE}/api/drinks`, { cache: 'no-store' });
-        const drinks = await response.json();
+        const response = await fetch(`${API_BASE}/api/products`, { cache: 'no-store' });
+        const products = await response.json();
 
-        if (!response.ok || !Array.isArray(drinks)) {
-            throw new Error('Không tải được dữ liệu menu');
+        if (!response.ok || !Array.isArray(products)) {
+            throw new Error('Không tải được dữ liệu sản phẩm');
         }
 
-        renderProductsPage(drinks);
+        renderProductsPage(products);
     } catch (error) {
-        console.error('Lỗi khi nạp menu:', error);
-        container.innerHTML = '<div class="loading-card error-card">Không tải được danh sách đồ uống. Hãy tải lại trang.</div>';
+        console.error('Lỗi khi nạp sản phẩm:', error);
+        container.innerHTML = '<div class="loading-card error-card">Không tải được danh sách sản phẩm. Hãy tải lại trang.</div>';
     }
 }
 
@@ -318,5 +332,7 @@ updateCartCount();
 saveCart();
 loadProducts();
 initCartPage();
+renderAuthUI();
 
 window.goToCart = goToCart;
+window.logout = logout;
