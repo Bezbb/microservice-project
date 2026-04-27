@@ -19,44 +19,6 @@ function formatCurrency(value) {
     return `${currencyFormatter.format(value)} VND`;
 }
 
-function getToken() {
-    return localStorage.getItem('token');
-}
-
-function getCurrentUser() {
-    const raw = localStorage.getItem('user');
-    return raw ? JSON.parse(raw) : null;
-}
-
-function logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = '/login.html';
-}
-
-function renderAuthUI() {
-    const navLinks = document.querySelector('.nav-links');
-    if (!navLinks) return;
-
-    const user = getCurrentUser();
-    const oldAuthBox = document.getElementById('auth-box');
-    if (oldAuthBox) oldAuthBox.remove();
-
-    const authLi = document.createElement('li');
-    authLi.id = 'auth-box';
-
-    if (user) {
-        authLi.innerHTML = `
-            <span style="color:#fff;font-weight:700;">${user.hoTen} (${user.role})</span>
-            <button class="nav-cart" type="button" onclick="logout()" style="margin-left:10px;">Đăng xuất</button>
-        `;
-    } else {
-        authLi.innerHTML = `<a href="login.html" class="auth-link">Đăng nhập</a>`;
-    }
-
-    navLinks.appendChild(authLi);
-}
-
 function getTotalQuantity() {
     return cart.reduce((sum, item) => sum + item.quantity, 0);
 }
@@ -130,15 +92,12 @@ function changeQuantity(index, delta) {
 }
 
 async function createOrdersFromCart() {
-    const token = getToken();
-
     const createdOrders = await Promise.all(
         cart.map((item) =>
             fetch(`${API_BASE}/api/orders`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     sanPhamId: item.id,
@@ -159,12 +118,6 @@ async function createOrdersFromCart() {
 }
 
 async function checkoutCart() {
-    if (!getToken()) {
-        alert('Bạn cần đăng nhập trước khi thanh toán');
-        window.location.href = 'login.html';
-        return;
-    }
-
     if (cart.length === 0) {
         alert('Giỏ hàng đang trống');
         return;
@@ -179,7 +132,11 @@ async function checkoutCart() {
     try {
         const createdOrders = await createOrdersFromCart();
         const totalAmount = getTotalAmount();
-        const orderId = createdOrders[0]?.donHang?._id || createdOrders[0]?._id || `ORDER-${Date.now()}`;
+
+        const orderId =
+            createdOrders[0]?.donHang?._id ||
+            createdOrders[0]?._id ||
+            `ORDER-${Date.now()}`;
 
         localStorage.setItem('pendingPayment', JSON.stringify({
             orderId,
@@ -254,6 +211,7 @@ function renderCartPage() {
                 <a class="primary-link" href="/">Quay lại chọn sản phẩm</a>
             </div>
         `;
+
         if (totalElement) totalElement.textContent = formatCurrency(0);
         if (checkoutButton) checkoutButton.disabled = true;
         return;
@@ -265,6 +223,7 @@ function renderCartPage() {
     cart.forEach((item, index) => {
         const row = document.createElement('article');
         row.className = 'cart-row';
+
         row.innerHTML = `
             <img class="cart-row-image" src="${getItemImage(item)}" alt="${item.name}">
             <div class="cart-row-info">
@@ -291,6 +250,7 @@ function renderCartPage() {
         row.querySelector('[data-action="decrease"]').addEventListener('click', () => changeQuantity(index, -1));
         row.querySelector('[data-action="increase"]').addEventListener('click', () => changeQuantity(index, 1));
         row.querySelector('[data-action="remove"]').addEventListener('click', () => removeItem(index));
+
         container.appendChild(row);
     });
 
@@ -306,7 +266,10 @@ async function loadProducts() {
     container.innerHTML = '<div class="loading-card">Đang tải danh sách sản phẩm...</div>';
 
     try {
-        const response = await fetch(`${API_BASE}/api/products`, { cache: 'no-store' });
+        const response = await fetch(`${API_BASE}/api/products`, {
+            cache: 'no-store'
+        });
+
         const products = await response.json();
 
         if (!response.ok || !Array.isArray(products)) {
@@ -322,9 +285,11 @@ async function loadProducts() {
 
 function initCartPage() {
     const checkoutButton = document.getElementById('checkout-button');
+
     if (checkoutButton) {
         checkoutButton.addEventListener('click', checkoutCart);
     }
+
     renderCartPage();
 }
 
@@ -332,7 +297,5 @@ updateCartCount();
 saveCart();
 loadProducts();
 initCartPage();
-renderAuthUI();
 
 window.goToCart = goToCart;
-window.logout = logout;

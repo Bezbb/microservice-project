@@ -1,14 +1,6 @@
 const API_BASE = 'http://localhost:3000';
 const FALLBACK_IMAGE = 'https://via.placeholder.com/100x100?text=No+Image';
 
-const token = localStorage.getItem('token');
-const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
-
-if (!token || !currentUser || currentUser.role !== 'admin') {
-    alert('Bạn không có quyền truy cập trang quản trị.');
-    window.location.href = '/login.html';
-}
-
 const form = document.getElementById('product-form');
 const tableBody = document.getElementById('product-table-body');
 const productCount = document.getElementById('product-count');
@@ -18,6 +10,13 @@ const previewImage = document.getElementById('preview-image');
 
 function formatCurrency(value) {
     return new Intl.NumberFormat('vi-VN').format(value) + ' VND';
+}
+
+function getImageUrl(image) {
+    if (!image) return FALLBACK_IMAGE;
+    if (image.startsWith('http')) return image;
+    if (image.startsWith('/')) return `${API_BASE}${image}`;
+    return image;
 }
 
 function getStatusBadge(trangThai) {
@@ -46,9 +45,6 @@ imageInput.addEventListener('change', async () => {
     try {
         const res = await fetch(`${API_BASE}/api/upload`, {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
             body: formData
         });
 
@@ -88,7 +84,7 @@ async function loadProducts() {
         tableBody.innerHTML = products.map(product => `
             <tr>
                 <td>
-                    <img src="${product.image ? `${API_BASE}${product.image}` : FALLBACK_IMAGE}" alt="${product.ten}" onerror="this.src='${FALLBACK_IMAGE}'">
+                    <img src="${getImageUrl(product.image)}" alt="${product.ten}" onerror="this.src='${FALLBACK_IMAGE}'">
                 </td>
                 <td>${product.ten}</td>
                 <td>${formatCurrency(product.gia)}</td>
@@ -119,7 +115,7 @@ function editProduct(id) {
     document.getElementById('moTa').value = product.moTa || '';
     document.getElementById('danhMuc').value = product.danhMuc || '';
     document.getElementById('trangThai').value = product.trangThai || 'Còn hàng';
-    previewImage.src = product.image ? `${API_BASE}${product.image}` : '';
+    previewImage.src = getImageUrl(product.image);
 
     formTitle.textContent = 'Cập nhật sản phẩm';
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -131,10 +127,7 @@ async function deleteProduct(id) {
 
     try {
         const response = await fetch(`${API_BASE}/api/products/${id}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
+            method: 'DELETE'
         });
 
         const result = await response.json();
@@ -156,6 +149,7 @@ form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const id = document.getElementById('product-id').value;
+
     const productData = {
         ten: document.getElementById('ten').value.trim(),
         gia: Number(document.getElementById('gia').value),
@@ -171,8 +165,7 @@ form.addEventListener('submit', async (e) => {
             {
                 method: id ? 'PUT' : 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(productData)
             }
@@ -194,6 +187,7 @@ form.addEventListener('submit', async (e) => {
 });
 
 loadProducts();
+
 window.editProduct = editProduct;
 window.deleteProduct = deleteProduct;
 window.resetForm = resetForm;

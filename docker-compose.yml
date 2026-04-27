@@ -38,6 +38,8 @@ services:
       - "3001:3001"
     depends_on:
       - product-db
+    volumes:
+      - product_uploads:/app/public/uploads
     networks:
       - app-network
 
@@ -61,14 +63,6 @@ services:
     networks:
       - app-network
 
-  user-service:
-    build: ./user-service
-    container_name: user-service
-    ports:
-      - "3005:3005"
-    networks:
-      - app-network
-
   fe:
     build: ./fe
     container_name: fe
@@ -88,7 +82,6 @@ services:
       - product-service
       - order-service
       - payment-service
-      - user-service
     networks:
       - app-network
 
@@ -96,6 +89,7 @@ volumes:
   product_data:
   order_data:
   payment_data:
+  product_uploads:
 
 networks:
   app-network:

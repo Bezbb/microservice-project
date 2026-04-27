@@ -39,50 +39,6 @@ const productSchema = new mongoose.Schema({
 }, { collection: 'products' });
 
 const Product = mongoose.model('Product', productSchema);
-
-const duLieuMau = [
-    {
-        ten: 'Bàn phím cơ Gaming RGB',
-        gia: 750000,
-        image: 'https://via.placeholder.com/300x200?text=Ban+Phim+Co',
-        moTa: 'Bàn phím cơ RGB, switch êm, phù hợp chơi game và làm việc.',
-        danhMuc: 'Phụ kiện máy tính',
-        trangThai: 'Còn hàng'
-    },
-    {
-        ten: 'Chuột không dây Logitech',
-        gia: 320000,
-        image: 'https://via.placeholder.com/300x200?text=Chuot+Khong+Day',
-        moTa: 'Chuột không dây thiết kế gọn nhẹ, pin lâu.',
-        danhMuc: 'Phụ kiện máy tính',
-        trangThai: 'Còn hàng'
-    },
-    {
-        ten: 'Tai nghe Bluetooth Sony',
-        gia: 1250000,
-        image: 'https://via.placeholder.com/300x200?text=Tai+Nghe+Bluetooth',
-        moTa: 'Tai nghe âm thanh rõ nét, chống ồn tốt.',
-        danhMuc: 'Âm thanh',
-        trangThai: 'Còn hàng'
-    },
-    {
-        ten: 'Loa mini Bluetooth',
-        gia: 450000,
-        image: 'https://via.placeholder.com/300x200?text=Loa+Mini',
-        moTa: 'Loa mini kết nối nhanh, âm thanh sống động.',
-        danhMuc: 'Âm thanh',
-        trangThai: 'Còn hàng'
-    },
-    {
-        ten: 'Màn hình LG 24 inch',
-        gia: 2890000,
-        image: 'https://via.placeholder.com/300x200?text=Man+Hinh+LG',
-        moTa: 'Màn hình Full HD, màu sắc đẹp, phù hợp học tập và văn phòng.',
-        danhMuc: 'Màn hình',
-        trangThai: 'Còn hàng'
-    }
-];
-
 const seedProducts = async () => {
     const count = await Product.countDocuments();
     if (count === 0) {

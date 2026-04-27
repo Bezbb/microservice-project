@@ -69,7 +69,6 @@
     <script>
         const API_BASE = 'http://localhost:3000';
         const paymentData = JSON.parse(localStorage.getItem('pendingPayment')) || null;
-        const token = localStorage.getItem('token');
 
         const orderIdEl = document.getElementById('order-id');
         const amountEl = document.getElementById('payment-amount');
@@ -79,11 +78,6 @@
 
         function formatCurrency(value) {
             return new Intl.NumberFormat('vi-VN').format(value) + ' VND';
-        }
-
-        if (!token) {
-            alert('Bạn cần đăng nhập trước khi thanh toán.');
-            window.location.href = 'login.html';
         }
 
         if (!paymentData) {
@@ -107,8 +101,7 @@
                 const response = await fetch(`${API_BASE}/api/payments`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
                         orderId: paymentData.orderId,
@@ -127,11 +120,12 @@
                 localStorage.removeItem('cart');
 
                 messageEl.style.color = 'green';
-                messageEl.textContent = `Thanh toán thành công. Mã giao dịch: ${result.transactionId}`;
+                messageEl.textContent = `Thanh toán thành công. Mã giao dịch: ${result.transactionId || 'OK'}`;
 
                 setTimeout(() => {
                     window.location.href = '/';
                 }, 1500);
+
             } catch (error) {
                 messageEl.style.color = '#b91c1c';
                 messageEl.textContent = error.message;
