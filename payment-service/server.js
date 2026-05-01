@@ -22,7 +22,11 @@ const Payment = mongoose.model('Payment', new mongoose.Schema({
 }));
 
 async function fetchOrder(orderId) {
-    const response = await fetch(`${ORDER_SERVICE_URL}/api/orders/${orderId}`);
+    const response = await fetch(`${ORDER_SERVICE_URL}/api/orders/${orderId}`, {
+        headers: {
+            'x-internal-service': 'payment-service'
+        }
+    });
     const result = await response.json();
 
     if (!response.ok) {
@@ -38,7 +42,8 @@ async function markOrderAsPaid(orderId, payload) {
     const response = await fetch(`${ORDER_SERVICE_URL}/api/orders/${orderId}/status`, {
         method: 'PATCH',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'x-internal-service': 'payment-service'
         },
         body: JSON.stringify(payload)
     });

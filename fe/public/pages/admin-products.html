@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản trị hệ thống | ShopOnline</title>
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+<body data-requires-admin="true">
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <div id="sidebar-user-info" class="sidebar-user-card"></div>
+
+            <h2>Admin Panel</h2>
+            <ul>
+                <li><a href="/admin-products.html" class="active">Tổng quan</a></li>
+                <li><a href="#product-management">Sản phẩm</a></li>
+                <li><a href="#user-management">Người dùng</a></li>
+                <li><a href="/">Trang bán hàng</a></li>
+                <li><a href="/account.html">Tài khoản của tôi</a></li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            <header class="page-header">
+                <div>
+                    <p class="eyebrow">System Administration</p>
+                    <h1>Quản trị sản phẩm, người dùng và đơn hàng</h1>
+                    <p class="subtext">Theo dõi toàn bộ cửa hàng từ một màn hình: cập nhật catalog, phân quyền tài khoản và xem lịch sử đơn hàng theo từng người dùng.</p>
+                </div>
+                <div class="header-actions">
+                    <button class="refresh-button" type="button" id="refresh-admin-button">Tải toàn bộ dữ liệu</button>
+                </div>
+            </header>
+
+            <section class="admin-overview">
+                <article class="overview-card">
+                    <span class="overview-label">Tổng sản phẩm</span>
+                    <strong class="overview-value" id="overview-products">0</strong>
+                    <p class="overview-meta">Sản phẩm đang quản lý trong catalog</p>
+                </article>
+                <article class="overview-card">
+                    <span class="overview-label">Người dùng</span>
+                    <strong class="overview-value" id="overview-users">0</strong>
+                    <p class="overview-meta" id="overview-admins">0 admin, 0 khách hàng</p>
+                </article>
+                <article class="overview-card">
+                    <span class="overview-label">Đơn hàng</span>
+                    <strong class="overview-value" id="overview-orders">0</strong>
+                    <p class="overview-meta" id="overview-paid-orders">0 đơn đã thanh toán</p>
+                </article>
+                <article class="overview-card">
+                    <span class="overview-label">Doanh thu đã thu</span>
+                    <strong class="overview-value" id="overview-revenue">0 VND</strong>
+                    <p class="overview-meta">Tính trên các đơn đã thanh toán</p>
+                </article>
+            </section>
+
+            <section class="form-section" id="product-management">
+                <div class="section-shell-head">
+                    <div>
+                        <p class="card-eyebrow">Sản phẩm</p>
+                        <h2 id="form-title">Thêm sản phẩm mới</h2>
+                    </div>
+                </div>
+
+                <form id="product-form" class="product-form">
+                    <input type="hidden" id="product-id">
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="ten">Tên sản phẩm</label>
+                            <input type="text" id="ten" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="gia">Giá</label>
+                            <input type="number" id="gia" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="imageFile">Chọn ảnh từ máy</label>
+                            <input type="file" id="imageFile" accept="image/*">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="image">Đường dẫn ảnh</label>
+                            <input type="text" id="image" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="danhMuc">Danh mục</label>
+                            <input type="text" id="danhMuc">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="trangThai">Trạng thái</label>
+                            <select id="trangThai">
+                                <option value="Còn hàng">Còn hàng</option>
+                                <option value="Hết hàng">Hết hàng</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="moTa">Mô tả</label>
+                        <textarea id="moTa" rows="4"></textarea>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>Xem trước ảnh</label>
+                        <img id="preview-image" src="" alt="Preview" class="preview-image">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="primary-btn">Lưu sản phẩm</button>
+                        <button type="button" class="secondary-btn" id="reset-product-form-button">Làm mới form</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="table-section">
+                <div class="table-header">
+                    <div>
+                        <p class="card-eyebrow">Catalog</p>
+                        <h2>Danh sách sản phẩm</h2>
+                    </div>
+                    <div class="table-actions">
+                        <p id="product-count">0 sản phẩm</p>
+                        <button class="refresh-button" type="button" id="refresh-products-button">Tải lại sản phẩm</button>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ảnh</th>
+                                <th>Tên</th>
+                                <th>Giá</th>
+                                <th>Danh mục</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="product-table-body"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="table-section" id="user-management">
+                <div class="table-header admin-user-header">
+                    <div>
+                        <p class="card-eyebrow">Người dùng</p>
+                        <h2>Quản lý tài khoản và lịch sử đơn</h2>
+                    </div>
+                    <div class="table-actions user-table-actions">
+                        <input type="search" id="user-search-input" class="admin-search-input" placeholder="Tìm theo tên hoặc email">
+                        <select id="user-role-filter" class="admin-select">
+                            <option value="all">Tất cả vai trò</option>
+                            <option value="admin">Admin</option>
+                            <option value="customer">Khách hàng</option>
+                        </select>
+                        <button class="refresh-button" type="button" id="refresh-users-button">Tải lại người dùng</button>
+                    </div>
+                </div>
+
+                <p id="user-management-message" class="account-message"></p>
+
+                <div class="users-layout">
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Họ tên</th>
+                                    <th>Email</th>
+                                    <th>Vai trò</th>
+                                    <th>Ngày tạo</th>
+                                    <th>Đăng nhập gần nhất</th>
+                                    <th>Đơn hàng</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="user-table-body"></tbody>
+                        </table>
+                    </div>
+
+                    <aside class="account-card user-detail-card">
+                        <div class="account-card-head">
+                            <div>
+                                <p class="card-eyebrow">Chi tiết người dùng</p>
+                                <h3 id="selected-user-heading">Chưa chọn tài khoản</h3>
+                            </div>
+                            <button type="button" class="secondary-btn" id="clear-user-selection">Bỏ chọn</button>
+                        </div>
+
+                        <div id="selected-user-empty" class="empty-account-state">
+                            <div class="empty-cart-badge">Chưa có người dùng được chọn</div>
+                            <h3>Chọn một tài khoản để quản lý</h3>
+                            <p>Bạn có thể sửa họ tên, thay đổi vai trò hoặc xem toàn bộ đơn hàng mà tài khoản đó đã đặt.</p>
+                        </div>
+
+                        <div id="selected-user-content" hidden>
+                            <form id="user-editor-form" class="product-form user-editor-form">
+                                <input type="hidden" id="selected-user-id">
+
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="selected-user-full-name">Họ và tên</label>
+                                        <input type="text" id="selected-user-full-name" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="selected-user-role">Vai trò</label>
+                                        <select id="selected-user-role">
+                                            <option value="customer">Khách hàng</option>
+                                            <option value="admin">Admin</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="selected-user-email">Email</label>
+                                        <input type="text" id="selected-user-email" readonly>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="selected-user-created-at">Ngày tạo</label>
+                                        <input type="text" id="selected-user-created-at" readonly>
+                                    </div>
+                                </div>
+
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="selected-user-last-login">Đăng nhập gần nhất</label>
+                                        <input type="text" id="selected-user-last-login" readonly>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Ghi chú</label>
+                                        <p class="supporting-copy">Xóa tài khoản sẽ không xóa lịch sử đơn hàng đã được lưu trong order-service.</p>
+                                    </div>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button type="submit" class="primary-btn" id="save-user-button">Lưu thay đổi</button>
+                                    <button type="button" class="delete-btn" id="delete-user-button">Xóa người dùng</button>
+                                </div>
+                            </form>
+
+                            <div class="user-order-stats">
+                                <div class="account-stat">
+                                    <span>Tổng đơn</span>
+                                    <strong id="selected-user-total-orders">0</strong>
+                                </div>
+                                <div class="account-stat">
+                                    <span>Chờ thanh toán</span>
+                                    <strong id="selected-user-pending-orders">0</strong>
+                                </div>
+                                <div class="account-stat">
+                                    <span>Đã thanh toán</span>
+                                    <strong id="selected-user-paid-orders">0</strong>
+                                </div>
+                                <div class="account-stat">
+                                    <span>Tổng chi tiêu</span>
+                                    <strong id="selected-user-total-spent">0 VND</strong>
+                                </div>
+                            </div>
+
+                            <div class="user-orders-head">
+                                <div>
+                                    <p class="card-eyebrow">Lịch sử đặt hàng</p>
+                                    <h3>Đơn hàng của tài khoản này</h3>
+                                </div>
+                                <p id="selected-user-orders-caption" class="supporting-copy">0 đơn hàng</p>
+                            </div>
+
+                            <div id="selected-user-orders" class="orders-list"></div>
+                        </div>
+                    </aside>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/admin-products.js"></script>
+</body>
+</html>

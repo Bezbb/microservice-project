@@ -8,6 +8,7 @@ const PORT = 3005;
 const DEFAULT_ADMIN_EMAIL = process.env.DEFAULT_ADMIN_EMAIL || 'admin@shoponline.local';
 const DEFAULT_ADMIN_PASSWORD = process.env.DEFAULT_ADMIN_PASSWORD || 'Admin@123';
 const DEFAULT_ADMIN_NAME = process.env.DEFAULT_ADMIN_NAME || 'Shop Admin';
+const ALLOWED_USER_ROLES = new Set(['customer', 'admin']);
 const MONGODB_URIS = [
     process.env.USER_MONGODB_URI,
     process.env.MONGODB_URI,
@@ -55,8 +56,13 @@ function sanitizeUser(user) {
         fullName: user.fullName,
         email: user.email,
         role: user.role,
+        lastLoginAt: user.lastLoginAt || null,
         createdAt: user.createdAt
     };
+}
+
+function escapeRegex(value) {
+    return String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function hashPassword(password, salt = crypto.randomBytes(16).toString('hex')) {
@@ -135,6 +141,14 @@ async function requireAuth(req, res, next) {
     }
 }
 
+function requireAdmin(req, res, next) {
+    if (req.authUser?.role !== 'admin') {
+        return res.status(403).json({ error: 'Chi admin moi duoc phep truy cap.' });
+    }
+
+    return next();
+}
+
 function ensureDatabaseReady(req, res, next) {
     if (!isDatabaseReady()) {
         return res.status(503).json({ error: 'User service chua ket noi database.' });
@@ -169,6 +183,7 @@ mongoose.connection.on('disconnected', () => {
 });
 
 app.use('/api/auth', ensureDatabaseReady);
+app.use('/api/users', ensureDatabaseReady, requireAuth, requireAdmin);
 
 app.post('/api/auth/register', async (req, res) => {
     try {
@@ -262,6 +277,125 @@ app.post('/api/auth/logout', requireAuth, async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Không thể đăng xuất.' });
+    }
+});
+
+app.get('/api/users', async (req, res) => {
+    try {
+        const search = String(req.query.search || '').trim();
+        const role = String(req.query.role || '').trim().toLowerCase();
+        const filters = {};
+
+        if (ALLOWED_USER_ROLES.has(role)) {
+            filters.role = role;
+        }
+
+        if (search) {
+            const searchRegex = new RegExp(escapeRegex(search), 'i');
+            filters.$or = [
+                { fullName: searchRegex },
+                { email: searchRegex }
+            ];
+        }
+
+        const users = await User.find(filters).sort({ createdAt: -1 });
+        res.json(users.map((user) => sanitizeUser(user)));
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Khong the lay danh sach nguoi dung.' });
+    }
+});
+
+app.patch('/api/users/:id', async (req, res) => {
+    try {
+        const fullName = req.body.fullName === undefined ? undefined : String(req.body.fullName || '').trim();
+        const role = req.body.role === undefined ? undefined : String(req.body.role || '').trim().toLowerCase();
+        const updates = {};
+
+        if (fullName !== undefined) {
+            if (!fullName) {
+                return res.status(400).json({ error: 'Ho ten nguoi dung khong duoc de trong.' });
+            }
+
+            updates.fullName = fullName;
+        }
+
+        if (role !== undefined) {
+            if (!ALLOWED_USER_ROLES.has(role)) {
+                return res.status(400).json({ error: 'Vai tro nguoi dung khong hop le.' });
+            }
+
+            updates.role = role;
+        }
+
+        if (!Object.keys(updates).length) {
+            return res.status(400).json({ error: 'Khong co thay doi hop le de cap nhat.' });
+        }
+
+        const user = await User.findById(req.params.id);
+
+        if (!user) {
+            return res.status(404).json({ error: 'Khong tim thay nguoi dung.' });
+        }
+
+        const isSelf = String(user._id) === String(req.authUser._id);
+        const isChangingAdminRole = user.role === 'admin' && updates.role && updates.role !== 'admin';
+
+        if (isSelf && updates.role && updates.role !== 'admin') {
+            return res.status(400).json({ error: 'Ban khong the tu ha quyen admin cua chinh minh.' });
+        }
+
+        if (isChangingAdminRole) {
+            const adminCount = await User.countDocuments({ role: 'admin' });
+
+            if (adminCount <= 1) {
+                return res.status(400).json({ error: 'Khong the thay doi vai tro cua admin cuoi cung.' });
+            }
+        }
+
+        Object.assign(user, updates);
+        await user.save();
+
+        res.json({
+            message: 'Cap nhat nguoi dung thanh cong.',
+            user: sanitizeUser(user)
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(400).json({ error: 'Khong the cap nhat nguoi dung.' });
+    }
+});
+
+app.delete('/api/users/:id', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+
+        if (!user) {
+            return res.status(404).json({ error: 'Khong tim thay nguoi dung.' });
+        }
+
+        if (String(user._id) === String(req.authUser._id)) {
+            return res.status(400).json({ error: 'Ban khong the xoa chinh tai khoan admin dang dang nhap.' });
+        }
+
+        if (user.role === 'admin') {
+            const adminCount = await User.countDocuments({ role: 'admin' });
+
+            if (adminCount <= 1) {
+                return res.status(400).json({ error: 'Khong the xoa admin cuoi cung cua he thong.' });
+            }
+        }
+
+        const deletedUser = sanitizeUser(user);
+        await user.deleteOne();
+
+        res.json({
+            message: 'Xoa nguoi dung thanh cong.',
+            user: deletedUser
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(400).json({ error: 'Khong the xoa nguoi dung.' });
     }
 });
 

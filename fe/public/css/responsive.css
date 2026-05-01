@@ -1,0 +1,159 @@
+@media (max-width: 980px) {
+    .account-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .order-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .account-page {
+        width: calc(100% - 18px);
+    }
+
+    .account-card,
+    .order-card {
+        padding: 20px;
+    }
+
+    .account-card-head,
+    .order-card-head,
+    .order-item-row {
+        flex-direction: column;
+    }
+
+    .order-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 1100px) {
+    .story-strip,
+    .cart-layout,
+    .admin-layout,
+    .auth-shell {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-overview,
+    .users-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .story-strip {
+        margin-top: -42px;
+    }
+
+    .summary-card,
+    .sidebar,
+    .user-detail-card {
+        position: static;
+    }
+
+    .sidebar {
+        min-height: auto;
+    }
+}
+
+@media (max-width: 900px) {
+    .topbar {
+        border-radius: 28px;
+        padding: 16px 18px;
+    }
+
+    .hero {
+        padding: 68px 26px 54px;
+        border-radius: 32px;
+    }
+
+    .hero::after {
+        width: 180px;
+        height: 180px;
+        right: 28px;
+        top: 28px;
+    }
+
+    .form-grid,
+    .payment-form-grid,
+    .page-header,
+    .form-actions,
+    .auth-metrics,
+    .user-orders-head {
+        grid-template-columns: 1fr;
+        flex-direction: column;
+    }
+
+    .admin-overview,
+    .user-order-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .topbar {
+        top: 10px;
+        width: calc(100% - 18px);
+        margin-top: 10px;
+        flex-direction: column;
+        align-items: flex-start;
+        border-radius: 26px;
+    }
+
+    .nav-links {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .hero {
+        min-height: auto;
+        padding: 62px 22px 44px;
+    }
+
+    .hero h1 {
+        max-width: none;
+    }
+
+    main,
+    .cart-page,
+    .admin-layout {
+        width: calc(100% - 18px);
+    }
+
+    .cart-row {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .cart-row-image {
+        margin: 0 auto;
+    }
+
+    .cart-row-actions {
+        text-align: center;
+    }
+
+    .summary-row,
+    .checkout-item-row {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .table-actions,
+    .user-table-actions {
+        width: 100%;
+    }
+
+    .admin-search-input,
+    .admin-select {
+        width: 100%;
+    }
+}
+
+@media (max-width: 560px) {
+    .admin-overview,
+    .user-order-stats {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,5 +1,5 @@
 const API_BASE = 'http://localhost:3000';
-const FALLBACK_IMAGE = 'images/default-product.svg';
+const FALLBACK_IMAGE = '/images/default-product.svg';
 const CART_STORAGE_KEY = 'cart';
 const CHECKOUT_STORAGE_KEY = 'pendingCheckout';
 const LEGACY_PAYMENT_STORAGE_KEY = 'pendingPayment';
@@ -53,7 +53,7 @@ function updateCartCount() {
 }
 
 function goToCart() {
-    window.location.href = 'cart.html';
+    window.location.href = '/cart.html';
 }
 
 function isAuthenticatedUser() {
@@ -66,7 +66,7 @@ function redirectToLogin() {
         return;
     }
 
-    window.location.href = 'login.html';
+    window.location.href = '/login.html';
 }
 
 function requireAuthentication(message) {
@@ -255,7 +255,7 @@ async function checkoutCart() {
         localStorage.setItem(CHECKOUT_STORAGE_KEY, JSON.stringify(checkoutData));
         localStorage.removeItem(LEGACY_PAYMENT_STORAGE_KEY);
 
-        window.location.href = 'payment.html';
+        window.location.href = '/payment.html';
     } catch (error) {
         console.error('Lỗi khi chuyển sang thanh toán:', error);
         alert(`Có lỗi: ${error.message}`);

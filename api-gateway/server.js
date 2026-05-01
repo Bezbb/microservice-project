@@ -34,7 +34,7 @@ async function requireAuthenticatedUser(req, res, next) {
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {
-        return res.status(401).json({ error: 'Vui lòng đăng nhập để tiếp tục.' });
+        return res.status(401).json({ error: 'Vui long dang nhap de tiep tuc.' });
     }
 
     try {
@@ -42,7 +42,7 @@ async function requireAuthenticatedUser(req, res, next) {
 
         if (!authResult.ok || !authResult.user) {
             return res.status(authResult.status || 401).json({
-                error: authResult.error || 'Phiên đăng nhập không hợp lệ.'
+                error: authResult.error || 'Phien dang nhap khong hop le.'
             });
         }
 
@@ -50,26 +50,20 @@ async function requireAuthenticatedUser(req, res, next) {
         return next();
     } catch (error) {
         console.error('Loi xac thuc tai khoan:', error);
-        return res.status(502).json({ error: 'Không thể xác thực tài khoản.' });
+        return res.status(502).json({ error: 'Khong the xac thuc tai khoan.' });
     }
 }
 
 async function requireAdmin(req, res, next) {
-    try {
-        await requireAuthenticatedUser(req, res, () => {
-            if (req.currentUser?.role !== 'admin') {
-                res.status(403).json({
-                    error: 'Chỉ admin mới được thực hiện thao tác này.'
-                });
-                return;
-            }
+    return requireAuthenticatedUser(req, res, () => {
+        if (req.currentUser?.role !== 'admin') {
+            return res.status(403).json({
+                error: 'Chi admin moi duoc thuc hien thao tac nay.'
+            });
+        }
 
-            next();
-        });
-    } catch (error) {
-        console.error('Loi xac thuc admin:', error);
-        res.status(502).json({ error: 'Không thể xác thực tài khoản admin.' });
-    }
+        return next();
+    });
 }
 
 function requireAuthenticatedForMutations(req, res, next) {
@@ -86,6 +80,29 @@ function requireAdminForMutations(req, res, next) {
     }
 
     return requireAdmin(req, res, next);
+}
+
+function requireOrderAccess(req, res, next) {
+    if (req.path === '/my' || req.path.startsWith('/my/')) {
+        return requireAuthenticatedUser(req, res, next);
+    }
+
+    if (req.method === 'POST') {
+        return requireAuthenticatedUser(req, res, next);
+    }
+
+    return requireAdmin(req, res, next);
+}
+
+function applyCurrentUserHeaders(proxyReq, req) {
+    if (!req.currentUser) {
+        return;
+    }
+
+    proxyReq.setHeader('x-user-id', req.currentUser.id || '');
+    proxyReq.setHeader('x-user-email', req.currentUser.email || '');
+    proxyReq.setHeader('x-user-full-name', req.currentUser.fullName || '');
+    proxyReq.setHeader('x-user-role', req.currentUser.role || 'customer');
 }
 
 const uploadProxy = createProxyMiddleware({
@@ -109,7 +126,12 @@ const productProxy = createProxyMiddleware({
 const orderProxy = createProxyMiddleware({
     target: 'http://order-service:3002',
     changeOrigin: true,
-    pathRewrite: (path) => `/api/orders${path}`
+    pathRewrite: (path) => `/api/orders${path}`,
+    on: {
+        proxyReq(proxyReq, req) {
+            applyCurrentUserHeaders(proxyReq, req);
+        }
+    }
 });
 
 const paymentProxy = createProxyMiddleware({
@@ -124,11 +146,18 @@ const authProxy = createProxyMiddleware({
     pathRewrite: (path) => `/api/auth${path}`
 });
 
+const userProxy = createProxyMiddleware({
+    target: USER_SERVICE_URL,
+    changeOrigin: true,
+    pathRewrite: (path) => `/api/users${path}`
+});
+
 app.use('/uploads', uploadsStaticProxy);
 app.use('/api/auth', authProxy);
+app.use('/api/users', requireAdmin, userProxy);
 app.use('/api/products', requireAdminForMutations, productProxy);
 app.use('/api/upload', requireAdminForMutations, uploadProxy);
-app.use('/api/orders', requireAuthenticatedForMutations, orderProxy);
+app.use('/api/orders', requireOrderAccess, orderProxy);
 app.use('/api/payments', requireAuthenticatedForMutations, paymentProxy);
 
 app.listen(port, () => {

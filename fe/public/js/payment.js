@@ -86,7 +86,7 @@ function ensureAuthenticatedCheckout() {
     if (window.Auth && typeof window.Auth.redirectToLogin === 'function') {
         window.Auth.redirectToLogin();
     } else {
-        window.location.href = 'login.html';
+        window.location.href = '/login.html';
     }
 
     return false;

@@ -39,7 +39,9 @@
     function getCurrentRelativePath() {
         const pathname = window.location.pathname;
         const fileName = pathname.endsWith('/') ? '/' : pathname.split('/').pop();
-        const normalizedPath = !fileName || fileName === 'index.html' ? '/' : fileName;
+        const normalizedPath = !fileName || fileName === 'index.html' || fileName === '/'
+            ? '/'
+            : `/${fileName}`;
         return `${normalizedPath}${window.location.search || ''}${window.location.hash || ''}`;
     }
 
@@ -47,18 +49,34 @@
         return /(^|\/)(login|register)\.html/i.test(path || '');
     }
 
+    function normalizeAppPath(path, defaultUrl = '/') {
+        if (!path) {
+            return defaultUrl;
+        }
+
+        if (/^https?:\/\//i.test(path)) {
+            return defaultUrl;
+        }
+
+        if (path.startsWith('/')) {
+            return path;
+        }
+
+        return `/${path.replace(/^\.?\//, '')}`;
+    }
+
     function getNextUrl(defaultUrl = '/') {
         const next = new URLSearchParams(window.location.search).get('next');
         if (!next || isAuthPagePath(next)) {
-            return defaultUrl;
+            return normalizeAppPath(defaultUrl);
         }
-        return next;
+        return normalizeAppPath(next, normalizeAppPath(defaultUrl));
     }
 
     function buildAuthHref(pageName) {
         const rawCurrentPath = getCurrentRelativePath();
         const currentPath = encodeURIComponent(isAuthPagePath(rawCurrentPath) ? '/' : rawCurrentPath);
-        return `${pageName}.html?next=${currentPath}`;
+        return `/${pageName}.html?next=${currentPath}`;
     }
 
     function renderAuthUi() {
@@ -159,6 +177,7 @@
 
         authSlot.innerHTML = `
             <div class="auth-actions">
+                <a class="auth-link auth-secondary" href="/account.html">Tài khoản</a>
                 <span class="auth-user-badge ${user.role === 'admin' ? 'is-admin' : ''}">
                     <span>${escapeHtml(user.fullName)}</span>
                     <small>${user.role === 'admin' ? 'admin' : 'user'}</small>
@@ -185,7 +204,7 @@
             return;
         }
 
-        adminSlot.innerHTML = isAdmin() ? '<a href="admin-products.html">Quản trị</a>' : '';
+        adminSlot.innerHTML = isAdmin() ? '<a href="/admin-products.html">Quản trị</a>' : '';
     }
 
     function renderSidebarUser() {
@@ -223,11 +242,11 @@
     function redirectToLogin() {
         const next = encodeURIComponent(getCurrentRelativePath());
         window.__AUTH_REDIRECTING__ = true;
-        window.location.replace(`login.html?next=${next}`);
+        window.location.replace(`/login.html?next=${next}`);
     }
 
     function redirectAuthenticatedUser() {
-        const fallbackUrl = isAdmin() ? 'admin-products.html' : '/';
+        const fallbackUrl = isAdmin() ? '/admin-products.html' : '/';
         window.location.replace(getNextUrl(fallbackUrl));
     }
 

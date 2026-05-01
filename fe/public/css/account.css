@@ -1,0 +1,233 @@
+.account-page {
+    width: min(1180px, calc(100% - 48px));
+    margin: 0 auto 72px;
+}
+
+.account-layout {
+    display: grid;
+    grid-template-columns: 320px minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.account-sidebar,
+.account-content {
+    display: grid;
+    gap: 24px;
+}
+
+.account-card {
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(28, 40, 58, 0.08);
+    border-radius: 28px;
+    box-shadow: 0 26px 60px rgba(17, 34, 68, 0.08);
+    padding: 28px;
+}
+
+.account-card h3 {
+    margin: 0;
+}
+
+.account-card-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.profile-card {
+    gap: 18px;
+}
+
+.account-email {
+    margin: 8px 0 0;
+    color: rgba(28, 40, 58, 0.72);
+}
+
+.account-meta {
+    margin-top: 22px;
+    display: grid;
+    gap: 12px;
+}
+
+.account-meta-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(28, 40, 58, 0.08);
+    color: rgba(28, 40, 58, 0.78);
+}
+
+.account-meta-row strong {
+    color: #102033;
+}
+
+.account-stats {
+    display: grid;
+    gap: 14px;
+    margin-top: 16px;
+}
+
+.account-stat {
+    padding: 16px 18px;
+    border-radius: 22px;
+    background: linear-gradient(145deg, rgba(247, 250, 255, 0.95), rgba(235, 242, 251, 0.92));
+    border: 1px solid rgba(28, 40, 58, 0.06);
+}
+
+.account-stat span {
+    display: block;
+    color: rgba(28, 40, 58, 0.64);
+    font-size: 0.92rem;
+}
+
+.account-stat strong {
+    display: block;
+    margin-top: 8px;
+    font-size: 1.2rem;
+    color: #102033;
+}
+
+.account-message {
+    margin: 0 0 18px;
+    min-height: 24px;
+    color: rgba(28, 40, 58, 0.74);
+}
+
+.account-message.is-loading {
+    color: #385f91;
+}
+
+.account-message.is-success {
+    color: #157347;
+}
+
+.account-message.is-error {
+    color: #c0392b;
+}
+
+.orders-list {
+    display: grid;
+    gap: 18px;
+}
+
+.order-card {
+    padding: 22px;
+    border-radius: 24px;
+    border: 1px solid rgba(28, 40, 58, 0.08);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(246, 249, 253, 0.94));
+}
+
+.order-card-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.order-card-head h3 {
+    font-size: 1rem;
+    word-break: break-all;
+}
+
+.account-status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 0.84rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.account-status-badge.is-paid {
+    color: #126a45;
+    background: rgba(18, 106, 69, 0.12);
+}
+
+.account-status-badge.is-pending {
+    color: #9a5a00;
+    background: rgba(244, 168, 46, 0.16);
+}
+
+.order-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 18px;
+}
+
+.order-block {
+    padding: 14px 16px;
+    border-radius: 20px;
+    background: rgba(242, 246, 250, 0.88);
+}
+
+.order-block span {
+    display: block;
+    color: rgba(28, 40, 58, 0.64);
+    font-size: 0.88rem;
+}
+
+.order-block strong {
+    display: block;
+    margin-top: 8px;
+    color: #102033;
+}
+
+.order-section {
+    margin-top: 20px;
+}
+
+.order-section-title {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(28, 40, 58, 0.56);
+}
+
+.order-section p {
+    margin: 4px 0;
+}
+
+.order-items-list {
+    display: grid;
+    gap: 10px;
+}
+
+.order-item-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 14px 0;
+    border-top: 1px solid rgba(28, 40, 58, 0.08);
+}
+
+.order-item-row:first-child {
+    border-top: none;
+    padding-top: 0;
+}
+
+.order-item-name {
+    margin: 0;
+    font-weight: 700;
+    color: #102033;
+}
+
+.order-item-meta {
+    margin: 4px 0 0;
+    color: rgba(28, 40, 58, 0.64);
+}
+
+.empty-account-state {
+    text-align: center;
+    display: grid;
+    gap: 14px;
+    justify-items: center;
+    padding: 24px 12px;
+}

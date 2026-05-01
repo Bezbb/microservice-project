@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tài khoản | ShopOnline</title>
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+<body data-requires-auth="true">
+    <nav class="topbar">
+        <div class="brand-wrap">
+            <a class="logo" href="/">ShopOnline</a>
+            <p class="tagline">Mua sắm tiện lợi, giao hàng nhanh</p>
+        </div>
+
+        <ul class="nav-links">
+            <li><a href="/">Trang chủ</a></li>
+            <li><a href="/cart.html">Giỏ hàng</a></li>
+            <li id="admin-link-slot"></li>
+            <li id="auth-nav-slot" class="auth-slot"></li>
+        </ul>
+    </nav>
+
+    <main class="account-page">
+        <section class="section-head">
+            <p class="section-kicker">Tài khoản của tôi</p>
+            <h2>Theo dõi hồ sơ và đơn hàng đã đặt</h2>
+            <p class="section-copy">Trang này tổng hợp thông tin tài khoản đang đăng nhập và lịch sử các đơn hàng do chính tài khoản đó tạo ra.</p>
+        </section>
+
+        <section class="account-layout">
+            <aside class="account-sidebar">
+                <article class="account-card profile-card">
+                    <p class="card-eyebrow">Hồ sơ</p>
+                    <h3 id="account-full-name">Đang tải...</h3>
+                    <p class="account-email" id="account-email">...</p>
+                    <div class="account-meta">
+                        <div class="account-meta-row">
+                            <span>Vai trò</span>
+                            <strong id="account-role">...</strong>
+                        </div>
+                        <div class="account-meta-row">
+                            <span>Ngày tạo</span>
+                            <strong id="account-created-at">...</strong>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="account-card">
+                    <p class="card-eyebrow">Tổng quan đơn hàng</p>
+                    <div class="account-stats">
+                        <div class="account-stat">
+                            <span>Tổng đơn</span>
+                            <strong id="stats-total-orders">0</strong>
+                        </div>
+                        <div class="account-stat">
+                            <span>Chờ thanh toán</span>
+                            <strong id="stats-pending-orders">0</strong>
+                        </div>
+                        <div class="account-stat">
+                            <span>Đã thanh toán</span>
+                            <strong id="stats-paid-orders">0</strong>
+                        </div>
+                        <div class="account-stat">
+                            <span>Tổng chi tiêu</span>
+                            <strong id="stats-total-spent">0 VND</strong>
+                        </div>
+                    </div>
+                </article>
+            </aside>
+
+            <section class="account-content">
+                <article class="account-card">
+                    <div class="account-card-head">
+                        <div>
+                            <p class="card-eyebrow">Lịch sử đơn hàng</p>
+                            <h3>Đơn hàng đã đặt</h3>
+                        </div>
+                        <button type="button" class="secondary-btn" id="refresh-orders-button">Tải lại</button>
+                    </div>
+
+                    <p id="account-orders-message" class="account-message"></p>
+                    <div id="orders-list" class="orders-list"></div>
+                </article>
+            </section>
+        </section>
+    </main>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/account.js"></script>
+</body>
+</html>

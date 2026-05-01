@@ -3,13 +3,15 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 
 const app = express();
+const PORT = 3002;
+const MONGODB_URI = process.env.ORDER_MONGODB_URI || 'mongodb://order-db:27017/revo_order_db';
 
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect('mongodb://order-db:27017/revo_order_db')
-    .then(() => console.log('Order Service da ket noi MongoDB thanh cong'))
-    .catch((err) => console.error('Loi ket noi MongoDB cua Order Service:', err));
+mongoose.connect(MONGODB_URI)
+    .then(() => console.log('Order Service connected to MongoDB'))
+    .catch((error) => console.error('Order Service MongoDB connection error:', error));
 
 const orderItemSchema = new mongoose.Schema({
     productId: { type: String, required: true },
@@ -26,13 +28,21 @@ const customerInfoSchema = new mongoose.Schema({
     note: { type: String, default: '' }
 }, { _id: false });
 
+const userInfoSchema = new mongoose.Schema({
+    userId: { type: String, required: true },
+    email: { type: String, required: true },
+    fullName: { type: String, required: true },
+    role: { type: String, default: 'customer' }
+}, { _id: false });
+
 const orderSchema = new mongoose.Schema({
+    user: { type: userInfoSchema, required: true },
     items: {
         type: [orderItemSchema],
         required: true,
         validate: {
             validator: (items) => Array.isArray(items) && items.length > 0,
-            message: 'Don hang phai co it nhat mot san pham.'
+            message: 'Order must contain at least one item.'
         }
     },
     customerInfo: { type: customerInfoSchema, required: true },
@@ -43,6 +53,8 @@ const orderSchema = new mongoose.Schema({
     transactionId: String,
     thoiGian: { type: Date, default: Date.now }
 });
+
+orderSchema.index({ 'user.userId': 1, thoiGian: -1 });
 
 const Order = mongoose.model('Order', orderSchema);
 
@@ -56,7 +68,7 @@ function normalizeOrderItems(items) {
             productId: String(item.productId || item.id || '').trim(),
             name: String(item.name || '').trim(),
             price: Number(item.price),
-            image: item.image || '',
+            image: String(item.image || '').trim(),
             quantity: Math.max(1, Number(item.quantity) || 1)
         }))
         .filter((item) => item.productId && item.name && Number.isFinite(item.price) && item.price >= 0);
@@ -71,10 +83,36 @@ function normalizeCustomerInfo(customerInfo = {}) {
     };
 }
 
+function normalizeRequestUser(req) {
+    return {
+        userId: String(req.headers['x-user-id'] || '').trim(),
+        email: String(req.headers['x-user-email'] || '').trim().toLowerCase(),
+        fullName: String(req.headers['x-user-full-name'] || '').trim(),
+        role: String(req.headers['x-user-role'] || 'customer').trim() || 'customer'
+    };
+}
+
+function hasValidRequestUser(user) {
+    return Boolean(user.userId && user.email && user.fullName);
+}
+
+function isAdminRequest(user) {
+    return hasValidRequestUser(user) && user.role === 'admin';
+}
+
+function isTrustedInternalRequest(req) {
+    return String(req.headers['x-internal-service'] || '').trim() === 'payment-service';
+}
+
 app.post('/api/orders', async (req, res) => {
     try {
+        const user = normalizeRequestUser(req);
         const items = normalizeOrderItems(req.body.items);
         const customerInfo = normalizeCustomerInfo(req.body.customerInfo);
+
+        if (!hasValidRequestUser(user)) {
+            return res.status(401).json({ loi: 'Ban can dang nhap de tao don hang.' });
+        }
 
         if (!items.length) {
             return res.status(400).json({ loi: 'Don hang phai co it nhat mot san pham hop le.' });
@@ -86,18 +124,19 @@ app.post('/api/orders', async (req, res) => {
 
         const totalAmount = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-        const donHangMoi = new Order({
+        const newOrder = new Order({
+            user,
             items,
             customerInfo,
             totalAmount,
             status: 'pending_payment'
         });
 
-        const donHangDaLuu = await donHangMoi.save();
+        const savedOrder = await newOrder.save();
 
         res.status(201).json({
             thongBao: 'Tao don hang thanh cong.',
-            donHang: donHangDaLuu
+            donHang: savedOrder
         });
     } catch (error) {
         console.error(error);
@@ -107,10 +146,46 @@ app.post('/api/orders', async (req, res) => {
 
 app.get('/api/orders', async (req, res) => {
     try {
-        const danhSach = await Order.find().sort({ thoiGian: -1 });
-        res.json(danhSach);
+        const user = normalizeRequestUser(req);
+
+        if (!isTrustedInternalRequest(req) && !isAdminRequest(user)) {
+            return res.status(hasValidRequestUser(user) ? 403 : 401).json({
+                loi: 'Ban khong co quyen xem danh sach don hang nay.'
+            });
+        }
+
+        const filters = {};
+        const userId = String(req.query.userId || '').trim();
+        const status = String(req.query.status || '').trim();
+
+        if (userId) {
+            filters['user.userId'] = userId;
+        }
+
+        if (status) {
+            filters.status = status;
+        }
+
+        const orders = await Order.find(filters).sort({ thoiGian: -1 });
+        res.json(orders);
     } catch (error) {
         res.status(500).json({ loi: 'Khong the lay danh sach don hang.' });
+    }
+});
+
+app.get('/api/orders/my', async (req, res) => {
+    try {
+        const user = normalizeRequestUser(req);
+
+        if (!user.userId) {
+            return res.status(401).json({ loi: 'Ban can dang nhap de xem don hang.' });
+        }
+
+        const orders = await Order.find({ 'user.userId': user.userId }).sort({ thoiGian: -1 });
+        res.json(orders);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ loi: 'Khong the lay danh sach don hang cua ban.' });
     }
 });
 
@@ -120,6 +195,18 @@ app.get('/api/orders/:id', async (req, res) => {
         if (!order) {
             return res.status(404).json({ loi: 'Khong tim thay don hang.' });
         }
+
+        const user = normalizeRequestUser(req);
+        const canAccess = isTrustedInternalRequest(req)
+            || isAdminRequest(user)
+            || (hasValidRequestUser(user) && order.user?.userId === user.userId);
+
+        if (!canAccess) {
+            return res.status(hasValidRequestUser(user) ? 403 : 401).json({
+                loi: 'Ban khong co quyen xem don hang nay.'
+            });
+        }
+
         res.json(order);
     } catch (error) {
         res.status(400).json({ loi: 'Ma don hang khong hop le.' });
@@ -128,6 +215,14 @@ app.get('/api/orders/:id', async (req, res) => {
 
 app.patch('/api/orders/:id/status', async (req, res) => {
     try {
+        const user = normalizeRequestUser(req);
+
+        if (!isTrustedInternalRequest(req) && !isAdminRequest(user)) {
+            return res.status(hasValidRequestUser(user) ? 403 : 401).json({
+                loi: 'Ban khong co quyen cap nhat trang thai don hang.'
+            });
+        }
+
         const { status, paymentMethod, paymentId, transactionId } = req.body;
 
         if (!status) {
@@ -148,11 +243,7 @@ app.patch('/api/orders/:id/status', async (req, res) => {
             updateData.transactionId = transactionId;
         }
 
-        const order = await Order.findByIdAndUpdate(
-            req.params.id,
-            updateData,
-            { new: true }
-        );
+        const order = await Order.findByIdAndUpdate(req.params.id, updateData, { new: true });
 
         if (!order) {
             return res.status(404).json({ loi: 'Khong tim thay don hang de cap nhat.' });
@@ -170,24 +261,37 @@ app.patch('/api/orders/:id/status', async (req, res) => {
 
 app.delete('/api/orders/:id', async (req, res) => {
     try {
+        const user = normalizeRequestUser(req);
+
+        if (!isAdminRequest(user)) {
+            return res.status(hasValidRequestUser(user) ? 403 : 401).json({
+                loi: 'Chi admin moi duoc xoa don hang.'
+            });
+        }
+
         const order = await Order.findByIdAndDelete(req.params.id);
+
         if (!order) {
             return res.status(404).json({ loi: 'Khong tim thay don hang de xoa.' });
         }
-        res.json({ thongBao: 'Xoa don hang thanh cong.', order });
+
+        res.json({
+            thongBao: 'Xoa don hang thanh cong.',
+            order
+        });
     } catch (error) {
         res.status(400).json({ loi: 'Ma don hang khong hop le.' });
     }
 });
 
 app.get('/', (req, res) => {
-    res.send('Order Service dang chay. Hay goi /api/orders de lay danh sach.');
+    res.send('Order Service is running.');
 });
 
 app.get('/health', (req, res) => {
     res.json({ status: 'ok', service: 'order-service' });
 });
 
-app.listen(3002, () => {
-    console.log('Order Service dang chay tai cong 3002');
+app.listen(PORT, () => {
+    console.log(`Order Service listening on port ${PORT}`);
 });
