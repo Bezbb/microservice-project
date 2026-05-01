@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký | ShopOnline</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-auth-page="register">
+    <nav class="topbar">
+        <div class="brand-wrap">
+            <a class="logo" href="/">ShopOnline</a>
+            <p class="tagline">Mua sắm tiện lợi, giao hàng nhanh</p>
+        </div>
+
+        <ul class="nav-links">
+            <li><a href="/">Trang chủ</a></li>
+            <li><a href="cart.html">Giỏ hàng</a></li>
+            <li id="auth-nav-slot" class="auth-slot"></li>
+        </ul>
+    </nav>
+
+    <main class="login-page">
+        <section class="auth-shell">
+            <div class="auth-showcase">
+                <p class="section-kicker">Tạo tài khoản</p>
+                <h2>Đăng ký nhanh để lưu phiên mua hàng và đồng bộ trải nghiệm</h2>
+                <p class="section-copy">Tài khoản mới sẽ được tạo với quyền khách hàng. Nếu cần quyền admin, hệ thống dùng tài khoản seed riêng ở user-service.</p>
+
+                <div class="auth-metrics">
+                    <div class="auth-metric">
+                        <strong>Đồng bộ</strong>
+                        <span>Lưu trạng thái đăng nhập ngay sau khi đăng ký</span>
+                    </div>
+                    <div class="auth-metric">
+                        <strong>Rõ ràng</strong>
+                        <span>Thông tin người dùng tách riêng khỏi product, order và payment</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="login-card">
+                <p class="section-kicker">Đăng ký</p>
+                <h2>Tạo tài khoản mới</h2>
+                <p class="subtext">Điền đầy đủ thông tin để bắt đầu.</p>
+
+                <form id="register-form" class="login-form">
+                    <div class="form-group">
+                        <label for="register-name">Họ và tên</label>
+                        <input type="text" id="register-name" placeholder="Nguyễn Văn A" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="register-email">Email</label>
+                        <input type="email" id="register-email" placeholder="ban@example.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="register-password">Mật khẩu</label>
+                        <input type="password" id="register-password" placeholder="Ít nhất 6 ký tự" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="register-confirm-password">Xác nhận mật khẩu</label>
+                        <input type="password" id="register-confirm-password" placeholder="Nhập lại mật khẩu" required>
+                    </div>
+
+                    <button type="submit" class="primary-btn">Tạo tài khoản</button>
+                </form>
+
+                <p id="register-message" class="login-message"></p>
+                <p class="auth-switch">
+                    Đã có tài khoản?
+                    <a class="inline-link" href="login.html">Đăng nhập</a>
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <script src="auth.js"></script>
+    <script src="register.js"></script>
+</body>
+</html>

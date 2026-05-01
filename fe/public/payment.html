@@ -6,7 +6,7 @@
     <title>Thanh toán | ShopOnline</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-requires-auth="true">
     <nav class="topbar">
         <div class="brand-wrap">
             <a class="logo" href="/">ShopOnline</a>
@@ -15,24 +15,77 @@
         <ul class="nav-links">
             <li><a href="/">Trang chủ</a></li>
             <li><a href="cart.html">Giỏ hàng</a></li>
+            <li id="admin-link-slot"></li>
+            <li id="auth-nav-slot" class="auth-slot"></li>
         </ul>
     </nav>
 
     <main class="cart-page">
         <section class="section-head">
             <p class="section-kicker">Thanh toán</p>
-            <h2>Xác nhận thanh toán đơn hàng</h2>
-            <p class="section-copy">Kiểm tra đơn hàng và chọn phương thức thanh toán.</p>
+            <h2>Xác nhận đơn hàng và thông tin nhận hàng</h2>
+            <p class="section-copy">Đơn hàng sẽ được tạo một lần cho toàn bộ giỏ hàng khi bạn xác nhận thanh toán.</p>
         </section>
 
         <section class="cart-layout">
             <div class="cart-list">
                 <div class="summary-card">
-                    <h3>Thông tin thanh toán</h3>
+                    <h3>Thông tin nhận hàng</h3>
+                    <p class="summary-caption">Điền đủ thông tin để hệ thống tạo đơn hàng trước khi thanh toán.</p>
+
+                    <div class="payment-form">
+                        <div class="payment-form-grid">
+                            <div class="form-group">
+                                <label for="full-name">Họ và tên</label>
+                                <input type="text" id="full-name" placeholder="Nguyễn Văn A">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="phone">Số điện thoại</label>
+                                <input type="tel" id="phone" placeholder="09xxxxxxxx">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="address">Địa chỉ giao hàng</label>
+                            <textarea id="address" rows="4" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="note">Ghi chú</label>
+                            <textarea id="note" rows="3" placeholder="Ví dụ: giao giờ hành chính, gọi trước khi giao..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="payment-method">Phương thức thanh toán</label>
+                            <select id="payment-method">
+                                <option value="card">Thẻ</option>
+                                <option value="cash">Tiền mặt</option>
+                                <option value="banking">Chuyển khoản</option>
+                            </select>
+                        </div>
+
+                        <button class="checkout-button" id="confirm-payment" type="button">
+                            Xác nhận thanh toán
+                        </button>
+
+                        <p id="payment-message" class="payment-message"></p>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="cart-summary">
+                <div class="summary-card">
+                    <h3>Tóm tắt đơn hàng</h3>
 
                     <div class="summary-row">
                         <span>Mã đơn hàng</span>
-                        <strong id="order-id">---</strong>
+                        <strong id="order-id">Sẽ tạo khi xác nhận</strong>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Số sản phẩm</span>
+                        <strong id="checkout-count">0</strong>
                     </div>
 
                     <div class="summary-row">
@@ -40,99 +93,16 @@
                         <strong id="payment-amount">0 VND</strong>
                     </div>
 
-                    <div style="margin-top: 18px;">
-                        <label for="payment-method" style="display:block; margin-bottom:8px; font-weight:700;">Phương thức thanh toán</label>
-                        <select id="payment-method" style="width:100%; padding:12px; border:1px solid #d1d5db; border-radius:10px;">
-                            <option value="card">Thẻ</option>
-                            <option value="cash">Tiền mặt</option>
-                            <option value="banking">Chuyển khoản</option>
-                        </select>
-                    </div>
+                    <div id="checkout-items" class="checkout-items-list"></div>
+                    <p id="checkout-warning" class="checkout-warning" hidden></p>
 
-                    <button class="checkout-button" id="confirm-payment" type="button" style="margin-top:18px;">
-                        Xác nhận thanh toán
-                    </button>
-
-                    <p id="payment-message" style="margin-top:14px; font-weight:700;"></p>
-                </div>
-            </div>
-
-            <aside class="cart-summary">
-                <div class="summary-card">
-                    <h3>Điều hướng</h3>
                     <a class="continue-shopping" href="cart.html">Quay lại giỏ hàng</a>
                 </div>
             </aside>
         </section>
     </main>
 
-    <script>
-        const API_BASE = 'http://localhost:3000';
-        const paymentData = JSON.parse(localStorage.getItem('pendingPayment')) || null;
-
-        const orderIdEl = document.getElementById('order-id');
-        const amountEl = document.getElementById('payment-amount');
-        const methodEl = document.getElementById('payment-method');
-        const messageEl = document.getElementById('payment-message');
-        const confirmButton = document.getElementById('confirm-payment');
-
-        function formatCurrency(value) {
-            return new Intl.NumberFormat('vi-VN').format(value) + ' VND';
-        }
-
-        if (!paymentData) {
-            orderIdEl.textContent = 'Không có dữ liệu';
-            amountEl.textContent = '0 VND';
-            messageEl.style.color = '#b91c1c';
-            messageEl.textContent = 'Không tìm thấy thông tin thanh toán. Hãy quay lại giỏ hàng.';
-            confirmButton.disabled = true;
-        } else {
-            orderIdEl.textContent = paymentData.orderId;
-            amountEl.textContent = formatCurrency(paymentData.amount);
-        }
-
-        confirmButton.addEventListener('click', async () => {
-            if (!paymentData) return;
-
-            confirmButton.disabled = true;
-            confirmButton.textContent = 'Đang xử lý...';
-
-            try {
-                const response = await fetch(`${API_BASE}/api/payments`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        orderId: paymentData.orderId,
-                        amount: paymentData.amount,
-                        method: methodEl.value
-                    })
-                });
-
-                const result = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(result.error || result.message || 'Thanh toán thất bại');
-                }
-
-                localStorage.removeItem('pendingPayment');
-                localStorage.removeItem('cart');
-
-                messageEl.style.color = 'green';
-                messageEl.textContent = `Thanh toán thành công. Mã giao dịch: ${result.transactionId || 'OK'}`;
-
-                setTimeout(() => {
-                    window.location.href = '/';
-                }, 1500);
-
-            } catch (error) {
-                messageEl.style.color = '#b91c1c';
-                messageEl.textContent = error.message;
-                confirmButton.disabled = false;
-                confirmButton.textContent = 'Xác nhận thanh toán';
-            }
-        });
-    </script>
+    <script src="auth.js"></script>
+    <script src="payment.js"></script>
 </body>
 </html>

@@ -16,11 +16,13 @@
         <ul class="nav-links">
             <li><a href="/">Trang chủ</a></li>
             <li><a href="/">Sản phẩm</a></li>
+            <li id="admin-link-slot"></li>
             <li>
                 <button id="cart-count" class="nav-cart" type="button" onclick="goToCart()">
                     Giỏ hàng (0)
                 </button>
             </li>
+            <li id="auth-nav-slot" class="auth-slot"></li>
         </ul>
     </nav>
 
@@ -50,6 +52,7 @@
         </section>
     </main>
 
+    <script src="auth.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

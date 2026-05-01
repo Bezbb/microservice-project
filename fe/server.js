@@ -22,6 +22,10 @@ app.get('/login.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
+app.get('/register.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'register.html'));
+});
+
 app.get('/admin-products.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin-products.html'));
 });

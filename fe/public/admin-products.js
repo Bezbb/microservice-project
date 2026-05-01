@@ -1,5 +1,9 @@
-const API_BASE = 'http://localhost:3000';
-const FALLBACK_IMAGE = 'https://via.placeholder.com/100x100?text=No+Image';
+const API_BASE = window.Auth?.API_BASE || 'http://localhost:3000';
+const FALLBACK_IMAGE = 'images/default-product.svg';
+
+if (window.Auth && !window.Auth.isAdmin()) {
+    window.location.replace(`login.html?next=${encodeURIComponent('admin-products.html')}`);
+}
 
 const form = document.getElementById('product-form');
 const tableBody = document.getElementById('product-table-body');
@@ -8,8 +12,18 @@ const formTitle = document.getElementById('form-title');
 const imageInput = document.getElementById('imageFile');
 const previewImage = document.getElementById('preview-image');
 
+function getAdminJsonHeaders() {
+    return window.Auth
+        ? window.Auth.getAuthHeaders({
+            'Content-Type': 'application/json'
+        })
+        : {
+            'Content-Type': 'application/json'
+        };
+}
+
 function formatCurrency(value) {
-    return new Intl.NumberFormat('vi-VN').format(value) + ' VND';
+    return `${new Intl.NumberFormat('vi-VN').format(value)} VND`;
 }
 
 function getImageUrl(image) {
@@ -45,6 +59,7 @@ imageInput.addEventListener('change', async () => {
     try {
         const res = await fetch(`${API_BASE}/api/upload`, {
             method: 'POST',
+            headers: window.Auth ? window.Auth.getAuthHeaders() : {},
             body: formData
         });
 
@@ -58,12 +73,12 @@ imageInput.addEventListener('change', async () => {
         previewImage.src = `${API_BASE}${data.imageUrl}`;
     } catch (err) {
         console.error(err);
-        alert('Upload ảnh thất bại');
+        alert(`Upload ảnh thất bại: ${err.message}`);
     }
 });
 
 async function loadProducts() {
-    tableBody.innerHTML = `<tr><td colspan="6">Đang tải dữ liệu...</td></tr>`;
+    tableBody.innerHTML = '<tr><td colspan="6">Đang tải dữ liệu...</td></tr>';
 
     try {
         const response = await fetch(`${API_BASE}/api/products`);
@@ -74,14 +89,14 @@ async function loadProducts() {
         }
 
         if (!products.length) {
-            tableBody.innerHTML = `<tr><td colspan="6">Chưa có sản phẩm nào.</td></tr>`;
+            tableBody.innerHTML = '<tr><td colspan="6">Chưa có sản phẩm nào.</td></tr>';
             productCount.textContent = '0 sản phẩm';
             return;
         }
 
         productCount.textContent = `${products.length} sản phẩm`;
 
-        tableBody.innerHTML = products.map(product => `
+        tableBody.innerHTML = products.map((product) => `
             <tr>
                 <td>
                     <img src="${getImageUrl(product.image)}" alt="${product.ten}" onerror="this.src='${FALLBACK_IMAGE}'">
@@ -100,12 +115,12 @@ async function loadProducts() {
         window.currentProducts = products;
     } catch (error) {
         console.error(error);
-        tableBody.innerHTML = `<tr><td colspan="6">Có lỗi khi tải dữ liệu.</td></tr>`;
+        tableBody.innerHTML = '<tr><td colspan="6">Có lỗi khi tải dữ liệu.</td></tr>';
     }
 }
 
 function editProduct(id) {
-    const product = (window.currentProducts || []).find(item => item._id === id);
+    const product = (window.currentProducts || []).find((item) => item._id === id);
     if (!product) return;
 
     document.getElementById('product-id').value = product._id;
@@ -127,13 +142,14 @@ async function deleteProduct(id) {
 
     try {
         const response = await fetch(`${API_BASE}/api/products/${id}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: getAdminJsonHeaders()
         });
 
         const result = await response.json();
 
         if (!response.ok) {
-            throw new Error(result.loi || result.message || 'Xóa thất bại');
+            throw new Error(result.loi || result.error || result.message || 'Xóa thất bại');
         }
 
         alert('Xóa sản phẩm thành công');
@@ -145,8 +161,8 @@ async function deleteProduct(id) {
     }
 }
 
-form.addEventListener('submit', async (e) => {
-    e.preventDefault();
+form.addEventListener('submit', async (event) => {
+    event.preventDefault();
 
     const id = document.getElementById('product-id').value;
 
@@ -164,9 +180,7 @@ form.addEventListener('submit', async (e) => {
             id ? `${API_BASE}/api/products/${id}` : `${API_BASE}/api/products`,
             {
                 method: id ? 'PUT' : 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: getAdminJsonHeaders(),
                 body: JSON.stringify(productData)
             }
         );
@@ -174,7 +188,7 @@ form.addEventListener('submit', async (e) => {
         const result = await response.json();
 
         if (!response.ok) {
-            throw new Error(result.loi || result.message || 'Lưu sản phẩm thất bại');
+            throw new Error(result.loi || result.error || result.message || 'Lưu sản phẩm thất bại');
         }
 
         alert(id ? 'Cập nhật sản phẩm thành công' : 'Thêm sản phẩm thành công');
