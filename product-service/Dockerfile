@@ -7,6 +7,8 @@ RUN npm install
 
 COPY . .
 
-EXPOSE 3001
+# 🔥 đảm bảo uploads là folder
+RUN rm -rf /app/public/uploads
+RUN mkdir -p /app/public/uploads
 
 CMD ["npm", "start"]

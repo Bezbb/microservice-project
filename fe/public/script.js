@@ -1,5 +1,5 @@
 const API_BASE = 'http://localhost:3000';
-const FALLBACK_IMAGE = 'images/default-drink.svg';
+const FALLBACK_IMAGE = 'images/default-product.svg';
 
 function normalizeCart(rawCart) {
     return (rawCart || []).map((item) => ({
@@ -51,8 +51,15 @@ function goToCart() {
 
 function getItemImage(item) {
     if (!item.image) return FALLBACK_IMAGE;
-    if (item.image.startsWith('http')) return item.image;
-    if (item.image.startsWith('/')) return `${API_BASE}${item.image}`;
+
+    if (item.image.startsWith('http')) {
+        return item.image.replace('via.placeholder.com', 'placehold.co');
+    }
+
+    if (item.image.startsWith('/')) {
+        return `${API_BASE}${item.image}`;
+    }
+
     return item.image;
 }
 
