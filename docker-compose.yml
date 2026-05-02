@@ -44,10 +44,12 @@ services:
   product-service:
     build: ./product-service
     container_name: product-service
-    ports:
-      - "3001:3001"
+    expose:
+      - "3001"
     depends_on:
       - product-db
+    environment:
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN:-local-dev-product-token}
     volumes:
       - product_uploads:/app/public/uploads
     networks:
@@ -60,6 +62,9 @@ services:
       - "3002:3002"
     depends_on:
       - order-db
+    environment:
+      PRODUCT_SERVICE_URL: ${PRODUCT_SERVICE_URL:-http://product-service:3001}
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN:-local-dev-product-token}
     networks:
       - app-network
 
@@ -70,6 +75,8 @@ services:
       - "3003:3003"
     depends_on:
       - payment-db
+    environment:
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN:-local-dev-product-token}
     networks:
       - app-network
 
@@ -103,6 +110,8 @@ services:
       - order-service
       - payment-service
       - user-service
+    environment:
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN:-local-dev-product-token}
     networks:
       - app-network
 

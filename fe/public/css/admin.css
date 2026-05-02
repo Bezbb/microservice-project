@@ -213,6 +213,13 @@ td img {
     box-shadow: var(--shadow-sm);
 }
 
+.delete-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
 .status-badge {
     display: inline-flex;
     align-items: center;
@@ -366,6 +373,14 @@ td img {
     color: rgba(16, 32, 51, 0.7);
     font-size: 0.94rem;
     line-height: 1.55;
+}
+
+.table-subtext {
+    display: block;
+    margin-top: 6px;
+    color: rgba(16, 32, 51, 0.66);
+    font-size: 0.9rem;
+    line-height: 1.45;
 }
 
 .role-badge {

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh mục sản phẩm | ShopOnline</title>
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+    <nav class="topbar">
+        <div class="brand-wrap">
+            <a class="logo" href="/">ShopOnline</a>
+            <p class="tagline">Khám phá danh mục, lọc nhanh và mua sắm liền mạch</p>
+        </div>
+
+        <ul class="nav-links">
+            <li><a href="/">Trang chủ</a></li>
+            <li><a href="/categories.html" class="active">Danh mục</a></li>
+            <li><a href="/#products-section">Sản phẩm</a></li>
+            <li id="admin-link-slot"></li>
+            <li>
+                <button id="cart-count" class="nav-cart" type="button" onclick="goToCart()">
+                    Giỏ hàng (0)
+                </button>
+            </li>
+            <li id="auth-nav-slot" class="auth-slot"></li>
+        </ul>
+    </nav>
+
+    <header class="catalog-hero">
+        <div class="catalog-hero-copy">
+            <p class="eyebrow">Category Explorer</p>
+            <h1>Trung tâm danh mục cho trải nghiệm mua sắm rõ ràng hơn</h1>
+            <p>So sánh nhanh các nhóm sản phẩm, xem mô tả, số lượng đang bán và lọc catalog theo đúng nhu cầu của bạn.</p>
+        </div>
+
+        <div class="catalog-hero-stats">
+            <div class="catalog-stat-card">
+                <span id="catalog-total-categories">0</span>
+                <p>Danh mục đang hoạt động</p>
+            </div>
+            <div class="catalog-stat-card">
+                <span id="catalog-total-products">0</span>
+                <p>Sản phẩm sẵn sàng để duyệt</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="catalog-page">
+        <section class="catalog-discovery">
+            <article class="catalog-focus-card" id="category-focus">
+                <div class="loading-card">Đang tải thông tin danh mục...</div>
+            </article>
+
+            <div class="catalog-browser-card">
+                <div class="catalog-browser-head">
+                    <div>
+                        <p class="section-kicker">Duyệt nhanh</p>
+                        <h2>Tất cả danh mục</h2>
+                    </div>
+                    <a class="catalog-link" href="/">Quay về trang chủ</a>
+                </div>
+
+                <div class="catalog-browser-grid" id="catalog-category-grid">
+                    <div class="loading-card">Đang tải danh mục...</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="catalog-results-shell">
+            <div class="catalog-controls">
+                <label class="catalog-search" for="catalog-search">
+                    <span>Tìm trong catalog</span>
+                    <input id="catalog-search" class="catalog-input" type="search" placeholder="Tên sản phẩm, thương hiệu hoặc mô tả">
+                </label>
+
+                <div class="catalog-control-group">
+                    <label for="catalog-category-select">Danh mục</label>
+                    <select id="catalog-category-select" class="catalog-select">
+                        <option value="">Tất cả danh mục</option>
+                    </select>
+                </div>
+
+                <div class="catalog-control-group">
+                    <label for="catalog-sort">Sắp xếp</label>
+                    <select id="catalog-sort" class="catalog-select">
+                        <option value="newest">Mới nhất</option>
+                        <option value="price_asc">Giá tăng dần</option>
+                        <option value="price_desc">Giá giảm dần</option>
+                        <option value="name_asc">Tên A-Z</option>
+                        <option value="stock_desc">Tồn kho nhiều</option>
+                    </select>
+                </div>
+
+                <button id="catalog-stock-toggle" class="catalog-toggle" type="button" aria-pressed="false">
+                    Chỉ xem sản phẩm còn hàng
+                </button>
+
+                <button id="catalog-reset-filters" class="ghost-button" type="button">
+                    Đặt lại bộ lọc
+                </button>
+            </div>
+
+            <p class="catalog-active-filters" id="catalog-active-filters">Đang tải trạng thái lọc...</p>
+            <p class="catalog-results-summary" id="catalog-results-summary">Đang tải sản phẩm...</p>
+            <section class="products" id="catalog-products"></section>
+        </section>
+    </main>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/script.js"></script>
+    <script src="/js/categories.js"></script>
+</body>
+</html>

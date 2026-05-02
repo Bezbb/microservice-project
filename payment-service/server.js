@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 
 const app = express();
 const ORDER_SERVICE_URL = process.env.ORDER_SERVICE_URL || 'http://order-service:3002';
+const INTERNAL_SERVICE_TOKEN = process.env.INTERNAL_SERVICE_TOKEN || 'local-dev-product-token';
 
 app.use(cors());
 app.use(express.json());
@@ -24,7 +25,8 @@ const Payment = mongoose.model('Payment', new mongoose.Schema({
 async function fetchOrder(orderId) {
     const response = await fetch(`${ORDER_SERVICE_URL}/api/orders/${orderId}`, {
         headers: {
-            'x-internal-service': 'payment-service'
+            'x-internal-service': 'payment-service',
+            'x-internal-service-token': INTERNAL_SERVICE_TOKEN
         }
     });
     const result = await response.json();
@@ -43,7 +45,8 @@ async function markOrderAsPaid(orderId, payload) {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
-            'x-internal-service': 'payment-service'
+            'x-internal-service': 'payment-service',
+            'x-internal-service-token': INTERNAL_SERVICE_TOKEN
         },
         body: JSON.stringify(payload)
     });
@@ -94,6 +97,12 @@ app.post('/api/payments', async (req, res) => {
 
         if (order.status === 'paid') {
             return res.status(409).json({ error: 'Don hang nay da o trang thai da thanh toan.' });
+        }
+
+        if (order.status !== 'pending_payment') {
+            return res.status(409).json({
+                error: `Don hang dang o trang thai ${order.status} va khong the thanh toan tiep.`
+            });
         }
 
         if (Number(order.totalAmount) !== normalizedAmount) {

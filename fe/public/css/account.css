@@ -153,6 +153,11 @@
     background: rgba(244, 168, 46, 0.16);
 }
 
+.account-status-badge.is-cancelled {
+    color: #8c2f2a;
+    background: rgba(212, 92, 84, 0.16);
+}
+
 .order-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));

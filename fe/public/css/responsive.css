@@ -33,7 +33,8 @@
     .story-strip,
     .cart-layout,
     .admin-layout,
-    .auth-shell {
+    .auth-shell,
+    .catalog-discovery {
         grid-template-columns: 1fr;
     }
 
@@ -63,7 +64,8 @@
         padding: 16px 18px;
     }
 
-    .hero {
+    .hero,
+    .catalog-hero {
         padding: 68px 26px 54px;
         border-radius: 32px;
     }
@@ -80,7 +82,13 @@
     .page-header,
     .form-actions,
     .auth-metrics,
-    .user-orders-head {
+    .user-orders-head,
+    .catalog-focus-footer,
+    .catalog-browser-head,
+    .catalog-controls,
+    .storefront-controls,
+    .storefront-categories-head,
+    .catalog-toolbar-meta {
         grid-template-columns: 1fr;
         flex-direction: column;
     }
@@ -111,13 +119,19 @@
         padding: 62px 22px 44px;
     }
 
+    .catalog-hero {
+        width: calc(100% - 18px);
+        padding: 62px 22px 44px;
+    }
+
     .hero h1 {
         max-width: none;
     }
 
     main,
     .cart-page,
-    .admin-layout {
+    .admin-layout,
+    .catalog-page {
         width: calc(100% - 18px);
     }
 
@@ -148,6 +162,37 @@
     .admin-search-input,
     .admin-select {
         width: 100%;
+    }
+
+    .categories-grid,
+    .products {
+        grid-template-columns: 1fr;
+    }
+
+    .category-card,
+    .catalog-browser-item {
+        min-height: auto;
+    }
+
+    .catalog-focus-metrics,
+    .catalog-hero-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .storefront-actions,
+    .catalog-controls {
+        width: 100%;
+    }
+
+    .storefront-actions .catalog-toggle,
+    .storefront-actions .ghost-button,
+    .catalog-controls .catalog-toggle,
+    .catalog-controls .ghost-button {
+        width: 100%;
+    }
+
+    .category-pills {
+        justify-content: flex-start;
     }
 }
 

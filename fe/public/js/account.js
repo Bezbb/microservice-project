@@ -42,13 +42,25 @@ function formatStatus(status) {
         return 'Đã thanh toán';
     case 'pending_payment':
         return 'Chờ thanh toán';
+    case 'cancelled':
+        return 'Đã hủy';
+    case 'payment_failed':
+        return 'Thanh toán thất bại';
     default:
         return status || 'Không xác định';
     }
 }
 
 function getStatusClass(status) {
-    return status === 'paid' ? 'is-paid' : 'is-pending';
+    if (status === 'paid') {
+        return 'is-paid';
+    }
+
+    if (status === 'cancelled' || status === 'payment_failed') {
+        return 'is-cancelled';
+    }
+
+    return 'is-pending';
 }
 
 function renderProfile(user) {

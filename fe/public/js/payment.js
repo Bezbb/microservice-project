@@ -39,6 +39,21 @@ function formatCurrency(value) {
     return `${new Intl.NumberFormat('vi-VN').format(value)} VND`;
 }
 
+function normalizeOrderItems(items) {
+    if (!Array.isArray(items)) {
+        return [];
+    }
+
+    return items.map((item) => ({
+        id: item.productId || item.id,
+        name: item.name || '',
+        price: Number(item.price) || 0,
+        image: item.image || '',
+        quantity: Math.max(1, Number(item.quantity) || 1),
+        trangThai: item.trangThai || 'Còn hàng'
+    })).filter((item) => item.id && item.name);
+}
+
 function getCheckoutTotal(items) {
     return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 }
@@ -204,6 +219,9 @@ confirmButton.addEventListener('click', async () => {
             });
 
             checkoutData.orderId = order._id;
+            checkoutData.items = normalizeOrderItems(order.items).length
+                ? normalizeOrderItems(order.items)
+                : checkoutData.items;
             checkoutData.amount = Number(order.totalAmount) || checkoutData.amount;
             persistCheckoutData();
             renderCheckoutSummary();

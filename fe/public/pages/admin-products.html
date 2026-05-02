@@ -15,6 +15,7 @@
             <ul>
                 <li><a href="/admin-products.html" class="active">Tổng quan</a></li>
                 <li><a href="#product-management">Sản phẩm</a></li>
+                <li><a href="#category-management">Danh mục</a></li>
                 <li><a href="#user-management">Người dùng</a></li>
                 <li><a href="/">Trang bán hàng</a></li>
                 <li><a href="/account.html">Tài khoản của tôi</a></li>
@@ -26,7 +27,7 @@
                 <div>
                     <p class="eyebrow">System Administration</p>
                     <h1>Quản trị sản phẩm, người dùng và đơn hàng</h1>
-                    <p class="subtext">Theo dõi toàn bộ cửa hàng từ một màn hình: cập nhật catalog, phân quyền tài khoản và xem lịch sử đơn hàng theo từng người dùng.</p>
+                    <p class="subtext">Theo dõi toàn bộ cửa hàng từ một màn hình: cập nhật catalog, quản lý danh mục, phân quyền tài khoản và xem lịch sử đơn hàng theo từng người dùng.</p>
                 </div>
                 <div class="header-actions">
                     <button class="refresh-button" type="button" id="refresh-admin-button">Tải toàn bộ dữ liệu</button>
@@ -79,18 +80,23 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="brand">Thương hiệu</label>
+                            <input type="text" id="brand">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="stockQuantity">Tồn kho</label>
+                            <input type="number" id="stockQuantity" min="0" value="1">
+                        </div>
+
+                        <div class="form-group">
                             <label for="imageFile">Chọn ảnh từ máy</label>
                             <input type="file" id="imageFile" accept="image/*">
                         </div>
 
                         <div class="form-group">
-                            <label for="image">Đường dẫn ảnh</label>
-                            <input type="text" id="image" readonly>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="danhMuc">Danh mục</label>
-                            <input type="text" id="danhMuc">
+                            <label for="categoryId">Danh mục có sẵn</label>
+                            <select id="categoryId" class="admin-select"></select>
                         </div>
 
                         <div class="form-group">
@@ -100,6 +106,17 @@
                                 <option value="Hết hàng">Hết hàng</option>
                             </select>
                         </div>
+
+                        <div class="form-group">
+                            <label for="tags">Tags</label>
+                            <input type="text" id="tags" placeholder="gaming, rgb, bluetooth">
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="newCategoryName">Hoặc tạo nhanh danh mục mới</label>
+                        <input type="text" id="newCategoryName" placeholder="Để trống nếu dùng danh mục có sẵn">
+                        <p class="supporting-copy">Nếu nhập ô này, hệ thống sẽ tự tạo hoặc tái sử dụng danh mục tương ứng khi lưu sản phẩm.</p>
                     </div>
 
                     <div class="form-group full-width">
@@ -117,6 +134,90 @@
                         <button type="button" class="secondary-btn" id="reset-product-form-button">Làm mới form</button>
                     </div>
                 </form>
+            </section>
+
+            <section class="table-section" id="category-management">
+                <div class="table-header admin-user-header">
+                    <div>
+                        <p class="card-eyebrow">Danh mục</p>
+                        <h2>Quản lý danh mục sản phẩm</h2>
+                    </div>
+                    <div class="table-actions user-table-actions">
+                        <p id="category-count">0 danh mục</p>
+                        <button class="refresh-button" type="button" id="refresh-categories-button">Tải lại danh mục</button>
+                    </div>
+                </div>
+
+                <p id="category-management-message" class="account-message"></p>
+
+                <div class="users-layout">
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Tên danh mục</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thứ tự</th>
+                                    <th>Sản phẩm</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="category-table-body"></tbody>
+                        </table>
+                    </div>
+
+                    <aside class="account-card user-detail-card category-editor-card">
+                        <div class="account-card-head">
+                            <div>
+                                <p class="card-eyebrow">Biên tập danh mục</p>
+                                <h3 id="category-form-title">Tạo danh mục mới</h3>
+                            </div>
+                            <button type="button" class="secondary-btn" id="reset-category-form-button">Làm mới</button>
+                        </div>
+
+                        <form id="category-form" class="product-form user-editor-form">
+                            <input type="hidden" id="category-editor-id">
+
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="category-name">Tên danh mục</label>
+                                    <input type="text" id="category-name" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="category-sort-order">Thứ tự sắp xếp</label>
+                                    <input type="number" id="category-sort-order" min="0" value="0">
+                                </div>
+                            </div>
+
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="category-active">Trạng thái</label>
+                                    <select id="category-active" class="admin-select">
+                                        <option value="true">Đang sử dụng</option>
+                                        <option value="false">Tạm ẩn</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Ghi chú</label>
+                                    <p class="supporting-copy">Danh mục bị tạm ẩn sẽ không hiện trong danh sách chọn khi tạo sản phẩm mới, nhưng vẫn giữ lại trên các sản phẩm đã gán.</p>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="category-description">Mô tả ngắn</label>
+                                <textarea id="category-description" rows="4" placeholder="Mô tả ngắn cho nhóm sản phẩm này"></textarea>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="primary-btn" id="save-category-button">Lưu danh mục</button>
+                                <button type="button" class="delete-btn" id="archive-category-button" hidden>Tạm ẩn danh mục</button>
+                                <button type="button" class="delete-btn" id="delete-category-button" hidden>Xóa hẳn danh mục</button>
+                            </div>
+                        </form>
+                    </aside>
+                </div>
             </section>
 
             <section class="table-section">
@@ -139,6 +240,7 @@
                                 <th>Tên</th>
                                 <th>Giá</th>
                                 <th>Danh mục</th>
+                                <th>Tồn kho</th>
                                 <th>Trạng thái</th>
                                 <th>Thao tác</th>
                             </tr>

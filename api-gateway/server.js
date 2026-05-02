@@ -5,6 +5,7 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 const app = express();
 const port = 3000;
 const USER_SERVICE_URL = 'http://user-service:3005';
+const INTERNAL_SERVICE_TOKEN = process.env.INTERNAL_SERVICE_TOKEN || 'local-dev-product-token';
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
 
 app.use(cors());
@@ -82,6 +83,30 @@ function requireAdminForMutations(req, res, next) {
     return requireAdmin(req, res, next);
 }
 
+function isProductAdminRequest(req) {
+    if (!SAFE_METHODS.has(req.method)) {
+        return true;
+    }
+
+    if (req.path === '/categories/manage' || req.path.startsWith('/categories/manage/')) {
+        return true;
+    }
+
+    if (String(req.query?.includeDeleted || '') === 'true') {
+        return true;
+    }
+
+    return false;
+}
+
+function requireProductAccess(req, res, next) {
+    if (!isProductAdminRequest(req)) {
+        return next();
+    }
+
+    return requireAdmin(req, res, next);
+}
+
 function requireOrderAccess(req, res, next) {
     if (req.path === '/my' || req.path.startsWith('/my/')) {
         return requireAuthenticatedUser(req, res, next);
@@ -105,11 +130,29 @@ function applyCurrentUserHeaders(proxyReq, req) {
     proxyReq.setHeader('x-user-role', req.currentUser.role || 'customer');
 }
 
-const uploadProxy = createProxyMiddleware({
-    target: 'http://product-service:3001',
-    changeOrigin: true,
-    pathRewrite: (path) => `/api/upload${path}`
-});
+function attachCurrentUserHeaders(req, res, next) {
+    req.headers['x-user-id'] = req.currentUser?.id || '';
+    req.headers['x-user-email'] = req.currentUser?.email || '';
+    req.headers['x-user-full-name'] = req.currentUser?.fullName || '';
+    req.headers['x-user-role'] = req.currentUser?.role || 'customer';
+    return next();
+}
+
+function attachProductServiceHeaders(req, res, next) {
+    req.headers['x-internal-service-token'] = INTERNAL_SERVICE_TOKEN;
+    req.headers['x-internal-service'] = 'api-gateway';
+    return attachCurrentUserHeaders(req, res, next);
+}
+
+function applyProductServiceHeaders(proxyReq, req) {
+    proxyReq.setHeader('x-internal-service-token', INTERNAL_SERVICE_TOKEN);
+    proxyReq.setHeader('x-internal-service', 'api-gateway');
+    proxyReq.setHeader('x-user-id', '');
+    proxyReq.setHeader('x-user-email', '');
+    proxyReq.setHeader('x-user-full-name', '');
+    proxyReq.setHeader('x-user-role', 'customer');
+    applyCurrentUserHeaders(proxyReq, req);
+}
 
 const uploadsStaticProxy = createProxyMiddleware({
     target: 'http://product-service:3001',
@@ -120,7 +163,16 @@ const uploadsStaticProxy = createProxyMiddleware({
 const productProxy = createProxyMiddleware({
     target: 'http://product-service:3001',
     changeOrigin: true,
-    pathRewrite: (path) => `/api/products${path}`
+    headers: {
+        'x-internal-service-token': INTERNAL_SERVICE_TOKEN,
+        'x-internal-service': 'api-gateway'
+    },
+    pathRewrite: (path) => `/api/products${path}`,
+    on: {
+        proxyReq(proxyReq, req) {
+            applyProductServiceHeaders(proxyReq, req);
+        }
+    }
 });
 
 const orderProxy = createProxyMiddleware({
@@ -155,9 +207,8 @@ const userProxy = createProxyMiddleware({
 app.use('/uploads', uploadsStaticProxy);
 app.use('/api/auth', authProxy);
 app.use('/api/users', requireAdmin, userProxy);
-app.use('/api/products', requireAdminForMutations, productProxy);
-app.use('/api/upload', requireAdminForMutations, uploadProxy);
-app.use('/api/orders', requireOrderAccess, orderProxy);
+app.use('/api/products', requireProductAccess, attachProductServiceHeaders, productProxy);
+app.use('/api/orders', requireOrderAccess, attachCurrentUserHeaders, orderProxy);
 app.use('/api/payments', requireAuthenticatedForMutations, paymentProxy);
 
 app.listen(port, () => {

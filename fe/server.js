@@ -17,6 +17,7 @@ function sendPage(pageName) {
 app.get('/', sendPage('index.html'));
 app.get('/index.html', sendPage('index.html'));
 app.get('/cart.html', sendPage('cart.html'));
+app.get('/categories.html', sendPage('categories.html'));
 app.get('/payment.html', sendPage('payment.html'));
 app.get('/login.html', sendPage('login.html'));
 app.get('/register.html', sendPage('register.html'));
