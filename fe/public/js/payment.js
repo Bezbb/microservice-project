@@ -17,6 +17,8 @@ const checkoutData = rawCheckoutData && Array.isArray(rawCheckoutData.items)
         })),
         amount: Number(rawCheckoutData.amount) || 0,
         orderId: rawCheckoutData.orderId || null,
+        thoiGian: rawCheckoutData.thoiGian || null,
+        ngayGiaoDuKien: rawCheckoutData.ngayGiaoDuKien || null,
         customerInfo: rawCheckoutData.customerInfo || null
     }
     : null;
@@ -24,6 +26,7 @@ const checkoutData = rawCheckoutData && Array.isArray(rawCheckoutData.items)
 const orderIdEl = document.getElementById('order-id');
 const checkoutCountEl = document.getElementById('checkout-count');
 const amountEl = document.getElementById('payment-amount');
+const estimatedDeliveryDateEl = document.getElementById('estimated-delivery-date');
 const methodEl = document.getElementById('payment-method');
 const messageEl = document.getElementById('payment-message');
 const confirmButton = document.getElementById('confirm-payment');
@@ -35,8 +38,49 @@ const addressEl = document.getElementById('address');
 const noteEl = document.getElementById('note');
 const currentUser = window.Auth ? window.Auth.getUser() : null;
 
+const DELIVERY_WINDOW_DAYS = 7;
+const DELIVERY_WINDOW_MS = DELIVERY_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+
 function formatCurrency(value) {
     return `${new Intl.NumberFormat('vi-VN').format(value)} VND`;
+}
+
+function formatDate(value) {
+    if (!value) {
+        return '-';
+    }
+
+    const date = new Date(value);
+
+    if (!Number.isFinite(date.getTime())) {
+        return '-';
+    }
+
+    return new Intl.DateTimeFormat('vi-VN', {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+    }).format(date);
+}
+
+function getEstimatedDeliveryDate(orderDate = new Date()) {
+    const orderedAt = new Date(orderDate);
+
+    if (!Number.isFinite(orderedAt.getTime())) {
+        return null;
+    }
+
+    return new Date(orderedAt.getTime() + DELIVERY_WINDOW_MS);
+}
+
+function formatPaymentMethod(method) {
+    switch (method) {
+    case 'momo':
+        return 'MoMo';
+    case 'cash':
+        return 'Tiền mặt';
+    default:
+        return method || 'Chưa thanh toán';
+    }
 }
 
 function normalizeOrderItems(items) {
@@ -69,6 +113,15 @@ function persistCheckoutData() {
 function setMessage(text, type = 'error') {
     messageEl.textContent = text;
     messageEl.className = `payment-message ${type}`;
+}
+
+function escapeHtml(value) {
+    return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
 
 function getCustomerInfo() {
@@ -147,12 +200,15 @@ function renderCheckoutSummary() {
     orderIdEl.textContent = checkoutData.orderId || 'Sẽ tạo khi xác nhận';
     checkoutCountEl.textContent = `${getCheckoutQuantity(checkoutData.items)}`;
     amountEl.textContent = formatCurrency(totalAmount);
+    estimatedDeliveryDateEl.textContent = formatDate(
+        checkoutData.ngayGiaoDuKien || getEstimatedDeliveryDate(checkoutData.thoiGian || new Date())
+    );
     checkoutWarningEl.hidden = true;
 
     checkoutItemsEl.innerHTML = checkoutData.items.map((item) => `
         <div class="checkout-item-row">
             <div>
-                <p class="checkout-item-name">${item.name}</p>
+                <p class="checkout-item-name">${escapeHtml(item.name)}</p>
                 <p class="checkout-item-meta">${item.quantity} x ${formatCurrency(item.price)}</p>
             </div>
             <strong>${formatCurrency(item.price * item.quantity)}</strong>
@@ -218,31 +274,50 @@ confirmButton.addEventListener('click', async () => {
                 customerInfo
             });
 
+            const normalizedOrderItems = normalizeOrderItems(order.items);
             checkoutData.orderId = order._id;
-            checkoutData.items = normalizeOrderItems(order.items).length
-                ? normalizeOrderItems(order.items)
-                : checkoutData.items;
+            checkoutData.thoiGian = order.thoiGian || checkoutData.thoiGian;
+            checkoutData.ngayGiaoDuKien = order.ngayGiaoDuKien
+                || getEstimatedDeliveryDate(order.thoiGian || new Date())?.toISOString()
+                || checkoutData.ngayGiaoDuKien;
+            checkoutData.items = normalizedOrderItems.length ? normalizedOrderItems : checkoutData.items;
             checkoutData.amount = Number(order.totalAmount) || checkoutData.amount;
             persistCheckoutData();
             renderCheckoutSummary();
         }
 
+        const selectedMethod = methodEl.value;
         const paymentResult = await createPayment({
             orderId: checkoutData.orderId,
             amount: checkoutData.amount,
-            method: methodEl.value
+            method: selectedMethod
         });
 
-        localStorage.removeItem(CHECKOUT_STORAGE_KEY);
-        localStorage.removeItem(LEGACY_PAYMENT_STORAGE_KEY);
-        localStorage.removeItem('cart');
+        if (selectedMethod === 'cash') {
+            localStorage.removeItem(CHECKOUT_STORAGE_KEY);
+            localStorage.removeItem(LEGACY_PAYMENT_STORAGE_KEY);
+            localStorage.removeItem('cart');
 
-        orderIdEl.textContent = checkoutData.orderId;
-        setMessage(`Thanh toán thành công. Mã giao dịch: ${paymentResult.transactionId || 'OK'}`, 'success');
+            orderIdEl.textContent = checkoutData.orderId;
+            setMessage(
+                `Đã ghi nhận thanh toán tiền mặt. Mã giao dịch: ${paymentResult.transactionId || 'OK'}`,
+                'success'
+            );
 
-        setTimeout(() => {
-            window.location.href = '/';
-        }, 1500);
+            setTimeout(() => {
+                window.location.href = '/account.html';
+            }, 1500);
+            return;
+        }
+
+        const payUrl = paymentResult.payUrl || paymentResult.payment?.payUrl || paymentResult.shortLink;
+
+        if (!payUrl) {
+            throw new Error('Không nhận được liên kết thanh toán MoMo.');
+        }
+
+        setMessage(`Đang chuyển sang cổng thanh toán ${formatPaymentMethod(selectedMethod)}...`, 'success');
+        window.location.href = payUrl;
     } catch (error) {
         setMessage(error.message, 'error');
         confirmButton.disabled = false;

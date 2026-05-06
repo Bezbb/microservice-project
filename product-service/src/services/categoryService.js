@@ -392,23 +392,19 @@ async function deleteCategoryPermanently(categoryId, actor = SYSTEM_ACTOR) {
         throw createHttpError('Khong the xoa danh muc mac dinh.', 400);
     }
 
-    const linkedProducts = await Product.find({
-        isDeleted: false,
+    const linkedProductFilter = {
         $or: [
             { categoryId: category._id },
             { categoryId: null, danhMuc: category.name }
         ]
-    });
+    };
+    const linkedProductCount = await Product.countDocuments(linkedProductFilter);
 
-    if (linkedProducts.length) {
+    if (linkedProductCount > 0) {
         const defaultCategory = await ensureDefaultCategory(actor);
 
         await Product.updateMany(
-            {
-                _id: {
-                    $in: linkedProducts.map((product) => product._id)
-                }
-            },
+            linkedProductFilter,
             {
                 $set: {
                     categoryId: defaultCategory._id,

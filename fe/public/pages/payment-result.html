@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kết quả thanh toán | ShopOnline</title>
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+    <nav class="topbar">
+        <div class="brand-wrap">
+            <a class="logo" href="/">ShopOnline</a>
+            <p class="tagline">Mua sắm tiện lợi, giao hàng nhanh</p>
+        </div>
+        <ul class="nav-links">
+            <li><a href="/">Trang chủ</a></li>
+            <li><a href="/cart.html">Giỏ hàng</a></li>
+            <li id="admin-link-slot"></li>
+            <li id="auth-nav-slot" class="auth-slot"></li>
+        </ul>
+    </nav>
+
+    <main class="cart-page">
+        <section class="section-head">
+            <p class="section-kicker">MoMo</p>
+            <h2 id="payment-result-title">Đang kiểm tra thanh toán</h2>
+            <p class="section-copy" id="payment-result-message">Vui lòng chờ trong giây lát.</p>
+        </section>
+
+        <section class="cart-layout">
+            <div class="cart-list">
+                <div class="summary-card">
+                    <h3>Thông tin giao dịch</h3>
+                    <div class="order-grid">
+                        <div class="order-block">
+                            <span>Mã đơn hàng</span>
+                            <strong id="payment-result-order">-</strong>
+                        </div>
+                        <div class="order-block">
+                            <span>Mã giao dịch</span>
+                            <strong id="payment-result-transaction">-</strong>
+                        </div>
+                    </div>
+                    <a class="checkout-button" href="/account.html">Xem đơn hàng</a>
+                    <a class="continue-shopping" href="/">Tiếp tục mua hàng</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/payment-result.js"></script>
+</body>
+</html>

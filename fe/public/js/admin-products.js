@@ -12,10 +12,14 @@ const state = {
     categories: [],
     users: [],
     orders: [],
+    payments: [],
     selectedUserId: '',
     userSearch: '',
     userRoleFilter: 'all'
 };
+
+const DELIVERY_WINDOW_DAYS = 7;
+const DELIVERY_WINDOW_MS = DELIVERY_WINDOW_DAYS * 24 * 60 * 60 * 1000;
 
 const form = document.getElementById('product-form');
 const tableBody = document.getElementById('product-table-body');
@@ -122,10 +126,34 @@ function formatDate(value) {
         return '-';
     }
 
+    const date = new Date(value);
+
+    if (!Number.isFinite(date.getTime())) {
+        return '-';
+    }
+
     return new Intl.DateTimeFormat('vi-VN', {
         dateStyle: 'medium',
         timeStyle: 'short'
-    }).format(new Date(value));
+    }).format(date);
+}
+
+function getEstimatedDeliveryDate(order) {
+    if (order?.ngayGiaoDuKien) {
+        const deliveryDate = new Date(order.ngayGiaoDuKien);
+
+        if (Number.isFinite(deliveryDate.getTime())) {
+            return deliveryDate;
+        }
+    }
+
+    const orderedAt = new Date(order?.thoiGian || '');
+
+    if (!Number.isFinite(orderedAt.getTime())) {
+        return null;
+    }
+
+    return new Date(orderedAt.getTime() + DELIVERY_WINDOW_MS);
 }
 
 function formatOrderStatus(status) {
@@ -153,6 +181,19 @@ function getOrderStatusClass(status) {
     }
 
     return 'is-pending';
+}
+
+function formatPaymentMethod(method) {
+    switch (method) {
+    case 'momo':
+        return 'MoMo';
+    case 'card':
+        return 'Thẻ';
+    case 'cash':
+        return 'Tiền mặt';
+    default:
+        return method || 'Chưa thanh toán';
+    }
 }
 
 function getImageUrl(image) {
@@ -329,6 +370,10 @@ function getOrdersForUser(userId) {
     return state.orders.filter((order) => order.user?.userId === userId);
 }
 
+function getPaymentForOrder(orderId) {
+    return state.payments.find((payment) => payment.orderId === orderId) || null;
+}
+
 function getOrderStats(orders) {
     const totalOrders = orders.length;
     const pendingOrders = orders.filter((order) => order.status === 'pending_payment').length;
@@ -398,12 +443,16 @@ function renderOrderCards(container, orders, emptyState) {
                         <strong>${formatDate(order.thoiGian)}</strong>
                     </div>
                     <div class="order-block">
+                        <span>Dự kiến giao</span>
+                        <strong>${formatDate(getEstimatedDeliveryDate(order))}</strong>
+                    </div>
+                    <div class="order-block">
                         <span>Tổng tiền</span>
                         <strong>${formatCurrency(order.totalAmount)}</strong>
                     </div>
                     <div class="order-block">
                         <span>Phương thức</span>
-                        <strong>${escapeHtml(order.paymentMethod || 'Chưa thanh toán')}</strong>
+                        <strong>${escapeHtml(formatPaymentMethod(order.paymentMethod))}</strong>
                     </div>
                     <div class="order-block">
                         <span>Giao dịch</span>
@@ -493,6 +542,19 @@ async function fetchOrders() {
     }
 
     return Array.isArray(orders) ? orders : [];
+}
+
+async function fetchPayments() {
+    const response = await fetch(`${API_BASE}/api/payments`, {
+        headers: getAdminHeaders()
+    });
+    const payments = await response.json().catch(() => []);
+
+    if (!response.ok) {
+        throw new Error(payments.error || 'KhÃ´ng táº£i Ä‘Æ°á»£c danh sÃ¡ch thanh toÃ¡n.');
+    }
+
+    return Array.isArray(payments) ? payments : [];
 }
 
 function renderProductsTable() {
@@ -955,9 +1017,10 @@ async function loadUsersAndOrders() {
     setUserManagementMessage('Đang tải danh sách người dùng và đơn hàng...', 'is-loading');
 
     try {
-        const [users, orders] = await Promise.all([fetchUsers(), fetchOrders()]);
+        const [users, orders, payments] = await Promise.all([fetchUsers(), fetchOrders(), fetchPayments()]);
         state.users = users;
         state.orders = orders;
+        state.payments = payments;
 
         if (state.selectedUserId && !state.users.some((user) => user.id === state.selectedUserId)) {
             state.selectedUserId = '';
@@ -1185,10 +1248,6 @@ void loadAdminData();
 window.editProduct = editProduct;
 window.deleteProduct = deleteProduct;
 window.editCategory = editCategory;
-window.toggleCategory = (categoryId, shouldActivate) => {
-    void toggleCategory(categoryId, shouldActivate);
-};
-window.deleteCategoryPermanently = (categoryId) => {
-    void deleteCategoryPermanently(categoryId);
-};
+window.toggleCategory = toggleCategory;
+window.deleteCategoryPermanently = deleteCategoryPermanently;
 window.selectUser = selectUser;

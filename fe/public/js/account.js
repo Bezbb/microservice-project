@@ -4,6 +4,7 @@ const fullNameEl = document.getElementById('account-full-name');
 const emailEl = document.getElementById('account-email');
 const roleEl = document.getElementById('account-role');
 const createdAtEl = document.getElementById('account-created-at');
+const lastLoginAtEl = document.getElementById('account-last-login-at');
 const totalOrdersEl = document.getElementById('stats-total-orders');
 const pendingOrdersEl = document.getElementById('stats-pending-orders');
 const paidOrdersEl = document.getElementById('stats-paid-orders');
@@ -11,6 +12,22 @@ const totalSpentEl = document.getElementById('stats-total-spent');
 const ordersListEl = document.getElementById('orders-list');
 const messageEl = document.getElementById('account-orders-message');
 const refreshButton = document.getElementById('refresh-orders-button');
+const profileForm = document.getElementById('account-profile-form');
+const profileFullNameInput = document.getElementById('profile-full-name');
+const profileEmailInput = document.getElementById('profile-email');
+const currentPasswordInput = document.getElementById('profile-current-password');
+const newPasswordInput = document.getElementById('profile-new-password');
+const confirmPasswordInput = document.getElementById('profile-confirm-password');
+const profileMessageEl = document.getElementById('account-profile-message');
+const saveProfileButton = document.getElementById('save-profile-button');
+const resetProfileButton = document.getElementById('reset-profile-button');
+
+const state = {
+    currentUser: null
+};
+
+const DELIVERY_WINDOW_DAYS = 7;
+const DELIVERY_WINDOW_MS = DELIVERY_WINDOW_DAYS * 24 * 60 * 60 * 1000;
 
 function formatCurrency(value) {
     return `${new Intl.NumberFormat('vi-VN').format(value)} VND`;
@@ -21,15 +38,48 @@ function formatDate(value) {
         return '-';
     }
 
+    const date = new Date(value);
+
+    if (!Number.isFinite(date.getTime())) {
+        return '-';
+    }
+
     return new Intl.DateTimeFormat('vi-VN', {
         dateStyle: 'medium',
         timeStyle: 'short'
-    }).format(new Date(value));
+    }).format(date);
+}
+
+function getEstimatedDeliveryDate(order) {
+    if (order?.ngayGiaoDuKien) {
+        const deliveryDate = new Date(order.ngayGiaoDuKien);
+
+        if (Number.isFinite(deliveryDate.getTime())) {
+            return deliveryDate;
+        }
+    }
+
+    const orderedAt = new Date(order?.thoiGian || '');
+
+    if (!Number.isFinite(orderedAt.getTime())) {
+        return null;
+    }
+
+    return new Date(orderedAt.getTime() + DELIVERY_WINDOW_MS);
 }
 
 function setMessage(text, type = '') {
     messageEl.textContent = text;
     messageEl.className = `account-message ${type}`.trim();
+}
+
+function setProfileMessage(text, type = '') {
+    profileMessageEl.textContent = text;
+    profileMessageEl.className = `account-message ${type}`.trim();
+}
+
+function normalizeEmail(value) {
+    return String(value || '').trim().toLowerCase();
 }
 
 function formatRole(role) {
@@ -51,6 +101,19 @@ function formatStatus(status) {
     }
 }
 
+function formatPaymentMethod(method) {
+    switch (method) {
+    case 'momo':
+        return 'MoMo';
+    case 'card':
+        return 'Thẻ';
+    case 'cash':
+        return 'Tiền mặt';
+    default:
+        return method || 'Chưa thanh toán';
+    }
+}
+
 function getStatusClass(status) {
     if (status === 'paid') {
         return 'is-paid';
@@ -68,6 +131,7 @@ function renderProfile(user) {
     emailEl.textContent = user?.email || '-';
     roleEl.textContent = formatRole(user?.role);
     createdAtEl.textContent = formatDate(user?.createdAt);
+    lastLoginAtEl.textContent = formatDate(user?.lastLoginAt);
 }
 
 function renderStats(orders) {
@@ -82,6 +146,140 @@ function renderStats(orders) {
     pendingOrdersEl.textContent = String(pendingOrders);
     paidOrdersEl.textContent = String(paidOrders);
     totalSpentEl.textContent = formatCurrency(totalSpent);
+}
+
+function clearPasswordFields() {
+    currentPasswordInput.value = '';
+    newPasswordInput.value = '';
+    confirmPasswordInput.value = '';
+}
+
+function fillProfileForm(user) {
+    profileFullNameInput.value = user?.fullName || '';
+    profileEmailInput.value = user?.email || '';
+    clearPasswordFields();
+}
+
+function setProfileFormDisabled(isDisabled) {
+    [
+        profileFullNameInput,
+        profileEmailInput,
+        currentPasswordInput,
+        newPasswordInput,
+        confirmPasswordInput,
+        saveProfileButton,
+        resetProfileButton
+    ].forEach((element) => {
+        element.disabled = isDisabled;
+    });
+}
+
+function buildProfilePayload() {
+    const fullName = String(profileFullNameInput.value || '').trim();
+    const email = normalizeEmail(profileEmailInput.value);
+    const currentPassword = currentPasswordInput.value || '';
+    const newPassword = newPasswordInput.value || '';
+    const confirmPassword = confirmPasswordInput.value || '';
+
+    if (!fullName) {
+        throw new Error('Vui lòng nhập họ và tên.');
+    }
+
+    if (!email) {
+        throw new Error('Vui lòng nhập email.');
+    }
+
+    const profileChanged = !state.currentUser
+        || fullName !== String(state.currentUser.fullName || '').trim()
+        || email !== normalizeEmail(state.currentUser.email);
+    const passwordChanged = Boolean(currentPassword || newPassword || confirmPassword);
+
+    if (!profileChanged && !passwordChanged) {
+        throw new Error('Không có thay đổi để lưu.');
+    }
+
+    const payload = {};
+
+    if (profileChanged) {
+        payload.fullName = fullName;
+        payload.email = email;
+    }
+
+    if (passwordChanged) {
+        if (!currentPassword) {
+            throw new Error('Vui lòng nhập mật khẩu hiện tại.');
+        }
+
+        if (!newPassword) {
+            throw new Error('Vui lòng nhập mật khẩu mới.');
+        }
+
+        if (newPassword.length < 6) {
+            throw new Error('Mật khẩu mới phải có ít nhất 6 ký tự.');
+        }
+
+        if (newPassword !== confirmPassword) {
+            throw new Error('Xác nhận mật khẩu không khớp.');
+        }
+
+        payload.currentPassword = currentPassword;
+        payload.newPassword = newPassword;
+    }
+
+    return payload;
+}
+
+async function saveProfile(event) {
+    event.preventDefault();
+
+    let payload;
+
+    try {
+        payload = buildProfilePayload();
+    } catch (error) {
+        setProfileMessage(error.message, 'is-error');
+        return;
+    }
+
+    setProfileFormDisabled(true);
+    setProfileMessage('Đang lưu thay đổi...', 'is-loading');
+
+    try {
+        const response = await fetch(`${API_BASE}/api/auth/me`, {
+            method: 'PATCH',
+            headers: window.Auth ? window.Auth.getAuthHeaders({
+                'Content-Type': 'application/json'
+            }) : {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+        const result = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            throw new Error(result.error || 'Không thể cập nhật tài khoản.');
+        }
+
+        state.currentUser = result.user || state.currentUser;
+        renderProfile(state.currentUser);
+        fillProfileForm(state.currentUser);
+
+        if (window.Auth && result.user) {
+            window.Auth.saveSession({ user: result.user });
+        }
+
+        setProfileMessage(result.message || 'Đã cập nhật tài khoản.', 'is-success');
+    } catch (error) {
+        console.error(error);
+        setProfileMessage(error.message, 'is-error');
+    } finally {
+        setProfileFormDisabled(false);
+    }
+}
+
+function resetProfileForm() {
+    fillProfileForm(state.currentUser);
+    setProfileMessage('', '');
 }
 
 function renderEmptyOrders() {
@@ -128,12 +326,16 @@ function renderOrders(orders) {
                         <strong>${formatDate(order.thoiGian)}</strong>
                     </div>
                     <div class="order-block">
+                        <span>Dự kiến giao</span>
+                        <strong>${formatDate(getEstimatedDeliveryDate(order))}</strong>
+                    </div>
+                    <div class="order-block">
                         <span>Tổng tiền</span>
                         <strong>${formatCurrency(order.totalAmount || 0)}</strong>
                     </div>
                     <div class="order-block">
                         <span>Phương thức</span>
-                        <strong>${order.paymentMethod || 'Chưa thanh toán'}</strong>
+                        <strong>${formatPaymentMethod(order.paymentMethod)}</strong>
                     </div>
                     <div class="order-block">
                         <span>Giao dịch</span>
@@ -178,7 +380,9 @@ async function loadAccountPage() {
 
     try {
         const user = window.Auth ? await window.Auth.fetchCurrentUser() : null;
+        state.currentUser = user;
         renderProfile(user);
+        fillProfileForm(user);
 
         const orders = await fetchOrders();
         renderStats(orders);
@@ -198,5 +402,8 @@ async function loadAccountPage() {
 refreshButton.addEventListener('click', () => {
     void loadAccountPage();
 });
+
+profileForm.addEventListener('submit', saveProfile);
+resetProfileButton.addEventListener('click', resetProfileForm);
 
 void loadAccountPage();

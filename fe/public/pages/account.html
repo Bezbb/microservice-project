@@ -43,6 +43,10 @@
                             <span>Ngày tạo</span>
                             <strong id="account-created-at">...</strong>
                         </div>
+                        <div class="account-meta-row">
+                            <span>Đăng nhập gần nhất</span>
+                            <strong id="account-last-login-at">...</strong>
+                        </div>
                     </div>
                 </article>
 
@@ -70,6 +74,52 @@
             </aside>
 
             <section class="account-content">
+                <article class="account-card">
+                    <div class="account-card-head">
+                        <div>
+                            <p class="card-eyebrow">Chỉnh sửa tài khoản</p>
+                            <h3>Thông tin cá nhân</h3>
+                        </div>
+                    </div>
+
+                    <form id="account-profile-form" class="product-form account-editor-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="profile-full-name">Họ và tên</label>
+                                <input type="text" id="profile-full-name" autocomplete="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="profile-email">Email</label>
+                                <input type="email" id="profile-email" autocomplete="email" required>
+                            </div>
+                        </div>
+
+                        <div class="account-security-panel">
+                            <p class="card-eyebrow">Bảo mật</p>
+                            <div class="form-grid account-password-grid">
+                                <div class="form-group">
+                                    <label for="profile-current-password">Mật khẩu hiện tại</label>
+                                    <input type="password" id="profile-current-password" autocomplete="current-password">
+                                </div>
+                                <div class="form-group">
+                                    <label for="profile-new-password">Mật khẩu mới</label>
+                                    <input type="password" id="profile-new-password" autocomplete="new-password" minlength="6">
+                                </div>
+                                <div class="form-group">
+                                    <label for="profile-confirm-password">Xác nhận mật khẩu</label>
+                                    <input type="password" id="profile-confirm-password" autocomplete="new-password" minlength="6">
+                                </div>
+                            </div>
+                        </div>
+
+                        <p id="account-profile-message" class="account-message"></p>
+                        <div class="form-actions account-form-actions">
+                            <button type="submit" class="primary-btn" id="save-profile-button">Lưu thay đổi</button>
+                            <button type="button" class="secondary-btn" id="reset-profile-button">Hoàn tác</button>
+                        </div>
+                    </form>
+                </article>
+
                 <article class="account-card">
                     <div class="account-card-head">
                         <div>
