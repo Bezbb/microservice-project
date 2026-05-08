@@ -51,6 +51,11 @@ const orderSchema = new mongoose.Schema({
     },
     statusUpdatedAt: { type: Date, default: Date.now },
     cancelledReason: String,
+    cancelledBy: String,
+    shippingStartedAt: Date,
+    deliveredAt: Date,
+    returnedAt: Date,
+    returnReason: String,
     inventorySyncError: String,
     thoiGian: { type: Date, default: Date.now },
     ngayGiaoDuKien: {

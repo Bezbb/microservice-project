@@ -20,8 +20,18 @@ function createAuthToken() {
     return crypto.randomBytes(48).toString('hex');
 }
 
+function createRandomToken(byteLength = 32) {
+    return crypto.randomBytes(byteLength).toString('hex');
+}
+
+function hashToken(token) {
+    return crypto.createHash('sha256').update(String(token || '')).digest('hex');
+}
+
 module.exports = {
     hashPassword,
     verifyPassword,
-    createAuthToken
+    createAuthToken,
+    createRandomToken,
+    hashToken
 };

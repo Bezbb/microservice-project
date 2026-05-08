@@ -5,6 +5,13 @@ const PRODUCT_SERVICE_URL = process.env.PRODUCT_SERVICE_URL || 'http://product-s
 const ORDER_SERVICE_URL = process.env.ORDER_SERVICE_URL || 'http://order-service:3002';
 const PAYMENT_SERVICE_URL = process.env.PAYMENT_SERVICE_URL || 'http://payment-service:3003';
 const INTERNAL_SERVICE_TOKEN = process.env.INTERNAL_SERVICE_TOKEN || 'local-dev-product-token';
+const CORS_ORIGINS = [
+    FRONTEND_URL,
+    ...(process.env.CORS_ORIGINS || '')
+        .split(',')
+        .map((origin) => origin.trim())
+        .filter(Boolean)
+];
 
 module.exports = {
     PORT,
@@ -13,5 +20,6 @@ module.exports = {
     PRODUCT_SERVICE_URL,
     ORDER_SERVICE_URL,
     PAYMENT_SERVICE_URL,
-    INTERNAL_SERVICE_TOKEN
+    INTERNAL_SERVICE_TOKEN,
+    CORS_ORIGINS
 };

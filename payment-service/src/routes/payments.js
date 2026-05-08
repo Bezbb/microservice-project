@@ -3,7 +3,9 @@ const {
     createPayment,
     finalizeMomoPayment,
     findPaymentByMomoOrderId,
-    listPayments
+    listPayments,
+    reconcilePayments,
+    refundPayment
 } = require('../services/paymentService');
 const { createFrontendResultUrl } = require('../services/momoService');
 
@@ -46,6 +48,19 @@ router.get('/momo/return', async (req, res) => {
     }
 });
 
+router.post('/reconcile', async (req, res) => {
+    try {
+        const result = await reconcilePayments({
+            repair: req.body?.repair === true,
+            pendingThresholdMs: req.body?.pendingThresholdMs
+        });
+        return res.json(result);
+    } catch (error) {
+        console.error(error);
+        return res.status(error.statusCode || 500).json({ error: error.message || 'Khong the doi soat thanh toan.' });
+    }
+});
+
 router.post('/', async (req, res) => {
     try {
         const result = await createPayment(req.body);
@@ -53,6 +68,16 @@ router.post('/', async (req, res) => {
     } catch (error) {
         console.error(error);
         return res.status(error.statusCode || 500).json({ error: error.message || 'Khong the tao thanh toan.' });
+    }
+});
+
+router.patch('/:id/refund', async (req, res) => {
+    try {
+        const result = await refundPayment(req.params.id, req.body || {});
+        return res.json(result);
+    } catch (error) {
+        console.error(error);
+        return res.status(error.statusCode || 500).json({ error: error.message || 'Khong the hoan tien.' });
     }
 });
 

@@ -6,13 +6,19 @@ const PAYMENT_METHODS = {
 const PAYMENT_STATUS = {
     PENDING: 'pending',
     PAID: 'paid',
-    FAILED: 'failed'
+    FAILED: 'failed',
+    REFUNDED: 'refunded'
 };
 
 const ORDER_STATUS = {
     PENDING_PAYMENT: 'pending_payment',
     PAID: 'paid',
-    PAYMENT_FAILED: 'payment_failed'
+    CONFIRMED: 'confirmed',
+    SHIPPING: 'shipping',
+    DELIVERED: 'delivered',
+    RETURNED: 'returned',
+    PAYMENT_FAILED: 'payment_failed',
+    CANCELLED: 'cancelled'
 };
 
 const SUPPORTED_PAYMENT_METHODS = new Set(Object.values(PAYMENT_METHODS));

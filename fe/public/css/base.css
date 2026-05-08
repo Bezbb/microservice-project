@@ -11,10 +11,7 @@ html {
 body {
     min-height: 100vh;
     font-family: "Manrope", "Segoe UI", sans-serif;
-    background:
-        radial-gradient(circle at top left, rgba(218, 147, 92, 0.22), transparent 32%),
-        radial-gradient(circle at top right, rgba(45, 138, 125, 0.16), transparent 28%),
-        linear-gradient(180deg, #fbf6ef 0%, #f3ebe0 46%, #f6f0e7 100%);
+    background: linear-gradient(180deg, #f8fafc 0%, #eef4ff 48%, #f7fbff 100%);
     color: var(--text);
     line-height: 1.65;
     position: relative;
@@ -22,31 +19,7 @@ body {
 
 body::before,
 body::after {
-    content: "";
-    position: fixed;
-    inset: auto;
-    pointer-events: none;
-    z-index: 0;
-}
-
-body::before {
-    top: 140px;
-    right: -110px;
-    width: 360px;
-    height: 360px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(203, 107, 46, 0.16), transparent 70%);
-    filter: blur(8px);
-}
-
-body::after {
-    bottom: 90px;
-    left: -120px;
-    width: 320px;
-    height: 320px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(45, 138, 125, 0.16), transparent 72%);
-    filter: blur(12px);
+    display: none;
 }
 
 a {

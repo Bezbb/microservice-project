@@ -6,12 +6,12 @@ const LEGACY_PAYMENT_STORAGE_KEY = 'pendingPayment';
 const IN_STOCK_STATUS = 'Còn hàng';
 const OUT_OF_STOCK_STATUS = 'Hết hàng';
 const CATEGORY_THEMES = [
-    { start: '#23344d', end: '#10192a', glow: 'rgba(90, 132, 203, 0.28)' },
-    { start: '#cb6b2e', end: '#8b4217', glow: 'rgba(236, 171, 112, 0.28)' },
-    { start: '#2d8a7d', end: '#18544b', glow: 'rgba(86, 198, 178, 0.24)' },
-    { start: '#6b5c94', end: '#2f2946', glow: 'rgba(166, 145, 221, 0.24)' },
-    { start: '#8f3048', end: '#4f1d2a', glow: 'rgba(231, 133, 164, 0.22)' },
-    { start: '#5a4a27', end: '#2d2413', glow: 'rgba(241, 214, 180, 0.22)' }
+    { start: '#1e3a8a', end: '#0f172a', glow: 'rgba(96, 165, 250, 0.26)' },
+    { start: '#0f766e', end: '#134e4a', glow: 'rgba(45, 212, 191, 0.24)' },
+    { start: '#4338ca', end: '#312e81', glow: 'rgba(129, 140, 248, 0.24)' },
+    { start: '#0f5f8d', end: '#083344', glow: 'rgba(56, 189, 248, 0.22)' },
+    { start: '#9f1239', end: '#4c0519', glow: 'rgba(251, 113, 133, 0.2)' },
+    { start: '#166534', end: '#14532d', glow: 'rgba(74, 222, 128, 0.2)' }
 ];
 
 const homeState = {
@@ -55,6 +55,19 @@ function formatCurrency(value) {
 
 function normalizeCategoryValue(value) {
     return String(value || '').trim().toLowerCase();
+}
+
+function normalizeCategoryKey(value) {
+    return normalizeCategoryValue(value)
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd');
+}
+
+function isHiddenStorefrontCategory(categoryName) {
+    const key = normalizeCategoryKey(categoryName);
+
+    return key === 'chua phan loai' || key === 'uncategorized';
 }
 
 function buildProductSearchText(product) {
@@ -208,7 +221,7 @@ async function fetchCategoryBrowse() {
         throw new Error('Không tải được dữ liệu danh mục.');
     }
 
-    return payload;
+    return payload.filter((category) => category && !isHiddenStorefrontCategory(category.name));
 }
 
 function deriveCategoryBrowseFromProducts(products) {
@@ -216,7 +229,7 @@ function deriveCategoryBrowseFromProducts(products) {
 
     products.forEach((product) => {
         const categoryName = String(product.danhMuc || '').trim();
-        if (!categoryName) {
+        if (!categoryName || isHiddenStorefrontCategory(categoryName)) {
             return;
         }
 
@@ -413,7 +426,7 @@ function createProductCardElement(product) {
         ? 'Hết hàng'
         : (isAuthenticatedUser() ? 'Thêm vào giỏ' : 'Đăng nhập để mua');
     const categoryName = String(product.danhMuc || '').trim();
-    const categoryMarkup = categoryName
+    const categoryMarkup = categoryName && !isHiddenStorefrontCategory(categoryName)
         ? `<a class="card-eyebrow card-eyebrow-link" href="/categories.html?category=${encodeURIComponent(categoryName)}">${escapeHtml(categoryName)}</a>`
         : '<p class="card-eyebrow">Sản phẩm</p>';
 
@@ -898,6 +911,7 @@ window.Storefront = {
     isOutOfStockProduct,
     getCategoryTheme,
     normalizeCategoryValue,
+    isHiddenStorefrontCategory,
     matchesProductSearch,
     goToCart
 };

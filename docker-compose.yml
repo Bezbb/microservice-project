@@ -1,11 +1,9 @@
-version: '3.8'
-
 services:
   product-db:
     image: mongo:7
     container_name: product-db
-    ports:
-      - "27018:27017"
+    expose:
+      - "27017"
     volumes:
       - product_data:/data/db
     networks:
@@ -14,8 +12,8 @@ services:
   order-db:
     image: mongo:7
     container_name: order-db
-    ports:
-      - "27020:27017"
+    expose:
+      - "27017"
     volumes:
       - order_data:/data/db
     networks:
@@ -24,8 +22,8 @@ services:
   payment-db:
     image: mongo:7
     container_name: payment-db
-    ports:
-      - "27019:27017"
+    expose:
+      - "27017"
     volumes:
       - payment_data:/data/db
     networks:
@@ -34,10 +32,20 @@ services:
   user-db:
     image: mongo:7
     container_name: user-db
-    ports:
-      - "27021:27017"
+    expose:
+      - "27017"
     volumes:
       - user_data:/data/db
+    networks:
+      - app-network
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: mailpit
+    ports:
+      - "8025:8025"
+    expose:
+      - "1025"
     networks:
       - app-network
 
@@ -58,8 +66,8 @@ services:
   order-service:
     build: ./order-service
     container_name: order-service
-    ports:
-      - "3002:3002"
+    expose:
+      - "3002"
     depends_on:
       - order-db
     environment:
@@ -71,8 +79,8 @@ services:
   payment-service:
     build: ./payment-service
     container_name: payment-service
-    ports:
-      - "3003:3003"
+    expose:
+      - "3003"
     depends_on:
       - payment-db
     environment:
@@ -80,9 +88,9 @@ services:
       PUBLIC_API_BASE_URL: ${PUBLIC_API_BASE_URL:-http://localhost:3000}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3004}
       MOMO_ENDPOINT: ${MOMO_ENDPOINT:-https://test-payment.momo.vn/v2/gateway/api/create}
-      MOMO_PARTNER_CODE: ${MOMO_PARTNER_CODE:-MOMO}
-      MOMO_ACCESS_KEY: ${MOMO_ACCESS_KEY:-F8BBA842ECF85}
-      MOMO_SECRET_KEY: ${MOMO_SECRET_KEY:-K951B6PE1waDMi640xX08PD3vg6EkVlz}
+      MOMO_PARTNER_CODE: ${MOMO_PARTNER_CODE:-}
+      MOMO_ACCESS_KEY: ${MOMO_ACCESS_KEY:-}
+      MOMO_SECRET_KEY: ${MOMO_SECRET_KEY:-}
       MOMO_REQUEST_TYPE: ${MOMO_REQUEST_TYPE:-payWithMethod}
     networks:
       - app-network
@@ -90,10 +98,25 @@ services:
   user-service:
     build: ./user-service
     container_name: user-service
-    ports:
-      - "3005:3005"
+    expose:
+      - "3005"
     depends_on:
       - user-db
+      - mailpit
+    environment:
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3004}
+      PUBLIC_API_BASE_URL: ${PUBLIC_API_BASE_URL:-http://localhost:3000}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-http://localhost:3000/api/auth/google/callback}
+      GOOGLE_STATE_SECRET: ${GOOGLE_STATE_SECRET:-local-google-state-secret}
+      PASSWORD_RESET_TTL_MINUTES: ${PASSWORD_RESET_TTL_MINUTES:-30}
+      SMTP_HOST: ${SMTP_HOST:-mailpit}
+      SMTP_PORT: ${SMTP_PORT:-1025}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_FROM: ${SMTP_FROM:-ShopOnline <no-reply@shoponline.local>}
     networks:
       - app-network
 
@@ -119,6 +142,8 @@ services:
       - user-service
     environment:
       INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN:-local-dev-product-token}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3004}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3004}
     networks:
       - app-network
 

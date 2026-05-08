@@ -11,10 +11,8 @@
     overflow: hidden;
     padding: 34px;
     border-radius: 34px;
-    background:
-        radial-gradient(circle at top left, rgba(241, 214, 180, 0.12), transparent 34%),
-        linear-gradient(145deg, #111c2d, #1d2b42 100%);
-    color: #fff9f0;
+    background: linear-gradient(145deg, #13213a, #1e3a8a 58%, #0f766e 100%);
+    color: #f8fafc;
     box-shadow: var(--shadow-xl);
 }
 
@@ -39,7 +37,7 @@
 
 .auth-showcase .section-copy {
     margin-top: 16px;
-    color: rgba(255, 249, 240, 0.76);
+    color: rgba(241, 245, 249, 0.82);
     max-width: 56ch;
 }
 
@@ -64,7 +62,7 @@
 }
 
 .auth-metric span {
-    color: rgba(255, 249, 240, 0.72);
+    color: rgba(226, 232, 240, 0.78);
     font-size: 14px;
 }
 
@@ -74,11 +72,93 @@
     padding: 34px;
 }
 
+.single-auth-shell {
+    grid-template-columns: minmax(0, 620px);
+    justify-content: center;
+}
+
+.single-auth-shell .login-card {
+    justify-self: center;
+}
+
+.auth-status-card {
+    text-align: center;
+}
+
+.auth-status-card .subtext.success {
+    color: #14614f;
+}
+
+.auth-status-card .subtext.error {
+    color: var(--danger);
+    font-weight: 700;
+}
+
+.oauth-button {
+    width: 100%;
+    margin-top: 22px;
+    min-height: 52px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 13px 16px;
+    border-radius: 16px;
+    border: 1px solid rgba(18, 31, 52, 0.14);
+    background: #ffffff;
+    color: var(--text);
+    font-weight: 800;
+    box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
+    transition: transform 0.24s ease, box-shadow 0.24s ease, border-color 0.24s ease;
+}
+
+.oauth-button:hover {
+    transform: translateY(-2px);
+    border-color: rgba(37, 99, 235, 0.28);
+    box-shadow: 0 16px 34px rgba(15, 23, 42, 0.12);
+}
+
+.oauth-icon {
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background:
+        linear-gradient(90deg, #4285f4 0 25%, #34a853 25% 50%, #fbbc05 50% 75%, #ea4335 75% 100%);
+    color: #ffffff;
+    font-weight: 900;
+}
+
+.auth-divider {
+    margin: 20px 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: "";
+    height: 1px;
+    flex: 1;
+    background: var(--border);
+}
+
 .login-form {
     display: flex;
     flex-direction: column;
     gap: 12px;
     margin-top: 22px;
+}
+
+.compact-form {
+    margin-top: 14px;
 }
 
 .login-form label,
@@ -109,8 +189,8 @@
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-    border-color: rgba(203, 107, 46, 0.44);
-    box-shadow: 0 0 0 4px rgba(203, 107, 46, 0.12);
+    border-color: rgba(37, 99, 235, 0.42);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
     transform: translateY(-1px);
 }
 
@@ -139,6 +219,28 @@
 .auth-switch {
     margin-top: 10px;
     color: var(--muted);
+}
+
+.forgot-panel {
+    margin-top: 10px;
+    padding: 14px 16px;
+    border-radius: 18px;
+    background: rgba(237, 244, 255, 0.72);
+    border: 1px solid rgba(37, 99, 235, 0.12);
+}
+
+.forgot-panel summary {
+    cursor: pointer;
+    color: var(--accent-deep);
+    font-weight: 800;
+}
+
+.forgot-panel .login-message {
+    margin-top: 10px;
+}
+
+.full-width-btn {
+    width: 100%;
 }
 
 .inline-link {

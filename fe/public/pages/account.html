@@ -48,6 +48,10 @@
                             <strong id="account-last-login-at">...</strong>
                         </div>
                     </div>
+                    <div class="account-quick-actions">
+                        <a class="secondary-link" href="/">Mua tiếp</a>
+                        <a class="secondary-link" href="/cart.html">Xem giỏ hàng</a>
+                    </div>
                 </article>
 
                 <article class="account-card">
@@ -66,9 +70,20 @@
                             <strong id="stats-paid-orders">0</strong>
                         </div>
                         <div class="account-stat">
+                            <span>Đang xử lý</span>
+                            <strong id="stats-active-orders">0</strong>
+                        </div>
+                        <div class="account-stat">
                             <span>Tổng chi tiêu</span>
                             <strong id="stats-total-spent">0 VND</strong>
                         </div>
+                    </div>
+                </article>
+
+                <article class="account-card account-snapshot-card">
+                    <p class="card-eyebrow">Trạng thái mua hàng</p>
+                    <div id="account-current-focus" class="account-current-focus">
+                        Đang tải trạng thái đơn hàng...
                     </div>
                 </article>
             </aside>
@@ -129,6 +144,26 @@
                         <button type="button" class="secondary-btn" id="refresh-orders-button">Tải lại</button>
                     </div>
 
+                    <div class="account-order-tools">
+                        <input type="search" id="account-order-search" class="account-order-input" placeholder="Tìm mã đơn, sản phẩm hoặc người nhận">
+                        <select id="account-order-status" class="account-order-select">
+                            <option value="all">Tất cả trạng thái</option>
+                            <option value="pending_payment">Chờ thanh toán</option>
+                            <option value="paid">Đã thanh toán</option>
+                            <option value="confirmed">Đã xác nhận</option>
+                            <option value="shipping">Đang giao</option>
+                            <option value="delivered">Đã giao</option>
+                            <option value="returned">Đã hoàn trả</option>
+                            <option value="cancelled">Đã hủy</option>
+                            <option value="payment_failed">Thanh toán thất bại</option>
+                        </select>
+                        <select id="account-order-sort" class="account-order-select">
+                            <option value="newest">Mới nhất</option>
+                            <option value="oldest">Cũ nhất</option>
+                            <option value="amount-desc">Giá trị cao nhất</option>
+                        </select>
+                    </div>
+                    <p id="account-order-count" class="account-order-count">0 đơn hàng</p>
                     <p id="account-orders-message" class="account-message"></p>
                     <div id="orders-list" class="orders-list"></div>
                 </article>

@@ -1,8 +1,10 @@
 const Order = require('../models/order');
 const {
     ALLOWED_ORDER_STATUSES,
+    CUSTOMER_CANCELLABLE_ORDER_STATUSES,
     INVENTORY_STATE,
-    ORDER_STATUS
+    ORDER_STATUS,
+    ORDER_STATUS_TRANSITIONS
 } = require('../config/constants');
 const { ORDER_PAYMENT_TIMEOUT_MS } = require('../config/env');
 const { createHttpError } = require('../utils/errors');
@@ -73,24 +75,16 @@ function ensureStatusTransitionAllowed(order, nextStatus) {
         return;
     }
 
-    if (order.status === ORDER_STATUS.PAID && nextStatus === ORDER_STATUS.PENDING_PAYMENT) {
-        throw createHttpError('Khong the dua don hang da thanh toan ve trang thai cho thanh toan.', 409);
-    }
-
-    if (
-        (order.status === ORDER_STATUS.CANCELLED || order.status === ORDER_STATUS.PAYMENT_FAILED)
-        && nextStatus !== order.status
-    ) {
-        throw createHttpError('Don hang da dong trang thai va khong the thay doi them.', 409);
-    }
-
-    if (order.status === ORDER_STATUS.PAID && nextStatus === ORDER_STATUS.PAYMENT_FAILED) {
-        throw createHttpError('Don hang da thanh toan khong the danh dau thanh toan that bai.', 409);
+    const allowedNextStatuses = ORDER_STATUS_TRANSITIONS.get(order.status) || new Set();
+    if (!allowedNextStatuses.has(nextStatus)) {
+        throw createHttpError(`Khong the chuyen don hang tu ${order.status} sang ${nextStatus}.`, 409);
     }
 }
 
 function isReleaseStatus(status) {
-    return status === ORDER_STATUS.CANCELLED || status === ORDER_STATUS.PAYMENT_FAILED;
+    return status === ORDER_STATUS.CANCELLED
+        || status === ORDER_STATUS.PAYMENT_FAILED
+        || status === ORDER_STATUS.RETURNED;
 }
 
 async function syncInventoryForStatus(order, nextStatus) {
@@ -203,7 +197,27 @@ async function findOrderById(orderId) {
     return Order.findById(orderId);
 }
 
-async function updateOrderStatus(orderId, body) {
+function applyOrderStatusMetadata(order, status, body = {}, updatedAt = new Date()) {
+    if (status === ORDER_STATUS.CANCELLED) {
+        order.cancelledReason = String(body.cancelledReason || body.reason || '').trim() || 'manual';
+        order.cancelledBy = String(body.cancelledBy || '').trim() || 'admin';
+    }
+
+    if (status === ORDER_STATUS.SHIPPING && !order.shippingStartedAt) {
+        order.shippingStartedAt = updatedAt;
+    }
+
+    if (status === ORDER_STATUS.DELIVERED && !order.deliveredAt) {
+        order.deliveredAt = updatedAt;
+    }
+
+    if (status === ORDER_STATUS.RETURNED) {
+        order.returnedAt = updatedAt;
+        order.returnReason = String(body.returnReason || body.reason || '').trim() || 'manual';
+    }
+}
+
+async function updateOrderStatus(orderId, body = {}) {
     const order = await Order.findById(orderId);
 
     if (!order) {
@@ -214,16 +228,14 @@ async function updateOrderStatus(orderId, body) {
     ensureStatusTransitionAllowed(order, status);
 
     const nextInventoryState = await syncInventoryForStatus(order, status);
+    const updatedAt = new Date();
 
     order.status = status;
     order.inventoryState = nextInventoryState;
-    order.inventoryUpdatedAt = new Date();
-    order.statusUpdatedAt = new Date();
+    order.inventoryUpdatedAt = updatedAt;
+    order.statusUpdatedAt = updatedAt;
     order.inventorySyncError = '';
-
-    if (status === ORDER_STATUS.CANCELLED) {
-        order.cancelledReason = String(body.cancelledReason || body.reason || '').trim() || 'manual';
-    }
+    applyOrderStatusMetadata(order, status, body, updatedAt);
 
     if (body.paymentMethod) {
         order.paymentMethod = body.paymentMethod;
@@ -249,6 +261,28 @@ async function updateOrderStatus(orderId, body) {
     return order;
 }
 
+async function cancelOrderForUser(orderId, user, body = {}) {
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+        throw createHttpError('Khong tim thay don hang de huy.', 404);
+    }
+
+    if (!user?.userId || order.user?.userId !== user.userId) {
+        throw createHttpError('Ban khong co quyen huy don hang nay.', 403);
+    }
+
+    if (!CUSTOMER_CANCELLABLE_ORDER_STATUSES.has(order.status)) {
+        throw createHttpError('Don hang nay khong con o trang thai co the tu huy.', 409);
+    }
+
+    return updateOrderStatus(orderId, {
+        status: ORDER_STATUS.CANCELLED,
+        reason: body.reason || body.cancelledReason || 'customer_cancelled',
+        cancelledBy: 'customer'
+    });
+}
+
 async function deleteOrder(orderId) {
     const order = await Order.findById(orderId);
 
@@ -269,6 +303,7 @@ async function deleteOrder(orderId) {
 }
 
 module.exports = {
+    cancelOrderForUser,
     createOrder,
     deleteOrder,
     findOrderById,

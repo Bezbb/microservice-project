@@ -8,6 +8,8 @@ function sanitizeUser(user) {
         fullName: user.fullName,
         email: user.email,
         role: user.role,
+        provider: user.provider || 'local',
+        avatarUrl: user.avatarUrl || null,
         lastLoginAt: user.lastLoginAt || null,
         createdAt: user.createdAt
     };

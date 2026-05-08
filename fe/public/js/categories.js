@@ -385,7 +385,9 @@ if (storefront) {
         } catch (error) {
             console.error('Lỗi khi tải trang danh mục:', error);
             categoryFocusElement.innerHTML = '<div class="loading-card error-card">Không tải được dữ liệu danh mục.</div>';
-            categoryGridElement.innerHTML = '<div class="loading-card error-card">Không tải được danh sách danh mục.</div>';
+            if (categoryGridElement) {
+                categoryGridElement.innerHTML = '<div class="loading-card error-card">Không tải được danh sách danh mục.</div>';
+            }
             categoryProductsElement.innerHTML = '<div class="loading-card error-card">Không tải được sản phẩm. Hãy thử tải lại trang.</div>';
             categoryResultsSummaryElement.textContent = 'Không tải được dữ liệu storefront.';
         }

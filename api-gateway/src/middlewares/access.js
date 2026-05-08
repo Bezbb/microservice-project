@@ -46,6 +46,10 @@ function requireOrderAccess(req, res, next) {
         return requireAuthenticatedUser(req, res, next);
     }
 
+    if (req.method === 'PATCH' && req.path.endsWith('/cancel')) {
+        return requireAuthenticatedUser(req, res, next);
+    }
+
     return requireAdmin(req, res, next);
 }
 
@@ -61,7 +65,11 @@ function requirePaymentAccess(req, res, next) {
         return requireAdmin(req, res, next);
     }
 
-    return requireAuthenticatedForMutations(req, res, next);
+    if (req.method === 'POST' && req.path === '/') {
+        return requireAuthenticatedForMutations(req, res, next);
+    }
+
+    return requireAdmin(req, res, next);
 }
 
 module.exports = {

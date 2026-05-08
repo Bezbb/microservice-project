@@ -16,6 +16,12 @@ const paymentSchema = new mongoose.Schema({
     momoNotification: mongoose.Schema.Types.Mixed,
     paidAt: Date,
     failedAt: Date,
+    refundedAt: Date,
+    refundReason: String,
+    refundAmount: Number,
+    refundTransactionId: String,
+    refundHandledBy: String,
+    refundNote: String,
     updatedAt: { type: Date, default: Date.now },
     createdAt: { type: Date, default: Date.now }
 });

@@ -16,6 +16,7 @@
                 <li><a href="/admin-products.html" class="active">Tổng quan</a></li>
                 <li><a href="#product-management">Sản phẩm</a></li>
                 <li><a href="#category-management">Danh mục</a></li>
+                <li><a href="#order-management">Đơn hàng</a></li>
                 <li><a href="#user-management">Người dùng</a></li>
                 <li><a href="/">Trang bán hàng</a></li>
                 <li><a href="/account.html">Tài khoản của tôi</a></li>
@@ -246,6 +247,67 @@
                             </tr>
                         </thead>
                         <tbody id="product-table-body"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="table-section" id="order-management">
+                <div class="table-header admin-user-header">
+                    <div>
+                        <p class="card-eyebrow">Đơn hàng</p>
+                        <h2>Quản lý tất cả đơn hàng</h2>
+                    </div>
+                    <div class="table-actions user-table-actions">
+                        <p id="all-order-count">0 đơn hàng</p>
+                        <button class="refresh-button" type="button" id="reconcile-payments-button">Đối soát</button>
+                        <button class="secondary-btn" type="button" id="repair-payments-button">Sửa lệch</button>
+                        <button class="refresh-button" type="button" id="refresh-orders-button">Tải lại đơn hàng</button>
+                    </div>
+                </div>
+
+                <div class="admin-filter-grid">
+                    <input type="search" id="order-search-input" class="admin-search-input" placeholder="Tìm mã đơn, khách hàng, email hoặc SĐT">
+                    <select id="order-status-filter" class="admin-select">
+                        <option value="all">Tất cả trạng thái</option>
+                        <option value="pending_payment">Chờ thanh toán</option>
+                        <option value="paid">Đã thanh toán</option>
+                        <option value="confirmed">Đã xác nhận</option>
+                        <option value="shipping">Đang giao</option>
+                        <option value="delivered">Đã giao</option>
+                        <option value="returned">Đã hoàn trả</option>
+                        <option value="cancelled">Đã hủy</option>
+                        <option value="payment_failed">Thanh toán thất bại</option>
+                    </select>
+                    <select id="order-payment-filter" class="admin-select">
+                        <option value="all">Tất cả thanh toán</option>
+                        <option value="pending">Đang chờ</option>
+                        <option value="paid">Đã thu tiền</option>
+                        <option value="failed">Thất bại</option>
+                        <option value="refunded">Đã hoàn tiền</option>
+                        <option value="unpaid">Chưa có giao dịch</option>
+                    </select>
+                    <input type="date" id="order-date-from" class="admin-search-input">
+                    <input type="date" id="order-date-to" class="admin-search-input">
+                </div>
+
+                <p id="order-management-message" class="account-message"></p>
+                <div id="reconciliation-result" class="reconciliation-result" hidden></div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mã đơn</th>
+                                <th>Khách hàng</th>
+                                <th>Trạng thái</th>
+                                <th>Thanh toán</th>
+                                <th>Ngày đặt</th>
+                                <th>Dự kiến giao</th>
+                                <th>Tổng tiền</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="all-order-table-body"></tbody>
                     </table>
                 </div>
             </section>

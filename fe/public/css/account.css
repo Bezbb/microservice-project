@@ -64,6 +64,31 @@
     color: #102033;
 }
 
+.account-quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.account-quick-actions .secondary-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 0 14px;
+    border-radius: 14px;
+    border: 1px solid rgba(28, 40, 58, 0.1);
+    background: rgba(246, 249, 253, 0.9);
+    color: #102033;
+    font-weight: 700;
+}
+
+.account-quick-actions .secondary-link:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 30px rgba(17, 34, 68, 0.08);
+}
+
 .account-editor-form {
     gap: 18px;
 }
@@ -115,6 +140,27 @@
     color: #102033;
 }
 
+.account-snapshot-card {
+    display: grid;
+    gap: 14px;
+}
+
+.account-current-focus {
+    display: grid;
+    gap: 10px;
+    padding: 16px;
+    border-radius: 20px;
+    background: rgba(246, 249, 253, 0.78);
+    border: 1px solid rgba(28, 40, 58, 0.08);
+    color: rgba(28, 40, 58, 0.76);
+    line-height: 1.55;
+}
+
+.account-current-focus strong {
+    color: #102033;
+    font-size: 1.05rem;
+}
+
 .account-message {
     margin: 0 0 18px;
     min-height: 24px;
@@ -136,6 +182,30 @@
 .orders-list {
     display: grid;
     gap: 18px;
+}
+
+.account-order-tools {
+    display: grid;
+    grid-template-columns: minmax(220px, 1.4fr) minmax(160px, 0.8fr) minmax(150px, 0.7fr);
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.account-order-input,
+.account-order-select {
+    min-height: 46px;
+    padding: 0 14px;
+    border-radius: 14px;
+    border: 1px solid rgba(28, 40, 58, 0.12);
+    background: rgba(255, 255, 255, 0.88);
+    color: #102033;
+    font: inherit;
+}
+
+.account-order-count {
+    margin: 0 0 12px;
+    color: rgba(28, 40, 58, 0.64);
+    font-weight: 700;
 }
 
 .order-card {
@@ -173,6 +243,16 @@
     background: rgba(18, 106, 69, 0.12);
 }
 
+.account-status-badge.is-shipping {
+    color: #205c93;
+    background: rgba(38, 119, 184, 0.14);
+}
+
+.account-status-badge.is-delivered {
+    color: #165f5d;
+    background: rgba(28, 133, 128, 0.14);
+}
+
 .account-status-badge.is-pending {
     color: #9a5a00;
     background: rgba(244, 168, 46, 0.16);
@@ -188,6 +268,46 @@
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 14px;
     margin-top: 18px;
+}
+
+.order-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.order-progress {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 18px;
+}
+
+.order-progress-step {
+    min-height: 58px;
+    padding: 10px;
+    border-radius: 16px;
+    background: rgba(242, 246, 250, 0.9);
+    border: 1px solid rgba(28, 40, 58, 0.06);
+    color: rgba(28, 40, 58, 0.58);
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.order-progress-step.is-done {
+    background: rgba(18, 106, 69, 0.1);
+    color: #126a45;
+}
+
+.order-progress-step.is-current {
+    background: rgba(38, 119, 184, 0.14);
+    color: #205c93;
+}
+
+.order-progress-step.is-stopped {
+    background: rgba(212, 92, 84, 0.14);
+    color: #8c2f2a;
 }
 
 .order-block {
@@ -263,7 +383,12 @@
 }
 
 @media (max-width: 820px) {
+    .account-order-tools,
     .account-password-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .order-progress {
         grid-template-columns: 1fr;
     }
 }

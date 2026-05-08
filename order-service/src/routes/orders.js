@@ -1,5 +1,6 @@
 const express = require('express');
 const {
+    cancelOrderForUser,
     createOrder,
     deleteOrder,
     findOrderById,
@@ -113,6 +114,28 @@ router.patch('/:id/status', async (req, res) => {
         console.error(error);
         return res.status(error.statusCode || 400).json({
             loi: error.message || 'Khong the cap nhat trang thai don hang.'
+        });
+    }
+});
+
+router.patch('/:id/cancel', async (req, res) => {
+    try {
+        const user = normalizeRequestUser(req);
+
+        if (!hasValidRequestUser(user)) {
+            return res.status(401).json({ loi: 'Ban can dang nhap de huy don hang.' });
+        }
+
+        const order = await cancelOrderForUser(req.params.id, user, req.body);
+
+        return res.json({
+            thongBao: 'Da huy don hang thanh cong.',
+            donHang: order
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(error.statusCode || 400).json({
+            loi: error.message || 'Khong the huy don hang.'
         });
     }
 });

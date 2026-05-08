@@ -17,10 +17,8 @@
     min-height: calc(100vh - 36px);
     padding: 28px;
     border-radius: 34px;
-    background:
-        radial-gradient(circle at top left, rgba(241, 214, 180, 0.12), transparent 36%),
-        linear-gradient(180deg, #111c2d, #19263d 100%);
-    color: #fff9f0;
+    background: linear-gradient(180deg, #13213a, #1e3a8a 68%, #0f766e 100%);
+    color: #f8fafc;
     box-shadow: var(--shadow-xl);
 }
 
@@ -34,7 +32,7 @@
 
 .sidebar-user-label {
     margin-bottom: 8px;
-    color: rgba(255, 249, 240, 0.62);
+    color: rgba(226, 232, 240, 0.72);
     font-size: 12px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -50,7 +48,7 @@
 
 .sidebar-user-email {
     margin-top: 6px;
-    color: rgba(255, 249, 240, 0.76);
+    color: rgba(226, 232, 240, 0.82);
     font-size: 14px;
 }
 
@@ -74,7 +72,7 @@
 }
 
 .sidebar a {
-    color: rgba(255, 249, 240, 0.78);
+    color: rgba(241, 245, 249, 0.82);
     display: block;
     padding: 13px 16px;
     border-radius: 16px;
@@ -85,7 +83,7 @@
 .sidebar a:hover,
 .sidebar a.active {
     background: rgba(255, 255, 255, 0.08);
-    color: #fff9f0;
+    color: #f8fafc;
     transform: translateX(4px);
 }
 
@@ -102,7 +100,7 @@
 }
 
 .page-header .eyebrow {
-    background: rgba(255, 244, 229, 0.86);
+    background: var(--accent-soft);
 }
 
 .page-header h1 {
@@ -183,7 +181,7 @@ td img {
     height: 72px;
     object-fit: cover;
     border-radius: 18px;
-    background: linear-gradient(135deg, #f4ece1, #ede1d3);
+    background: linear-gradient(135deg, #e0f2fe, #e0e7ff);
 }
 
 .edit-btn {
@@ -350,6 +348,40 @@ td img {
 
 .admin-search-input {
     min-width: min(100%, 260px);
+}
+
+.admin-filter-grid {
+    display: grid;
+    grid-template-columns: minmax(220px, 1.4fr) repeat(4, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.order-table-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.payment-stack {
+    display: grid;
+    gap: 6px;
+}
+
+.payment-meta {
+    color: rgba(16, 32, 51, 0.62);
+    font-size: 0.86rem;
+    line-height: 1.4;
+}
+
+.reconciliation-result {
+    margin: -6px 0 18px;
+    padding: 14px 16px;
+    border-radius: 18px;
+    border: 1px solid rgba(16, 32, 51, 0.1);
+    background: rgba(247, 250, 255, 0.9);
+    color: rgba(16, 32, 51, 0.78);
+    line-height: 1.55;
 }
 
 .users-layout {

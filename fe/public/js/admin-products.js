@@ -15,11 +15,33 @@ const state = {
     payments: [],
     selectedUserId: '',
     userSearch: '',
-    userRoleFilter: 'all'
+    userRoleFilter: 'all',
+    orderSearch: '',
+    orderStatusFilter: 'all',
+    orderPaymentFilter: 'all',
+    orderDateFrom: '',
+    orderDateTo: ''
 };
 
 const DELIVERY_WINDOW_DAYS = 7;
 const DELIVERY_WINDOW_MS = DELIVERY_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+const PAID_ORDER_STATUSES = new Set(['paid', 'confirmed', 'shipping', 'delivered']);
+const ORDER_STATUS_ACTIONS = {
+    paid: [
+        { status: 'confirmed', label: 'Xác nhận' },
+        { status: 'cancelled', label: 'Hủy đơn' }
+    ],
+    confirmed: [
+        { status: 'shipping', label: 'Đang giao' },
+        { status: 'cancelled', label: 'Hủy đơn' }
+    ],
+    shipping: [
+        { status: 'delivered', label: 'Đã giao' }
+    ],
+    delivered: [
+        { status: 'returned', label: 'Hoàn trả' }
+    ]
+};
 
 const form = document.getElementById('product-form');
 const tableBody = document.getElementById('product-table-body');
@@ -74,6 +96,19 @@ const selectedUserTotalOrders = document.getElementById('selected-user-total-ord
 const selectedUserPendingOrders = document.getElementById('selected-user-pending-orders');
 const selectedUserPaidOrders = document.getElementById('selected-user-paid-orders');
 const selectedUserTotalSpent = document.getElementById('selected-user-total-spent');
+
+const allOrderTableBody = document.getElementById('all-order-table-body');
+const allOrderCount = document.getElementById('all-order-count');
+const orderManagementMessage = document.getElementById('order-management-message');
+const reconciliationResult = document.getElementById('reconciliation-result');
+const orderSearchInput = document.getElementById('order-search-input');
+const orderStatusFilter = document.getElementById('order-status-filter');
+const orderPaymentFilter = document.getElementById('order-payment-filter');
+const orderDateFromInput = document.getElementById('order-date-from');
+const orderDateToInput = document.getElementById('order-date-to');
+const refreshOrdersButton = document.getElementById('refresh-orders-button');
+const reconcilePaymentsButton = document.getElementById('reconcile-payments-button');
+const repairPaymentsButton = document.getElementById('repair-payments-button');
 
 const overviewProducts = document.getElementById('overview-products');
 const overviewUsers = document.getElementById('overview-users');
@@ -160,6 +195,14 @@ function formatOrderStatus(status) {
     switch (status) {
     case 'paid':
         return 'Đã thanh toán';
+    case 'confirmed':
+        return 'Đã xác nhận';
+    case 'shipping':
+        return 'Đang giao';
+    case 'delivered':
+        return 'Đã giao';
+    case 'returned':
+        return 'Đã hoàn trả';
     case 'pending_payment':
         return 'Chờ thanh toán';
     case 'cancelled':
@@ -172,11 +215,19 @@ function formatOrderStatus(status) {
 }
 
 function getOrderStatusClass(status) {
-    if (status === 'paid') {
+    if (status === 'paid' || status === 'confirmed') {
         return 'is-paid';
     }
 
-    if (status === 'cancelled' || status === 'payment_failed') {
+    if (status === 'shipping') {
+        return 'is-shipping';
+    }
+
+    if (status === 'delivered') {
+        return 'is-delivered';
+    }
+
+    if (status === 'cancelled' || status === 'payment_failed' || status === 'returned') {
         return 'is-cancelled';
     }
 
@@ -194,6 +245,33 @@ function formatPaymentMethod(method) {
     default:
         return method || 'Chưa thanh toán';
     }
+}
+
+function formatPaymentStatus(status) {
+    switch (status) {
+    case 'paid':
+        return 'Đã thu tiền';
+    case 'pending':
+        return 'Đang chờ';
+    case 'failed':
+        return 'Thất bại';
+    case 'refunded':
+        return 'Đã hoàn tiền';
+    default:
+        return status || 'Chưa có giao dịch';
+    }
+}
+
+function getPaymentStatusClass(status) {
+    if (status === 'paid') {
+        return 'is-paid';
+    }
+
+    if (status === 'refunded' || status === 'failed') {
+        return 'is-cancelled';
+    }
+
+    return 'is-pending';
 }
 
 function getImageUrl(image) {
@@ -277,6 +355,11 @@ function setUserManagementMessage(text, type = '') {
 function setCategoryManagementMessage(text, type = '') {
     categoryManagementMessage.textContent = text;
     categoryManagementMessage.className = `account-message ${type}`.trim();
+}
+
+function setOrderManagementMessage(text, type = '') {
+    orderManagementMessage.textContent = text;
+    orderManagementMessage.className = `account-message ${type}`.trim();
 }
 
 function getSelectedUser() {
@@ -371,15 +454,20 @@ function getOrdersForUser(userId) {
 }
 
 function getPaymentForOrder(orderId) {
-    return state.payments.find((payment) => payment.orderId === orderId) || null;
+    const payments = state.payments.filter((payment) => payment.orderId === orderId);
+
+    return payments.find((payment) => payment.status === 'paid')
+        || payments.find((payment) => payment.status === 'refunded')
+        || payments[0]
+        || null;
 }
 
 function getOrderStats(orders) {
     const totalOrders = orders.length;
     const pendingOrders = orders.filter((order) => order.status === 'pending_payment').length;
-    const paidOrders = orders.filter((order) => order.status === 'paid').length;
+    const paidOrders = orders.filter((order) => PAID_ORDER_STATUSES.has(order.status)).length;
     const totalSpent = orders
-        .filter((order) => order.status === 'paid')
+        .filter((order) => PAID_ORDER_STATUSES.has(order.status))
         .reduce((sum, order) => sum + (Number(order.totalAmount) || 0), 0);
 
     return {
@@ -390,10 +478,210 @@ function getOrderStats(orders) {
     };
 }
 
+function getOrderActionButtons(order) {
+    const actions = ORDER_STATUS_ACTIONS[order.status] || [];
+    const refundButton = getRefundActionButton(order);
+
+    if (!actions.length && !refundButton) {
+        return '';
+    }
+
+    return `
+        <div class="order-actions">
+            ${actions.map((action) => `
+                <button class="${action.status === 'cancelled' || action.status === 'returned' ? 'delete-btn' : 'edit-btn'}" type="button" onclick="updateOrderStatus('${escapeHtml(order._id)}', '${escapeHtml(action.status)}')">
+                    ${escapeHtml(action.label)}
+                </button>
+            `).join('')}
+            ${refundButton}
+        </div>
+    `;
+}
+
+function getRefundActionButton(order) {
+    const payment = getPaymentForOrder(order._id);
+
+    if (order.status !== 'returned' || payment?.status !== 'paid') {
+        return '';
+    }
+
+    return `
+        <button class="delete-btn" type="button" onclick="refundPayment('${escapeHtml(payment._id)}', '${escapeHtml(order._id)}')">
+            Hoàn tiền
+        </button>
+    `;
+}
+
+function getOrderTableActions(order) {
+    const actions = ORDER_STATUS_ACTIONS[order.status] || [];
+    const actionButtons = actions.map((action) => `
+        <button class="${action.status === 'cancelled' || action.status === 'returned' ? 'delete-btn' : 'edit-btn'}" type="button" onclick="updateOrderStatus('${escapeHtml(order._id)}', '${escapeHtml(action.status)}')">
+            ${escapeHtml(action.label)}
+        </button>
+    `).join('');
+    const refundButton = getRefundActionButton(order);
+
+    if (!actionButtons && !refundButton) {
+        return '<span class="supporting-copy">Không có thao tác</span>';
+    }
+
+    return `<div class="order-table-actions">${actionButtons}${refundButton}</div>`;
+}
+
+function getOrderSearchText(order, payment) {
+    return [
+        order._id,
+        order.user?.fullName,
+        order.user?.email,
+        order.customerInfo?.fullName,
+        order.customerInfo?.phone,
+        order.customerInfo?.address,
+        order.transactionId,
+        payment?.transactionId,
+        payment?.momoOrderId
+    ].filter(Boolean).join(' ').toLowerCase();
+}
+
+function getOrderPaymentFilterValue(order) {
+    const payment = getPaymentForOrder(order._id);
+    return payment?.status || 'unpaid';
+}
+
+function parseDateFilter(value, isEndOfDay = false) {
+    if (!value) {
+        return null;
+    }
+
+    const date = new Date(`${value}T${isEndOfDay ? '23:59:59.999' : '00:00:00.000'}`);
+
+    return Number.isFinite(date.getTime()) ? date : null;
+}
+
+function getFilteredOrders() {
+    const query = state.orderSearch.trim().toLowerCase();
+    const fromDate = parseDateFilter(state.orderDateFrom);
+    const toDate = parseDateFilter(state.orderDateTo, true);
+
+    return state.orders.filter((order) => {
+        const payment = getPaymentForOrder(order._id);
+        const orderedAt = new Date(order.thoiGian || '');
+
+        if (query && !getOrderSearchText(order, payment).includes(query)) {
+            return false;
+        }
+
+        if (state.orderStatusFilter !== 'all' && order.status !== state.orderStatusFilter) {
+            return false;
+        }
+
+        if (state.orderPaymentFilter !== 'all' && getOrderPaymentFilterValue(order) !== state.orderPaymentFilter) {
+            return false;
+        }
+
+        if (fromDate && (!Number.isFinite(orderedAt.getTime()) || orderedAt < fromDate)) {
+            return false;
+        }
+
+        if (toDate && (!Number.isFinite(orderedAt.getTime()) || orderedAt > toDate)) {
+            return false;
+        }
+
+        return true;
+    });
+}
+
+function renderPaymentSummary(order) {
+    const payment = getPaymentForOrder(order._id);
+    const paymentStatus = payment?.status || '';
+    const method = payment?.method || order.paymentMethod || '';
+    const transactionId = payment?.transactionId || order.transactionId || payment?.momoOrderId || '-';
+
+    return `
+        <div class="payment-stack">
+            <span class="account-status-badge ${getPaymentStatusClass(paymentStatus)}">${escapeHtml(formatPaymentStatus(paymentStatus))}</span>
+            <span>${escapeHtml(formatPaymentMethod(method))}</span>
+            <span class="payment-meta">${escapeHtml(transactionId)}</span>
+            ${payment?.refundAmount ? `<span class="payment-meta">Hoàn: ${formatCurrency(payment.refundAmount)}</span>` : ''}
+        </div>
+    `;
+}
+
+function renderAllOrdersTable() {
+    const orders = getFilteredOrders();
+
+    allOrderCount.textContent = `${orders.length}/${state.orders.length} đơn hàng`;
+
+    if (!orders.length) {
+        allOrderTableBody.innerHTML = '<tr><td colspan="8">Không có đơn hàng phù hợp bộ lọc.</td></tr>';
+        return;
+    }
+
+    allOrderTableBody.innerHTML = orders.map((order) => `
+        <tr>
+            <td>
+                <strong>${escapeHtml(order._id)}</strong>
+                <span class="table-subtext">${escapeHtml((order.items || []).map((item) => item.name).join(', ') || '-')}</span>
+            </td>
+            <td>
+                ${escapeHtml(order.customerInfo?.fullName || order.user?.fullName || '-')}
+                <span class="table-subtext">${escapeHtml(order.user?.email || order.customerInfo?.phone || '-')}</span>
+            </td>
+            <td>
+                <span class="account-status-badge ${getOrderStatusClass(order.status)}">${escapeHtml(formatOrderStatus(order.status))}</span>
+            </td>
+            <td>${renderPaymentSummary(order)}</td>
+            <td>${formatDate(order.thoiGian)}</td>
+            <td>${formatDate(getEstimatedDeliveryDate(order))}</td>
+            <td>${formatCurrency(order.totalAmount)}</td>
+            <td>${getOrderTableActions(order)}</td>
+        </tr>
+    `).join('');
+}
+
+function formatReconciliationIssue(issue) {
+    switch (issue?.code) {
+    case 'order_not_found':
+        return 'Không tìm thấy đơn hàng tương ứng với thanh toán.';
+    case 'refund_required':
+        return 'Đơn hàng đã hoàn trả nhưng giao dịch chưa được ghi nhận hoàn tiền.';
+    case 'paid_payment_waiting_order':
+        return 'Thanh toán đã thành công nhưng đơn hàng vẫn đang chờ thanh toán.';
+    case 'paid_payment_order_mismatch':
+        return 'Thanh toán đã thành công nhưng trạng thái đơn hàng không phù hợp.';
+    case 'failed_payment_waiting_order':
+        return 'Thanh toán thất bại nhưng đơn hàng vẫn đang chờ thanh toán.';
+    case 'failed_payment_paid_order':
+        return 'Giao dịch thất bại nhưng đơn hàng đang ở trạng thái đã thu tiền.';
+    case 'refunded_payment_order_not_returned':
+        return 'Thanh toán đã hoàn tiền nhưng đơn hàng chưa ở trạng thái hoàn trả.';
+    case 'stale_pending_payment':
+        return 'Giao dịch thanh toán đang chờ quá thời gian xử lý.';
+    case 'pending_payment_order_mismatch':
+        return 'Giao dịch đang chờ nhưng đơn hàng không còn chờ thanh toán.';
+    default:
+        return issue?.message || 'Lệch thanh toán cần kiểm tra.';
+    }
+}
+
+function renderReconciliationResult(result) {
+    const issues = Array.isArray(result?.issues) ? result.issues : [];
+    const repaired = Array.isArray(result?.repaired) ? result.repaired : [];
+    const issuePreview = issues.slice(0, 5).map((issue) => `
+        <li>${escapeHtml(issue.orderId)}: ${escapeHtml(formatReconciliationIssue(issue))}${issue.repairError ? ` (${escapeHtml(issue.repairError)})` : ''}</li>
+    `).join('');
+
+    reconciliationResult.hidden = false;
+    reconciliationResult.innerHTML = `
+        <strong>Đã kiểm tra ${Number(result?.checked) || 0} giao dịch.</strong>
+        <div>${repaired.length} lệch đã sửa, ${issues.length} lệch cần xử lý.</div>
+        ${issuePreview ? `<ul>${issuePreview}</ul>` : '<div>Không còn lệch thanh toán cần xử lý.</div>'}
+    `;
+}
+
 function renderOverview() {
     const adminCount = state.users.filter((user) => user.role === 'admin').length;
     const customerCount = Math.max(0, state.users.length - adminCount);
-    const paidOrders = state.orders.filter((order) => order.status === 'paid');
+    const paidOrders = state.orders.filter((order) => PAID_ORDER_STATUSES.has(order.status));
     const revenue = paidOrders.reduce((sum, order) => sum + (Number(order.totalAmount) || 0), 0);
 
     overviewProducts.textContent = String(state.products.length);
@@ -426,6 +714,7 @@ function renderOrderCards(container, orders, emptyState) {
                 <strong>${formatCurrency((Number(item.price) || 0) * (Number(item.quantity) || 0))}</strong>
             </div>
         `).join('');
+        const orderActionsHtml = getOrderActionButtons(order);
 
         return `
             <article class="order-card">
@@ -459,6 +748,8 @@ function renderOrderCards(container, orders, emptyState) {
                         <strong>${escapeHtml(order.transactionId || '-')}</strong>
                     </div>
                 </div>
+
+                ${orderActionsHtml}
 
                 <div class="order-section">
                     <p class="order-section-title">Người nhận</p>
@@ -551,7 +842,7 @@ async function fetchPayments() {
     const payments = await response.json().catch(() => []);
 
     if (!response.ok) {
-        throw new Error(payments.error || 'KhÃ´ng táº£i Ä‘Æ°á»£c danh sÃ¡ch thanh toÃ¡n.');
+        throw new Error(payments.error || 'Không tải được danh sách thanh toán.');
     }
 
     return Array.isArray(payments) ? payments : [];
@@ -1014,7 +1305,9 @@ function selectUser(userId) {
 
 async function loadUsersAndOrders() {
     refreshUsersButton.disabled = true;
+    refreshOrdersButton.disabled = true;
     setUserManagementMessage('Đang tải danh sách người dùng và đơn hàng...', 'is-loading');
+    setOrderManagementMessage('Đang tải danh sách đơn hàng và thanh toán...', 'is-loading');
 
     try {
         const [users, orders, payments] = await Promise.all([fetchUsers(), fetchOrders(), fetchPayments()]);
@@ -1028,14 +1321,142 @@ async function loadUsersAndOrders() {
 
         renderUsersTable();
         renderSelectedUserPanel();
+        renderAllOrdersTable();
         renderOverview();
         setUserManagementMessage(`Đã tải ${users.length} người dùng và ${orders.length} đơn hàng.`, 'is-success');
+        setOrderManagementMessage(`Đã tải ${orders.length} đơn hàng và ${payments.length} giao dịch thanh toán.`, 'is-success');
     } catch (error) {
         console.error(error);
         userTableBody.innerHTML = `<tr><td colspan="7">${escapeHtml(error.message)}</td></tr>`;
+        allOrderTableBody.innerHTML = `<tr><td colspan="8">${escapeHtml(error.message)}</td></tr>`;
         setUserManagementMessage(error.message, 'is-error');
+        setOrderManagementMessage(error.message, 'is-error');
     } finally {
         refreshUsersButton.disabled = false;
+        refreshOrdersButton.disabled = false;
+    }
+}
+
+async function updateOrderStatus(orderId, nextStatus) {
+    const order = state.orders.find((item) => item._id === orderId);
+    const statusLabel = formatOrderStatus(nextStatus);
+    const isConfirmed = confirm(`Cập nhật đơn hàng ${orderId} sang "${statusLabel}"?`);
+
+    if (!isConfirmed) {
+        return;
+    }
+
+    setUserManagementMessage('Đang cập nhật trạng thái đơn hàng...', 'is-loading');
+    setOrderManagementMessage('Đang cập nhật trạng thái đơn hàng...', 'is-loading');
+
+    try {
+        const response = await fetch(`${API_BASE}/api/orders/${encodeURIComponent(orderId)}/status`, {
+            method: 'PATCH',
+            headers: getAdminJsonHeaders(),
+            body: JSON.stringify({
+                status: nextStatus,
+                reason: nextStatus === 'returned' ? 'admin_returned' : 'admin_update',
+                cancelledReason: nextStatus === 'cancelled' ? 'admin_cancelled' : undefined
+            })
+        });
+        const result = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            throw new Error(result.loi || result.error || 'Không thể cập nhật trạng thái đơn hàng.');
+        }
+
+        const updatedOrder = result.donHang || result.order || result;
+        state.orders = state.orders.map((item) => (item._id === orderId ? updatedOrder : item));
+
+        renderUsersTable();
+        renderSelectedUserPanel();
+        renderAllOrdersTable();
+        renderOverview();
+        setUserManagementMessage(`Đã cập nhật đơn hàng ${order?._id || orderId} sang ${statusLabel}.`, 'is-success');
+        setOrderManagementMessage(`Đã cập nhật đơn hàng ${order?._id || orderId} sang ${statusLabel}.`, 'is-success');
+    } catch (error) {
+        console.error(error);
+        setUserManagementMessage(error.message, 'is-error');
+        setOrderManagementMessage(error.message, 'is-error');
+    }
+}
+
+async function refundPayment(paymentId, orderId) {
+    const payment = state.payments.find((item) => item._id === paymentId);
+    const order = state.orders.find((item) => item._id === orderId);
+    const amountText = formatCurrency(payment?.amount || order?.totalAmount || 0);
+    const isConfirmed = confirm(`Ghi nhận hoàn tiền ${amountText} cho đơn hàng ${orderId}?`);
+
+    if (!isConfirmed) {
+        return;
+    }
+
+    setOrderManagementMessage('Đang ghi nhận hoàn tiền...', 'is-loading');
+    setUserManagementMessage('Đang ghi nhận hoàn tiền...', 'is-loading');
+
+    try {
+        const response = await fetch(`${API_BASE}/api/payments/${encodeURIComponent(paymentId)}/refund`, {
+            method: 'PATCH',
+            headers: getAdminJsonHeaders(),
+            body: JSON.stringify({
+                amount: payment?.amount || order?.totalAmount,
+                reason: 'admin_refund',
+                note: `Hoàn tiền cho đơn hàng ${orderId}`
+            })
+        });
+        const result = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            throw new Error(result.error || 'Không thể ghi nhận hoàn tiền.');
+        }
+
+        const updatedPayment = result.payment || result;
+        state.payments = state.payments.map((item) => (item._id === paymentId ? updatedPayment : item));
+
+        renderSelectedUserPanel();
+        renderAllOrdersTable();
+        renderOverview();
+        setOrderManagementMessage(`Đã ghi nhận hoàn tiền cho đơn hàng ${orderId}.`, 'is-success');
+        setUserManagementMessage(`Đã ghi nhận hoàn tiền cho đơn hàng ${orderId}.`, 'is-success');
+    } catch (error) {
+        console.error(error);
+        setOrderManagementMessage(error.message, 'is-error');
+        setUserManagementMessage(error.message, 'is-error');
+    }
+}
+
+async function runPaymentReconciliation(repair = false) {
+    reconcilePaymentsButton.disabled = true;
+    repairPaymentsButton.disabled = true;
+    setOrderManagementMessage(repair ? 'Đang đối soát và sửa các lệch đơn giản...' : 'Đang đối soát thanh toán...', 'is-loading');
+
+    try {
+        const response = await fetch(`${API_BASE}/api/payments/reconcile`, {
+            method: 'POST',
+            headers: getAdminJsonHeaders(),
+            body: JSON.stringify({ repair })
+        });
+        const result = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            throw new Error(result.error || 'Không thể đối soát thanh toán.');
+        }
+
+        if (repair && Number(result.repairedCount) > 0) {
+            await loadUsersAndOrders();
+        }
+
+        renderReconciliationResult(result);
+        setOrderManagementMessage(
+            `Đối soát xong: ${Number(result.repairedCount) || 0} lệch đã sửa, ${Number(result.issueCount) || 0} lệch cần xử lý.`,
+            Number(result.issueCount) ? 'is-loading' : 'is-success'
+        );
+    } catch (error) {
+        console.error(error);
+        setOrderManagementMessage(error.message, 'is-error');
+    } finally {
+        reconcilePaymentsButton.disabled = false;
+        repairPaymentsButton.disabled = false;
     }
 }
 
@@ -1224,6 +1645,9 @@ refreshProductsButton.addEventListener('click', () => {
 refreshUsersButton.addEventListener('click', () => {
     void loadUsersAndOrders();
 });
+refreshOrdersButton.addEventListener('click', () => {
+    void loadUsersAndOrders();
+});
 refreshAdminButton.addEventListener('click', () => {
     void loadAdminData();
 });
@@ -1234,6 +1658,32 @@ userSearchInput.addEventListener('input', (event) => {
 userRoleFilter.addEventListener('change', (event) => {
     state.userRoleFilter = event.target.value || 'all';
     renderUsersTable();
+});
+orderSearchInput.addEventListener('input', (event) => {
+    state.orderSearch = event.target.value || '';
+    renderAllOrdersTable();
+});
+orderStatusFilter.addEventListener('change', (event) => {
+    state.orderStatusFilter = event.target.value || 'all';
+    renderAllOrdersTable();
+});
+orderPaymentFilter.addEventListener('change', (event) => {
+    state.orderPaymentFilter = event.target.value || 'all';
+    renderAllOrdersTable();
+});
+orderDateFromInput.addEventListener('change', (event) => {
+    state.orderDateFrom = event.target.value || '';
+    renderAllOrdersTable();
+});
+orderDateToInput.addEventListener('change', (event) => {
+    state.orderDateTo = event.target.value || '';
+    renderAllOrdersTable();
+});
+reconcilePaymentsButton.addEventListener('click', () => {
+    void runPaymentReconciliation(false);
+});
+repairPaymentsButton.addEventListener('click', () => {
+    void runPaymentReconciliation(true);
 });
 stockQuantityInput.addEventListener('input', syncStatusFromStock);
 document.getElementById('trangThai').addEventListener('change', syncStockFromStatus);
@@ -1251,3 +1701,5 @@ window.editCategory = editCategory;
 window.toggleCategory = toggleCategory;
 window.deleteCategoryPermanently = deleteCategoryPermanently;
 window.selectUser = selectUser;
+window.updateOrderStatus = updateOrderStatus;
+window.refundPayment = refundPayment;

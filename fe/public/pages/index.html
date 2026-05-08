@@ -7,24 +7,32 @@
     <link rel="stylesheet" href="/css/main.css">
 </head>
 <body>
-    <nav class="topbar">
-        <div class="brand-wrap">
-            <a class="logo" href="/">ShopOnline</a>
-            <p class="tagline">Mua sắm tiện lợi, giao hàng nhanh</p>
+    <nav class="topbar topbar--storefront">
+        <div class="topbar-main">
+            <div class="brand-wrap">
+                <a class="logo" href="/">ShopOnline</a>
+                <p class="tagline">Mua sắm tiện lợi, giao hàng nhanh</p>
+            </div>
+
+            <label class="topbar-search" for="home-search">
+                <span>Tìm kiếm sản phẩm</span>
+                <input id="home-search" type="search" placeholder="Tên sản phẩm, thương hiệu hoặc danh mục">
+            </label>
+
+            <div class="topbar-session">
+                <button id="cart-count" class="nav-cart" type="button" onclick="goToCart()">
+                    Giỏ hàng (0)
+                </button>
+                <div id="auth-nav-slot" class="auth-slot"></div>
+            </div>
         </div>
 
-        <ul class="nav-links">
+        <ul class="nav-links nav-links--primary">
             <li><a href="#home">Trang chủ</a></li>
             <li><a href="#categories">Danh mục</a></li>
             <li><a href="#products-section">Sản phẩm</a></li>
             <li><a href="#about">Giới thiệu</a></li>
             <li id="admin-link-slot"></li>
-            <li>
-                <button id="cart-count" class="nav-cart" type="button" onclick="goToCart()">
-                    Giỏ hàng (0)
-                </button>
-            </li>
-            <li id="auth-nav-slot" class="auth-slot"></li>
         </ul>
     </nav>
 
@@ -99,11 +107,6 @@
 
             <div class="catalog-toolbar">
                 <div class="storefront-controls">
-                    <label class="storefront-search" for="home-search">
-                        <span>Tìm nhanh sản phẩm</span>
-                        <input id="home-search" type="search" placeholder="Tên sản phẩm, thương hiệu hoặc danh mục">
-                    </label>
-
                     <div class="storefront-actions">
                         <button id="home-stock-toggle" class="catalog-toggle" type="button" aria-pressed="false">
                             Chỉ xem còn hàng

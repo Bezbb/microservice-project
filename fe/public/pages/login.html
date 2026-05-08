@@ -21,28 +21,18 @@
     </nav>
 
     <main class="login-page">
-        <section class="auth-shell">
-            <div class="auth-showcase">
-                <p class="section-kicker">Tài khoản</p>
-                <h2>Đăng nhập để quản lý đơn hàng và truy cập khu vực phù hợp</h2>
-                <p class="section-copy">Người dùng thông thường có thể lưu phiên đăng nhập, còn tài khoản admin sẽ được mở quyền vào trang quản trị sản phẩm.</p>
-
-                <div class="auth-metrics">
-                    <div class="auth-metric">
-                        <strong>Bảo mật</strong>
-                        <span>Đăng nhập qua user-service riêng biệt</span>
-                    </div>
-                    <div class="auth-metric">
-                        <strong>Quản trị</strong>
-                        <span>API quản lý sản phẩm chỉ cho admin hợp lệ</span>
-                    </div>
-                </div>
-            </div>
-
+        <section class="auth-shell single-auth-shell">
             <div class="login-card">
                 <p class="section-kicker">Đăng nhập</p>
                 <h2>Chào mừng quay lại</h2>
                 <p class="subtext">Nhập email và mật khẩu để tiếp tục.</p>
+
+                <a href="#" id="google-login-button" class="oauth-button" aria-label="Đăng nhập bằng Google">
+                    <span class="oauth-icon">G</span>
+                    <span>Tiếp tục với Google</span>
+                </a>
+
+                <div class="auth-divider"><span>hoặc</span></div>
 
                 <form id="login-form" class="login-form">
                     <div class="form-group">
@@ -59,6 +49,17 @@
                 </form>
 
                 <p id="login-message" class="login-message"></p>
+                <details class="forgot-panel">
+                    <summary>Quên mật khẩu?</summary>
+                    <form id="forgot-password-form" class="login-form compact-form">
+                        <div class="form-group">
+                            <label for="forgot-email">Email đăng ký</label>
+                            <input type="email" id="forgot-email" placeholder="ban@example.com">
+                        </div>
+                        <button type="submit" class="secondary-btn full-width-btn">Gửi link đặt lại</button>
+                    </form>
+                    <p id="forgot-message" class="login-message"></p>
+                </details>
                 <p class="auth-switch">
                     Chưa có tài khoản?
                     <a class="inline-link" href="/register.html">Đăng ký ngay</a>

@@ -18,6 +18,8 @@ router.get('/payment.html', sendPage('payment.html'));
 router.get('/payment-result.html', sendPage('payment-result.html'));
 router.get('/login.html', sendPage('login.html'));
 router.get('/register.html', sendPage('register.html'));
+router.get('/auth-callback.html', sendPage('auth-callback.html'));
+router.get('/reset-password.html', sendPage('reset-password.html'));
 router.get('/account.html', sendPage('account.html'));
 router.get('/admin-products.html', sendPage('admin-products.html'));
 

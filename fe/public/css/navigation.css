@@ -10,17 +10,39 @@
     align-items: center;
     gap: 20px;
     border-radius: 999px;
-    background: rgba(17, 28, 45, 0.84);
-    color: #fefaf4;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 18px 42px rgba(12, 20, 34, 0.24);
+    background: rgba(15, 23, 42, 0.92);
+    color: #f8fafc;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.22);
     backdrop-filter: blur(16px);
+}
+
+.topbar--storefront {
+    display: grid;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 34px;
+    background:
+        linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(30, 41, 59, 0.94)),
+        rgba(15, 23, 42, 0.92);
+}
+
+.topbar-main {
+    display: grid;
+    grid-template-columns: minmax(168px, 0.78fr) minmax(300px, 1fr) auto;
+    gap: 14px;
+    align-items: center;
+}
+
+.topbar-main > :nth-child(2) {
+    margin-right: -4px;
 }
 
 .brand-wrap {
     display: flex;
     flex-direction: column;
     gap: 2px;
+    flex: 0 0 auto;
 }
 
 .logo {
@@ -28,14 +50,14 @@
     font-size: 27px;
     font-weight: 700;
     letter-spacing: -0.04em;
-    color: #fff8ef;
+    color: #ffffff;
 }
 
 .tagline {
     font-size: 12px;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: rgba(248, 240, 227, 0.72);
+    color: rgba(226, 232, 240, 0.78);
 }
 
 .nav-links {
@@ -44,12 +66,73 @@
     align-items: center;
     gap: 12px;
     flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.nav-links--primary {
+    justify-content: center;
+    gap: 6px;
+    padding: 6px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.055);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.topbar-search {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 8px 7px 16px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.075);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.topbar-search span {
+    color: rgba(226, 232, 240, 0.78);
+    font-size: 0.82rem;
+    font-weight: 800;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+}
+
+.topbar-search input {
+    width: 100%;
+    min-width: 0;
+    min-height: 40px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 999px;
+    outline: none;
+    background: rgba(255, 255, 255, 0.96);
+    color: var(--text);
+    font: inherit;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.topbar-search input:focus {
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.28);
+}
+
+.topbar-session {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
 }
 
 .nav-links a {
-    color: rgba(255, 248, 239, 0.82);
+    color: rgba(241, 245, 249, 0.86);
     font-weight: 600;
-    padding: 10px 14px;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 14px;
     border-radius: 999px;
     transition: color 0.24s ease, background 0.24s ease, transform 0.24s ease;
 }
@@ -62,12 +145,17 @@
 
 .nav-cart,
 .auth-link {
-    background: linear-gradient(135deg, #f1d6b4, #e79c55);
-    color: #1a2436 !important;
-    padding: 11px 18px;
+    background: linear-gradient(135deg, #60a5fa, #34d399);
+    color: #071326 !important;
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 18px;
     border-radius: 999px;
     font-weight: 800;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.42);
+    white-space: nowrap;
 }
 
 .auth-slot {
@@ -79,12 +167,13 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    min-width: 0;
 }
 
 .auth-link.auth-secondary {
     background: rgba(255, 255, 255, 0.08);
-    color: #fff9f0 !important;
+    color: #f8fafc !important;
     border: 1px solid rgba(255, 255, 255, 0.12);
     box-shadow: none;
 }
@@ -96,8 +185,16 @@
     padding: 9px 14px;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.08);
-    color: #fff9f0;
+    color: #f8fafc;
     font-weight: 700;
+    min-height: 42px;
+    white-space: nowrap;
+}
+
+.auth-user-badge > span {
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .auth-user-badge small {
@@ -110,5 +207,5 @@
 }
 
 .auth-user-badge.is-admin {
-    background: rgba(241, 214, 180, 0.18);
+    background: rgba(96, 165, 250, 0.18);
 }

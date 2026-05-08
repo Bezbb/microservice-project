@@ -7,11 +7,17 @@ const userSchema = new mongoose.Schema({
     passwordHash: { type: String, required: true },
     passwordSalt: { type: String, required: true },
     role: { type: String, default: USER_ROLES.CUSTOMER },
+    provider: { type: String, default: 'local' },
+    googleId: { type: String, trim: true },
+    avatarUrl: { type: String, trim: true },
     authToken: String,
+    resetPasswordTokenHash: String,
+    resetPasswordExpiresAt: Date,
     lastLoginAt: Date,
+    passwordChangedAt: Date,
     createdAt: { type: Date, default: Date.now }
 }, { collection: 'users' });
 
-userSchema.index({ email: 1 }, { unique: true });
+userSchema.index({ googleId: 1 }, { unique: true, sparse: true });
 
 module.exports = mongoose.models.User || mongoose.model('User', userSchema);

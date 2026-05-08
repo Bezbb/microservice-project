@@ -22,7 +22,7 @@
     height: 110px;
     border-radius: 20px;
     object-fit: cover;
-    background: linear-gradient(135deg, #f4ece1, #ede1d3);
+    background: linear-gradient(135deg, #e0f2fe, #e0e7ff);
 }
 
 .cart-row-info h3 {
@@ -129,13 +129,13 @@
 .refresh-button,
 .primary-btn {
     width: 100%;
-    background: linear-gradient(135deg, #f1d6b4, #e79c55);
-    color: #1a2436;
+    background: linear-gradient(135deg, #60a5fa, #34d399);
+    color: #071326;
     padding: 15px;
     border-radius: 16px;
     font-weight: 800;
     margin-bottom: 14px;
-    box-shadow: 0 14px 28px rgba(203, 107, 46, 0.22);
+    box-shadow: 0 14px 28px rgba(37, 99, 235, 0.2);
 }
 
 .checkout-button:disabled {
@@ -154,7 +154,7 @@
     padding: 13px;
     border-radius: 16px;
     background: var(--surface-dark);
-    color: #fff9f1;
+    color: #f8fafc;
     font-weight: 800;
 }
 
@@ -219,8 +219,8 @@
 
 .checkout-warning {
     margin-bottom: 18px;
-    background: #fff5e7;
-    color: var(--accent-deep);
+    background: var(--warning-soft);
+    color: var(--warning);
     padding: 12px 14px;
     border-radius: 14px;
 }
@@ -229,7 +229,7 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: rgba(241, 214, 180, 0.82);
+    background: var(--accent-soft);
     color: var(--accent-deep);
     padding: 8px 12px;
     border-radius: 999px;

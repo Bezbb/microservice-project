@@ -39,12 +39,24 @@
     }
 
     .admin-overview,
+    .admin-filter-grid,
     .users-layout {
         grid-template-columns: 1fr;
     }
 
     .story-strip {
-        margin-top: -42px;
+        margin-top: 24px;
+    }
+
+    .topbar-main {
+        grid-template-columns: minmax(160px, 0.8fr) minmax(260px, 1fr);
+    }
+
+    .topbar-session {
+        grid-column: 1 / -1;
+        justify-content: space-between;
+        padding-top: 10px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .summary-card,
@@ -62,6 +74,11 @@
     .topbar {
         border-radius: 28px;
         padding: 16px 18px;
+    }
+
+    .topbar--storefront {
+        border-radius: 28px;
+        padding: 14px;
     }
 
     .hero,
@@ -109,9 +126,41 @@
         border-radius: 26px;
     }
 
+    .topbar-main {
+        grid-template-columns: 1fr;
+        width: 100%;
+    }
+
     .nav-links {
         width: 100%;
         justify-content: flex-start;
+    }
+
+    .topbar-search {
+        width: 100%;
+        max-width: none;
+    }
+
+    .topbar-session {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .topbar-session .nav-cart,
+    .topbar-session .auth-actions,
+    .topbar-session .auth-link,
+    .topbar-session .auth-user-badge {
+        width: 100%;
+    }
+
+    .topbar-session .auth-actions {
+        flex-wrap: wrap;
+    }
+
+    .nav-links--primary {
+        justify-content: flex-start;
+        border-radius: 22px;
     }
 
     .hero {
