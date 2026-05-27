@@ -54,6 +54,19 @@ const stockQuantityInput = document.getElementById('stockQuantity');
 const tagsInput = document.getElementById('tags');
 const categorySelect = document.getElementById('categoryId');
 const newCategoryNameInput = document.getElementById('newCategoryName');
+const flashSaleEnabledInput = document.getElementById('flashSaleEnabled');
+const flashSaleTitleInput = document.getElementById('flashSaleTitle');
+const flashSaleSalePriceInput = document.getElementById('flashSaleSalePrice');
+const flashSaleStartsAtInput = document.getElementById('flashSaleStartsAt');
+const flashSaleEndsAtInput = document.getElementById('flashSaleEndsAt');
+const flashSaleStockLimitInput = document.getElementById('flashSaleStockLimit');
+const flashSalePerOrderLimitInput = document.getElementById('flashSalePerOrderLimit');
+const flashSaleDelayValueInput = document.getElementById('flashSaleDelayValue');
+const flashSaleDelayUnitInput = document.getElementById('flashSaleDelayUnit');
+const flashSaleApplyDelayButton = document.getElementById('flashSaleApplyDelayButton');
+const flashSaleStartNowButton = document.getElementById('flashSaleStartNowButton');
+const flashSaleSchedulePreview = document.getElementById('flashSaleSchedulePreview');
+const flashSaleDurationButtons = document.querySelectorAll('[data-flash-sale-duration]');
 const refreshProductsButton = document.getElementById('refresh-products-button');
 const resetProductFormButton = document.getElementById('reset-product-form-button');
 const refreshAdminButton = document.getElementById('refresh-admin-button');
@@ -171,6 +184,274 @@ function formatDate(value) {
         dateStyle: 'medium',
         timeStyle: 'short'
     }).format(date);
+}
+
+function toDateTimeLocalValue(value) {
+    if (!value) {
+        return '';
+    }
+
+    const date = new Date(value);
+
+    if (!Number.isFinite(date.getTime())) {
+        return '';
+    }
+
+    const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60 * 1000);
+    return localDate.toISOString().slice(0, 16);
+}
+
+function parseDateTimeLocalValue(value) {
+    if (!value) {
+        return null;
+    }
+
+    const date = new Date(value);
+    return Number.isFinite(date.getTime()) ? date : null;
+}
+
+function toApiDateTimeValue(input) {
+    const date = parseDateTimeLocalValue(input?.value);
+    return date ? date.toISOString() : '';
+}
+
+function setDateTimeLocalInput(input, date) {
+    if (!input || !date || !Number.isFinite(date.getTime())) {
+        return;
+    }
+
+    input.value = toDateTimeLocalValue(date);
+}
+
+function addMinutes(date, minutes) {
+    return new Date(date.getTime() + minutes * 60 * 1000);
+}
+
+function getFlashSaleStartDate() {
+    return parseDateTimeLocalValue(flashSaleStartsAtInput.value);
+}
+
+function getFlashSaleEndDate() {
+    return parseDateTimeLocalValue(flashSaleEndsAtInput.value);
+}
+
+function getFlashSaleDurationMs() {
+    const startsAt = getFlashSaleStartDate();
+    const endsAt = getFlashSaleEndDate();
+
+    if (startsAt && endsAt && endsAt > startsAt) {
+        return endsAt.getTime() - startsAt.getTime();
+    }
+
+    return 2 * 60 * 60 * 1000;
+}
+
+function getFlashSaleDelayMinutes() {
+    const rawValue = Math.max(0, Number(flashSaleDelayValueInput.value) || 0);
+
+    switch (flashSaleDelayUnitInput.value) {
+    case 'days':
+        return rawValue * 24 * 60;
+    case 'hours':
+        return rawValue * 60;
+    case 'minutes':
+    default:
+        return rawValue;
+    }
+}
+
+function formatRemainingTime(milliseconds) {
+    const safeMilliseconds = Math.max(0, milliseconds);
+    const totalSeconds = Math.floor(safeMilliseconds / 1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    if (days > 0) {
+        return `${days} ngày ${hours} giờ ${minutes} phút`;
+    }
+
+    return [hours, minutes, seconds]
+        .map((part) => String(part).padStart(2, '0'))
+        .join(':');
+}
+
+function getFlashSaleScheduleStatus() {
+    const startsAt = getFlashSaleStartDate();
+    const endsAt = getFlashSaleEndDate();
+
+    if (!flashSaleEnabledInput.checked) {
+        return {
+            type: 'muted',
+            text: 'Flash sale chưa bật'
+        };
+    }
+
+    if (!startsAt || !endsAt) {
+        return {
+            type: 'warning',
+            text: 'Cần chọn thời gian bắt đầu và kết thúc'
+        };
+    }
+
+    if (endsAt <= startsAt) {
+        return {
+            type: 'error',
+            text: 'Thời gian kết thúc phải sau thời gian bắt đầu'
+        };
+    }
+
+    const now = new Date();
+
+    if (startsAt > now) {
+        return {
+            type: 'upcoming',
+            text: `Đã hẹn chạy sau ${formatRemainingTime(startsAt.getTime() - now.getTime())}`
+        };
+    }
+
+    if (endsAt > now) {
+        return {
+            type: 'active',
+            text: `Đang chạy, còn ${formatRemainingTime(endsAt.getTime() - now.getTime())}`
+        };
+    }
+
+    return {
+        type: 'ended',
+        text: 'Flash sale đã kết thúc'
+    };
+}
+
+function updateFlashSaleSchedulePreview() {
+    if (!flashSaleSchedulePreview) {
+        return;
+    }
+
+    const status = getFlashSaleScheduleStatus();
+    flashSaleSchedulePreview.textContent = status.text;
+    flashSaleSchedulePreview.className = `flash-sale-schedule-preview is-${status.type}`;
+}
+
+function applyFlashSaleDelaySchedule() {
+    const delayMinutes = getFlashSaleDelayMinutes();
+    const durationMs = getFlashSaleDurationMs();
+    const startsAt = addMinutes(new Date(), delayMinutes);
+
+    flashSaleEnabledInput.checked = true;
+    setDateTimeLocalInput(flashSaleStartsAtInput, startsAt);
+    setDateTimeLocalInput(flashSaleEndsAtInput, new Date(startsAt.getTime() + durationMs));
+    updateFlashSaleSchedulePreview();
+}
+
+function startFlashSaleNow() {
+    const startsAt = new Date();
+    const durationMs = getFlashSaleDurationMs();
+
+    flashSaleDelayValueInput.value = '0';
+    flashSaleDelayUnitInput.value = 'minutes';
+    flashSaleEnabledInput.checked = true;
+    setDateTimeLocalInput(flashSaleStartsAtInput, startsAt);
+    setDateTimeLocalInput(flashSaleEndsAtInput, new Date(startsAt.getTime() + durationMs));
+    updateFlashSaleSchedulePreview();
+}
+
+function applyFlashSaleDuration(durationMinutes) {
+    const startsAt = getFlashSaleStartDate() || new Date();
+
+    flashSaleEnabledInput.checked = true;
+    setDateTimeLocalInput(flashSaleStartsAtInput, startsAt);
+    setDateTimeLocalInput(flashSaleEndsAtInput, addMinutes(startsAt, durationMinutes));
+    updateFlashSaleSchedulePreview();
+}
+
+function validateFlashSaleScheduleBeforeSubmit() {
+    if (!flashSaleEnabledInput.checked) {
+        return true;
+    }
+
+    const status = getFlashSaleScheduleStatus();
+    if (status.type === 'warning' || status.type === 'error') {
+        alert(status.text);
+        return false;
+    }
+
+    return true;
+}
+
+function getFlashSale(product) {
+    return product?.flashSale || {};
+}
+
+function isFlashSaleEnabled(product) {
+    return getFlashSale(product).enabled === true;
+}
+
+function getFlashSaleStatus(product) {
+    const flashSale = getFlashSale(product);
+
+    if (!flashSale.enabled) {
+        return 'disabled';
+    }
+
+    if (product?.isFlashSaleActive) {
+        return 'active';
+    }
+
+    const startsAt = new Date(flashSale.startsAt || '');
+    const endsAt = new Date(flashSale.endsAt || '');
+    const now = new Date();
+
+    if (Number.isFinite(startsAt.getTime()) && startsAt > now) {
+        return 'upcoming';
+    }
+
+    if (Number.isFinite(endsAt.getTime()) && endsAt <= now) {
+        return 'ended';
+    }
+
+    return 'draft';
+}
+
+function getFlashSaleBadge(product) {
+    switch (getFlashSaleStatus(product)) {
+    case 'active':
+        return '<span class="status-badge status-sale">Đang sale</span>';
+    case 'upcoming':
+        return '<span class="status-badge status-upcoming">Sắp chạy</span>';
+    case 'ended':
+        return '<span class="status-badge status-outstock">Đã kết thúc</span>';
+    case 'draft':
+        return '<span class="status-badge status-pending">Chưa đủ lịch</span>';
+    default:
+        return '<span class="status-badge status-muted">Chưa bật</span>';
+    }
+}
+
+function renderFlashSaleTableCell(product) {
+    const flashSale = getFlashSale(product);
+
+    if (!isFlashSaleEnabled(product)) {
+        return '<span class="table-subtext">Không áp dụng</span>';
+    }
+
+    const salePrice = product.isFlashSaleActive
+        ? product.effectivePrice
+        : flashSale.salePrice;
+    const remainingText = Number(product.flashSaleStockLimit) > 0
+        ? `${Number(product.flashSaleRemainingStock) || 0}/${Number(product.flashSaleStockLimit) || 0} suất`
+        : 'Không giới hạn suất';
+
+    return `
+        <div class="flash-sale-table-cell">
+            ${getFlashSaleBadge(product)}
+            <strong>${formatCurrency(salePrice)}</strong>
+            <span class="table-subtext">${escapeHtml(flashSale.title || product.flashSaleLabel || 'Flash Sale')}</span>
+            <span class="table-subtext">${remainingText}</span>
+            <span class="table-subtext">${formatDate(flashSale.startsAt)} - ${formatDate(flashSale.endsAt)}</span>
+        </div>
+    `;
 }
 
 function getEstimatedDeliveryDate(order) {
@@ -349,17 +630,38 @@ function getRoleBadge(role) {
 
 function setUserManagementMessage(text, type = '') {
     userManagementMessage.textContent = text;
-    userManagementMessage.className = `account-message ${type}`.trim();
+    // Map old class names to new ones
+    const classMap = {
+        'is-loading': 'account-message loading',
+        'is-success': 'account-message success',
+        'is-error': 'account-message error',
+        'is-info': 'account-message info'
+    };
+    userManagementMessage.className = classMap[type] || `account-message ${type}`.trim();
 }
 
 function setCategoryManagementMessage(text, type = '') {
     categoryManagementMessage.textContent = text;
-    categoryManagementMessage.className = `account-message ${type}`.trim();
+    // Map old class names to new ones
+    const classMap = {
+        'is-loading': 'account-message loading',
+        'is-success': 'account-message success',
+        'is-error': 'account-message error',
+        'is-info': 'account-message info'
+    };
+    categoryManagementMessage.className = classMap[type] || `account-message ${type}`.trim();
 }
 
 function setOrderManagementMessage(text, type = '') {
     orderManagementMessage.textContent = text;
-    orderManagementMessage.className = `account-message ${type}`.trim();
+    // Map old class names to new ones
+    const classMap = {
+        'is-loading': 'account-message loading',
+        'is-success': 'account-message success',
+        'is-error': 'account-message error',
+        'is-info': 'account-message info'
+    };
+    orderManagementMessage.className = classMap[type] || `account-message ${type}`.trim();
 }
 
 function getSelectedUser() {
@@ -709,7 +1011,10 @@ function renderOrderCards(container, orders, emptyState) {
             <div class="order-item-row">
                 <div>
                     <p class="order-item-name">${escapeHtml(item.name)}</p>
-                    <p class="order-item-meta">${Number(item.quantity) || 0} x ${formatCurrency(item.price)}</p>
+                    <p class="order-item-meta">
+                        ${item.flashSaleApplied ? `<span class="flash-sale-badge">${escapeHtml(item.flashSaleTitle || 'Flash Sale')}</span> ` : ''}
+                        ${Number(item.quantity) || 0} x ${item.flashSaleApplied ? `<span class="original-price">${formatCurrency(item.originalPrice || item.price)}</span> ` : ''}${formatCurrency(item.price)}
+                    </p>
                 </div>
                 <strong>${formatCurrency((Number(item.price) || 0) * (Number(item.quantity) || 0))}</strong>
             </div>
@@ -775,6 +1080,16 @@ function resetForm() {
     stockQuantityInput.value = '1';
     brandInput.value = '';
     tagsInput.value = '';
+    flashSaleEnabledInput.checked = false;
+    flashSaleTitleInput.value = '';
+    flashSaleSalePriceInput.value = '';
+    flashSaleStartsAtInput.value = '';
+    flashSaleEndsAtInput.value = '';
+    flashSaleStockLimitInput.value = '0';
+    flashSalePerOrderLimitInput.value = '0';
+    flashSaleDelayValueInput.value = '0';
+    flashSaleDelayUnitInput.value = 'minutes';
+    updateFlashSaleSchedulePreview();
     selectedImageUrl = '';
     newCategoryNameInput.value = '';
     renderCategoryOptions('');
@@ -850,7 +1165,7 @@ async function fetchPayments() {
 
 function renderProductsTable() {
     if (!state.products.length) {
-        tableBody.innerHTML = '<tr><td colspan="7">Chưa có sản phẩm nào.</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="8">Chưa có sản phẩm nào.</td></tr>';
         productCount.textContent = '0 sản phẩm';
         return;
     }
@@ -863,6 +1178,7 @@ function renderProductsTable() {
             </td>
             <td>${escapeHtml(product.ten)}</td>
             <td>${formatCurrency(product.gia)}</td>
+            <td>${renderFlashSaleTableCell(product)}</td>
             <td>${escapeHtml(product.danhMuc || '')}</td>
             <td>${Number(product.stockQuantity) || 0}</td>
             <td>${getProductStatusBadge(product.trangThai)}</td>
@@ -910,7 +1226,7 @@ function renderCategoryTable() {
 }
 
 async function loadProducts() {
-    tableBody.innerHTML = '<tr><td colspan="7">Đang tải dữ liệu...</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="8">Đang tải dữ liệu...</td></tr>';
     refreshProductsButton.disabled = true;
 
     try {
@@ -919,7 +1235,7 @@ async function loadProducts() {
         renderOverview();
     } catch (error) {
         console.error(error);
-        tableBody.innerHTML = `<tr><td colspan="7">${escapeHtml(error.message)}</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="8">${escapeHtml(error.message)}</td></tr>`;
     } finally {
         refreshProductsButton.disabled = false;
     }
@@ -973,6 +1289,16 @@ function editProduct(id) {
     brandInput.value = product.brand || '';
     stockQuantityInput.value = String(Number(product.stockQuantity) || 0);
     tagsInput.value = Array.isArray(product.tags) ? product.tags.join(', ') : '';
+    flashSaleEnabledInput.checked = isFlashSaleEnabled(product);
+    flashSaleTitleInput.value = getFlashSale(product).title || '';
+    flashSaleSalePriceInput.value = getFlashSale(product).salePrice || '';
+    flashSaleStartsAtInput.value = toDateTimeLocalValue(getFlashSale(product).startsAt);
+    flashSaleEndsAtInput.value = toDateTimeLocalValue(getFlashSale(product).endsAt);
+    flashSaleStockLimitInput.value = String(Number(getFlashSale(product).stockLimit) || 0);
+    flashSalePerOrderLimitInput.value = String(Number(getFlashSale(product).perOrderLimit) || 0);
+    flashSaleDelayValueInput.value = '0';
+    flashSaleDelayUnitInput.value = 'minutes';
+    updateFlashSaleSchedulePreview();
     selectedImageUrl = product.image || '';
     imageInput.value = '';
     revokePreviewObjectUrl();
@@ -987,10 +1313,18 @@ function editProduct(id) {
 }
 
 async function deleteProduct(id) {
-    const isConfirmed = confirm('Ẩn sản phẩm này khỏi catalog? Dữ liệu vẫn được giữ lại trong hệ thống.');
-    if (!isConfirmed) {
+    const confirmed = await showConfirmModal(
+        'Xóa sản phẩm?',
+        'Ẩn sản phẩm này khỏi catalog? Dữ liệu vẫn được giữ lại trong hệ thống và có thể khôi phục lại.',
+        { confirmText: 'Xóa', cancelText: 'Hủy', isDangerous: true }
+    );
+
+    if (!confirmed) {
         return;
     }
+
+    const button = event?.target;
+    if (button) setButtonLoading(button, true);
 
     try {
         const response = await fetch(`${API_BASE}/api/products/${id}`, {
@@ -1003,6 +1337,7 @@ async function deleteProduct(id) {
             throw new Error(result.loi || result.error || result.message || 'Xóa sản phẩm thất bại.');
         }
 
+        showMessage('✓ Xóa sản phẩm thành công!', 'success', document.querySelector('[data-message-container]'), 4000);
         await loadProducts();
         resetForm();
         alert(result.message || 'Đã ẩn sản phẩm khỏi catalog.');
@@ -1135,12 +1470,21 @@ async function deleteCategoryPermanently(categoryId) {
 
     const productCount = Number(category.productCount) || 0;
     const confirmMessage = productCount > 0
-        ? `Xóa hẳn danh mục "${category.name}"? ${productCount} sản phẩm đang dùng sẽ được chuyển sang "Chưa phân loại".`
-        : `Xóa hẳn danh mục "${category.name}"? Hành động này sẽ xóa khỏi hệ thống và không thể hoàn tác.`;
+        ? `${productCount} sản phẩm đang dùng sẽ được chuyển sang "Chưa phân loại". Hành động này không thể hoàn tác.`
+        : `Hành động này sẽ xóa danh mục khỏi hệ thống hoàn toàn và không thể hoàn tác.`;
 
-    if (!confirm(confirmMessage)) {
+    const confirmed = await showConfirmModal(
+        `Xóa danh mục "${category.name}"?`,
+        confirmMessage,
+        { confirmText: 'Xóa danh mục', cancelText: 'Hủy', isDangerous: true }
+    );
+
+    if (!confirmed) {
         return;
     }
+
+    const button = event?.target;
+    if (button) setButtonLoading(button, true);
 
     try {
         const response = await fetch(`${API_BASE}/api/products/categories/${categoryId}?permanent=true`, {
@@ -1504,10 +1848,18 @@ async function deleteSelectedUser() {
         return;
     }
 
-    const isConfirmed = confirm(`Xóa tài khoản ${user.fullName}? Hành động này không xóa lịch sử đơn hàng đã lưu.`);
-    if (!isConfirmed) {
+    const confirmed = await showConfirmModal(
+        `Xóa tài khoản ${user.fullName}?`,
+        `Tài khoản sẽ bị xóa nhưng lịch sử đơn hàng vẫn được giữ lại. Hành động này không thể hoàn tác.`,
+        { confirmText: 'Xóa tài khoản', cancelText: 'Hủy', isDangerous: true }
+    );
+
+    if (!confirmed) {
         return;
     }
+
+    const button = deleteUserButton;
+    setButtonLoading(button, true);
 
     try {
         const response = await fetch(`${API_BASE}/api/users/${user.id}`, {
@@ -1525,10 +1877,12 @@ async function deleteSelectedUser() {
         renderUsersTable();
         renderSelectedUserPanel();
         renderOverview();
-        setUserManagementMessage(`Đã xóa tài khoản ${user.fullName}.`, 'is-success');
+        showMessage(`✓ Đã xóa tài khoản ${user.fullName}!`, 'success', document.querySelector('[data-message-container]'), 4000);
     } catch (error) {
         console.error(error);
-        setUserManagementMessage(error.message, 'is-error');
+        showMessage(`✗ ${error.message}`, 'error', document.querySelector('[data-message-container]'), 5000);
+    } finally {
+        setButtonLoading(button, false);
     }
 }
 
@@ -1577,11 +1931,22 @@ form.addEventListener('submit', async (event) => {
     const selectedCategory = getSelectedCategory();
     const quickCategoryName = newCategoryNameInput.value.trim();
 
+    if (!validateFlashSaleScheduleBeforeSubmit()) {
+        return;
+    }
+
     productData.append('ten', document.getElementById('ten').value.trim());
     productData.append('gia', String(Number(document.getElementById('gia').value)));
     productData.append('brand', brandInput.value.trim());
     productData.append('stockQuantity', String(Math.max(0, Number(stockQuantityInput.value) || 0)));
     productData.append('tags', tagsInput.value.trim());
+    productData.append('flashSaleEnabled', flashSaleEnabledInput.checked ? 'true' : 'false');
+    productData.append('flashSaleTitle', flashSaleTitleInput.value.trim());
+    productData.append('flashSaleSalePrice', String(Number(flashSaleSalePriceInput.value) || 0));
+    productData.append('flashSaleStartsAt', toApiDateTimeValue(flashSaleStartsAtInput));
+    productData.append('flashSaleEndsAt', toApiDateTimeValue(flashSaleEndsAtInput));
+    productData.append('flashSaleStockLimit', String(Math.max(0, Number(flashSaleStockLimitInput.value) || 0)));
+    productData.append('flashSalePerOrderLimit', String(Math.max(0, Number(flashSalePerOrderLimitInput.value) || 0)));
     productData.append('moTa', document.getElementById('moTa').value.trim());
     productData.append('trangThai', document.getElementById('trangThai').value);
 
@@ -1687,11 +2052,31 @@ repairPaymentsButton.addEventListener('click', () => {
 });
 stockQuantityInput.addEventListener('input', syncStatusFromStock);
 document.getElementById('trangThai').addEventListener('change', syncStockFromStatus);
+flashSaleApplyDelayButton.addEventListener('click', applyFlashSaleDelaySchedule);
+flashSaleStartNowButton.addEventListener('click', startFlashSaleNow);
+flashSaleDurationButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+        applyFlashSaleDuration(Math.max(1, Number(button.dataset.flashSaleDuration) || 60));
+    });
+});
+[
+    flashSaleEnabledInput,
+    flashSaleStartsAtInput,
+    flashSaleEndsAtInput,
+    flashSaleDelayValueInput,
+    flashSaleDelayUnitInput
+].forEach((input) => {
+    input.addEventListener('input', updateFlashSaleSchedulePreview);
+    input.addEventListener('change', updateFlashSaleSchedulePreview);
+});
 clearUserSelectionButton.addEventListener('click', clearSelectedUser);
 userEditorForm.addEventListener('submit', saveSelectedUser);
 deleteUserButton.addEventListener('click', () => {
     void deleteSelectedUser();
 });
+
+updateFlashSaleSchedulePreview();
+setInterval(updateFlashSaleSchedulePreview, 1000);
 
 void loadAdminData();
 

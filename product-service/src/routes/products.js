@@ -6,6 +6,7 @@ const { handleImageUpload } = require('../middlewares/upload');
 const { removeManagedUpload } = require('../utils/uploads');
 const {
     buildProductPayload,
+    decorateProduct,
     listProducts,
     deriveStatusFromStock,
     normalizeStatus,
@@ -156,7 +157,7 @@ router.get('/:id', async (req, res) => {
             return res.status(404).json({ error: 'Khong tim thay san pham.' });
         }
 
-        return res.json(product);
+        return res.json(decorateProduct(product));
     } catch (_error) {
         return res.status(400).json({ error: 'Ma san pham khong hop le.' });
     }

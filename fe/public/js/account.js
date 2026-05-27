@@ -544,7 +544,10 @@ function renderOrders() {
             <div class="order-item-row">
                 <div>
                     <p class="order-item-name">${escapeHtml(item.name)}</p>
-                    <p class="order-item-meta">${item.quantity} x ${formatCurrency(item.price)}</p>
+                    <p class="order-item-meta">
+                        ${item.flashSaleApplied ? `<span class="flash-sale-badge">${escapeHtml(item.flashSaleTitle || 'Flash Sale')}</span> ` : ''}
+                        ${item.quantity} x ${item.flashSaleApplied ? `<span class="original-price">${formatCurrency(item.originalPrice || item.price)}</span> ` : ''}${formatCurrency(item.price)}
+                    </p>
                 </div>
                 <strong>${formatCurrency((Number(item.price) || 0) * (Number(item.quantity) || 0))}</strong>
             </div>

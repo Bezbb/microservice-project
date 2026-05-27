@@ -90,6 +90,51 @@ async function migrateExistingProducts() {
             changed = true;
         }
 
+        if (!product.flashSale) {
+            product.flashSale = {};
+            changed = true;
+        }
+
+        if (typeof product.flashSale.enabled !== 'boolean') {
+            product.flashSale.enabled = false;
+            changed = true;
+        }
+
+        if (typeof product.flashSale.title !== 'string') {
+            product.flashSale.title = '';
+            changed = true;
+        }
+
+        if (!Number.isFinite(Number(product.flashSale.salePrice)) || Number(product.flashSale.salePrice) < 0) {
+            product.flashSale.salePrice = 0;
+            changed = true;
+        }
+
+        if (product.flashSale.startsAt === undefined) {
+            product.flashSale.startsAt = null;
+            changed = true;
+        }
+
+        if (product.flashSale.endsAt === undefined) {
+            product.flashSale.endsAt = null;
+            changed = true;
+        }
+
+        if (parseNonNegativeInteger(product.flashSale.stockLimit) === null) {
+            product.flashSale.stockLimit = 0;
+            changed = true;
+        }
+
+        if (parseNonNegativeInteger(product.flashSale.soldCount) === null) {
+            product.flashSale.soldCount = 0;
+            changed = true;
+        }
+
+        if (parseNonNegativeInteger(product.flashSale.perOrderLimit) === null) {
+            product.flashSale.perOrderLimit = 0;
+            changed = true;
+        }
+
         if (typeof product.isDeleted !== 'boolean') {
             product.isDeleted = false;
             changed = true;

@@ -98,6 +98,9 @@
     .payment-form-grid,
     .page-header,
     .form-actions,
+    .flash-sale-head,
+    .flash-sale-editor-head,
+    .flash-sale-scheduler,
     .auth-metrics,
     .user-orders-head,
     .catalog-focus-footer,
@@ -214,7 +217,8 @@
     }
 
     .categories-grid,
-    .products {
+    .products,
+    .flash-sale-products {
         grid-template-columns: 1fr;
     }
 
@@ -237,6 +241,15 @@
     .storefront-actions .ghost-button,
     .catalog-controls .catalog-toggle,
     .catalog-controls .ghost-button {
+        width: 100%;
+    }
+
+    .flash-sale-delay-controls {
+        grid-template-columns: 1fr;
+    }
+
+    .flash-sale-delay-controls .secondary-btn,
+    .flash-sale-delay-controls .edit-btn {
         width: 100%;
     }
 

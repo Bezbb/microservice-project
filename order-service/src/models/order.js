@@ -9,6 +9,10 @@ const orderItemSchema = new mongoose.Schema({
     productId: { type: String, required: true },
     name: { type: String, required: true },
     price: { type: Number, required: true },
+    originalPrice: { type: Number, default: 0 },
+    discountPercent: { type: Number, default: 0 },
+    flashSaleApplied: { type: Boolean, default: false },
+    flashSaleTitle: { type: String, default: '' },
     image: String,
     quantity: { type: Number, required: true, min: 1 }
 }, { _id: false });

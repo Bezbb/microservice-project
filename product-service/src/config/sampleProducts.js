@@ -1,3 +1,7 @@
+const now = new Date();
+const sampleFlashSaleStartsAt = new Date(now.getTime() - 60 * 60 * 1000);
+const sampleFlashSaleEndsAt = new Date(now.getTime() + 6 * 60 * 60 * 1000);
+
 module.exports = [
     {
         ten: 'B\u00e0n ph\u00edm c\u01a1 Gaming RGB',
@@ -7,7 +11,17 @@ module.exports = [
         danhMuc: 'Ph\u1ee5 ki\u1ec7n m\u00e1y t\u00ednh',
         brand: 'KeyMaster',
         tags: ['gaming', 'rgb', 'ban-phim'],
-        stockQuantity: 15
+        stockQuantity: 15,
+        flashSale: {
+            enabled: true,
+            title: 'Flash Sale Gaming',
+            salePrice: 599000,
+            startsAt: sampleFlashSaleStartsAt,
+            endsAt: sampleFlashSaleEndsAt,
+            stockLimit: 8,
+            soldCount: 0,
+            perOrderLimit: 2
+        }
     },
     {
         ten: 'Chu\u1ed9t kh\u00f4ng d\u00e2y Logitech',
@@ -27,7 +41,17 @@ module.exports = [
         danhMuc: '\u00c2m thanh',
         brand: 'Sony',
         tags: ['tai-nghe', 'bluetooth'],
-        stockQuantity: 12
+        stockQuantity: 12,
+        flashSale: {
+            enabled: true,
+            title: 'Deal am thanh',
+            salePrice: 990000,
+            startsAt: sampleFlashSaleStartsAt,
+            endsAt: sampleFlashSaleEndsAt,
+            stockLimit: 6,
+            soldCount: 0,
+            perOrderLimit: 1
+        }
     },
     {
         ten: 'Loa mini Bluetooth',

@@ -76,6 +76,21 @@
     font-size: 20px;
 }
 
+.cart-sale-price {
+    display: grid;
+    gap: 6px;
+}
+
+.cart-sale-price p {
+    margin: 0;
+}
+
+.cart-sale-price > span:last-child {
+    color: #b91c1c;
+    font-family: "Space Grotesk", "Manrope", sans-serif;
+    font-weight: 800;
+}
+
 .ghost-button {
     background: var(--danger-soft);
     color: var(--danger);

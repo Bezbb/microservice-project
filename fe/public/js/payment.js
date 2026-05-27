@@ -11,6 +11,10 @@ const checkoutData = rawCheckoutData && Array.isArray(rawCheckoutData.items)
             id: item.id,
             name: item.name,
             price: Number(item.price) || 0,
+            originalPrice: Number(item.originalPrice) || Number(item.price) || 0,
+            discountPercent: Number(item.discountPercent) || 0,
+            flashSaleApplied: item.flashSaleApplied === true,
+            flashSaleTitle: item.flashSaleTitle || '',
             image: item.image || '',
             quantity: Math.max(1, Number(item.quantity) || 1),
             trangThai: item.trangThai || 'Còn hàng'
@@ -92,6 +96,10 @@ function normalizeOrderItems(items) {
         id: item.productId || item.id,
         name: item.name || '',
         price: Number(item.price) || 0,
+        originalPrice: Number(item.originalPrice) || Number(item.price) || 0,
+        discountPercent: Number(item.discountPercent) || 0,
+        flashSaleApplied: item.flashSaleApplied === true,
+        flashSaleTitle: item.flashSaleTitle || '',
         image: item.image || '',
         quantity: Math.max(1, Number(item.quantity) || 1),
         trangThai: item.trangThai || 'Còn hàng'
@@ -209,7 +217,10 @@ function renderCheckoutSummary() {
         <div class="checkout-item-row">
             <div>
                 <p class="checkout-item-name">${escapeHtml(item.name)}</p>
-                <p class="checkout-item-meta">${item.quantity} x ${formatCurrency(item.price)}</p>
+                <p class="checkout-item-meta">
+                    ${item.flashSaleApplied ? `<span class="flash-sale-badge">${escapeHtml(item.flashSaleTitle || 'Flash Sale')}</span> ` : ''}
+                    ${item.quantity} x ${item.flashSaleApplied ? `<span class="original-price">${formatCurrency(item.originalPrice)}</span> ` : ''}${formatCurrency(item.price)}
+                </p>
             </div>
             <strong>${formatCurrency(item.price * item.quantity)}</strong>
         </div>

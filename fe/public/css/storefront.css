@@ -439,6 +439,74 @@ main,
     transform: translateY(-2px);
 }
 
+.flash-sale-section {
+    margin: 42px calc(50% - 50vw) 0;
+    padding: 36px 0 42px;
+    background:
+        linear-gradient(135deg, rgba(127, 29, 29, 0.96), rgba(190, 24, 93, 0.94) 52%, rgba(217, 119, 6, 0.92));
+    color: #fff7ed;
+}
+
+.flash-sale-section[hidden] {
+    display: none;
+}
+
+.flash-sale-head,
+.flash-sale-products {
+    width: min(1240px, calc(100% - 28px));
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.flash-sale-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    align-items: flex-end;
+}
+
+.flash-sale-head .section-kicker {
+    background: rgba(255, 255, 255, 0.16);
+    color: #fff7ed;
+}
+
+.flash-sale-head .section-kicker::before {
+    background: #fde68a;
+}
+
+.flash-sale-head h2 {
+    margin-top: 16px;
+    font-family: "Space Grotesk", "Manrope", sans-serif;
+    font-size: clamp(2rem, 4vw, 3.6rem);
+    line-height: 1;
+    letter-spacing: -0.05em;
+}
+
+.flash-sale-head .section-copy {
+    color: rgba(255, 247, 237, 0.82);
+}
+
+.flash-sale-clock {
+    min-width: 188px;
+    padding: 16px 20px;
+    border-radius: 20px;
+    background: rgba(15, 23, 42, 0.26);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    font-family: "Space Grotesk", "Manrope", sans-serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 0;
+}
+
+.flash-sale-products {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(272px, 1fr));
+    gap: 22px;
+    margin-top: 26px;
+}
+
 .products-head {
     padding-bottom: 18px;
 }
@@ -578,6 +646,10 @@ main,
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.94));
 }
 
+.product-card--flash {
+    border-color: rgba(220, 38, 38, 0.24);
+}
+
 .product-card:hover,
 .cart-row:hover,
 .summary-card:hover,
@@ -651,6 +723,82 @@ main,
     color: var(--danger);
     margin-bottom: 14px;
     letter-spacing: -0.05em;
+}
+
+.flash-price-stack {
+    display: grid;
+    gap: 4px;
+    margin-bottom: 14px;
+}
+
+.flash-price-stack .card-price {
+    margin-bottom: 0;
+}
+
+.flash-sale-badge {
+    display: inline-flex;
+    align-items: center;
+    width: max-content;
+    min-height: 28px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: rgba(220, 38, 38, 0.12);
+    color: #b91c1c;
+    font-size: 0.78rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.original-price {
+    color: rgba(100, 116, 139, 0.78);
+    text-decoration: line-through;
+    font-weight: 700;
+}
+
+.flash-sale-card-meta {
+    display: grid;
+    gap: 8px;
+    margin: 0 0 14px;
+    padding: 12px;
+    border-radius: 16px;
+    background: rgba(254, 242, 242, 0.76);
+    border: 1px solid rgba(220, 38, 38, 0.12);
+}
+
+.flash-sale-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    color: #991b1b;
+    font-weight: 900;
+}
+
+.flash-sale-card-top strong {
+    font-family: "Space Grotesk", "Manrope", sans-serif;
+    letter-spacing: 0;
+}
+
+.flash-sale-progress {
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(220, 38, 38, 0.12);
+    overflow: hidden;
+}
+
+.flash-sale-progress span {
+    display: block;
+    height: 100%;
+    min-width: 8px;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #ef4444, #f59e0b);
+}
+
+.flash-sale-card-meta p {
+    margin: 0;
+    color: #9f1239;
+    font-size: 0.9rem;
+    font-weight: 800;
 }
 
 .card-button {

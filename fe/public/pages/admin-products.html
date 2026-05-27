@@ -13,25 +13,27 @@
 
             <h2>Admin Panel</h2>
             <ul>
-                <li><a href="/admin-products.html" class="active">Tổng quan</a></li>
-                <li><a href="#product-management">Sản phẩm</a></li>
-                <li><a href="#category-management">Danh mục</a></li>
-                <li><a href="#order-management">Đơn hàng</a></li>
-                <li><a href="#user-management">Người dùng</a></li>
-                <li><a href="/">Trang bán hàng</a></li>
-                <li><a href="/account.html">Tài khoản của tôi</a></li>
+                <li><a href="/admin-products.html" class="active">📊 Tổng quan</a></li>
+                <li><a href="#product-management" class="sidebar-section-link">📦 Sản phẩm</a></li>
+                <li><a href="#category-management" class="sidebar-section-link">📂 Danh mục</a></li>
+                <li><a href="#order-management" class="sidebar-section-link">🛒 Đơn hàng</a></li>
+                <li><a href="#user-management" class="sidebar-section-link">👥 Người dùng</a></li>
+                <li><a href="/">🏪 Trang bán hàng</a></li>
+                <li><a href="/account.html">⚙️ Tài khoản của tôi</a></li>
             </ul>
         </aside>
 
         <main class="content">
+            <div data-message-container></div>
+
             <header class="page-header">
                 <div>
                     <p class="eyebrow">System Administration</p>
                     <h1>Quản trị sản phẩm, người dùng và đơn hàng</h1>
-                    <p class="subtext">Theo dõi toàn bộ cửa hàng từ một màn hình: cập nhật catalog, quản lý danh mục, phân quyền tài khoản và xem lịch sử đơn hàng theo từng người dùng.</p>
+                    <p class="subtext">Quản lý toàn bộ cửa hàng từ một dashboard: sản phẩm, danh mục, người dùng, đơn hàng và thanh toán.</p>
                 </div>
                 <div class="header-actions">
-                    <button class="refresh-button" type="button" id="refresh-admin-button">Tải toàn bộ dữ liệu</button>
+                    <button class="primary-btn" type="button" id="refresh-admin-button">↻ Tải dữ liệu</button>
                 </div>
             </header>
 
@@ -39,7 +41,7 @@
                 <article class="overview-card">
                     <span class="overview-label">Tổng sản phẩm</span>
                     <strong class="overview-value" id="overview-products">0</strong>
-                    <p class="overview-meta">Sản phẩm đang quản lý trong catalog</p>
+                    <p class="overview-meta">Sản phẩm đang quản lý</p>
                 </article>
                 <article class="overview-card">
                     <span class="overview-label">Người dùng</span>
@@ -52,9 +54,9 @@
                     <p class="overview-meta" id="overview-paid-orders">0 đơn đã thanh toán</p>
                 </article>
                 <article class="overview-card">
-                    <span class="overview-label">Doanh thu đã thu</span>
+                    <span class="overview-label">Doanh thu</span>
                     <strong class="overview-value" id="overview-revenue">0 VND</strong>
-                    <p class="overview-meta">Tính trên các đơn đã thanh toán</p>
+                    <p class="overview-meta">Tính từ các đơn thanh toán</p>
                 </article>
             </section>
 
@@ -118,6 +120,79 @@
                         <label for="newCategoryName">Hoặc tạo nhanh danh mục mới</label>
                         <input type="text" id="newCategoryName" placeholder="Để trống nếu dùng danh mục có sẵn">
                         <p class="supporting-copy">Nếu nhập ô này, hệ thống sẽ tự tạo hoặc tái sử dụng danh mục tương ứng khi lưu sản phẩm.</p>
+                    </div>
+
+                    <div class="flash-sale-editor full-width">
+                        <div class="flash-sale-editor-head">
+                            <div>
+                                <p class="card-eyebrow">Flash sale</p>
+                                <h3>Cấu hình ưu đãi giới hạn</h3>
+                            </div>
+                            <label class="admin-checkbox" for="flashSaleEnabled">
+                                <input type="checkbox" id="flashSaleEnabled">
+                                <span>Kích hoạt</span>
+                            </label>
+                        </div>
+
+                        <div class="flash-sale-scheduler">
+                            <div class="flash-sale-delay-group">
+                                <label for="flashSaleDelayValue">Hẹn bắt đầu sau</label>
+                                <div class="flash-sale-delay-controls">
+                                    <input type="number" id="flashSaleDelayValue" min="0" value="0">
+                                    <select id="flashSaleDelayUnit" class="admin-select">
+                                        <option value="minutes">Phút</option>
+                                        <option value="hours">Giờ</option>
+                                        <option value="days">Ngày</option>
+                                    </select>
+                                    <button class="secondary-btn" type="button" id="flashSaleApplyDelayButton">Áp dụng</button>
+                                    <button class="edit-btn" type="button" id="flashSaleStartNowButton">Bắt đầu ngay</button>
+                                </div>
+                            </div>
+
+                            <div class="flash-sale-duration-group">
+                                <span>Thời lượng nhanh</span>
+                                <div class="flash-sale-duration-actions">
+                                    <button type="button" data-flash-sale-duration="60">1 giờ</button>
+                                    <button type="button" data-flash-sale-duration="120">2 giờ</button>
+                                    <button type="button" data-flash-sale-duration="360">6 giờ</button>
+                                    <button type="button" data-flash-sale-duration="1440">24 giờ</button>
+                                </div>
+                            </div>
+
+                            <p id="flashSaleSchedulePreview" class="flash-sale-schedule-preview">Chưa hẹn lịch</p>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="flashSaleTitle">Tên chương trình</label>
+                                <input type="text" id="flashSaleTitle" placeholder="Flash Sale cuối ngày">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="flashSaleSalePrice">Giá flash sale</label>
+                                <input type="number" id="flashSaleSalePrice" min="0">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="flashSaleStartsAt">Bắt đầu</label>
+                                <input type="datetime-local" id="flashSaleStartsAt">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="flashSaleEndsAt">Kết thúc</label>
+                                <input type="datetime-local" id="flashSaleEndsAt">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="flashSaleStockLimit">Số lượng sale</label>
+                                <input type="number" id="flashSaleStockLimit" min="0" value="0">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="flashSalePerOrderLimit">Giới hạn mỗi đơn</label>
+                                <input type="number" id="flashSalePerOrderLimit" min="0" value="0">
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-group full-width">
@@ -240,6 +315,7 @@
                                 <th>Ảnh</th>
                                 <th>Tên</th>
                                 <th>Giá</th>
+                                <th>Flash sale</th>
                                 <th>Danh mục</th>
                                 <th>Tồn kho</th>
                                 <th>Trạng thái</th>
@@ -449,6 +525,29 @@
     </div>
 
     <script src="/js/auth.js"></script>
+    <script src="/js/admin-ui-utils.js"></script>
     <script src="/js/admin-products.js"></script>
+
+    <script>
+        // Initialize better sidebar navigation
+        document.querySelectorAll('.sidebar-section-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').substring(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // Highlight the link
+                    document.querySelectorAll('.sidebar-section-link').forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Initialize form validation
+        document.querySelectorAll('form').forEach(form => {
+            initializeFormValidation(form);
+        });
+    </script>
 </body>
 </html>

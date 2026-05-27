@@ -28,6 +28,13 @@ function normalizeCart(rawCart) {
             id: item.id,
             name: item.name,
             price: Number(item.price) || 0,
+            originalPrice: Number(item.originalPrice) || Number(item.price) || 0,
+            discountPercent: Number(item.discountPercent) || 0,
+            flashSaleApplied: item.flashSaleApplied === true,
+            flashSaleTitle: item.flashSaleTitle || '',
+            flashSaleEndsAt: item.flashSaleEndsAt || null,
+            flashSaleRemainingStock: Math.max(0, Number(item.flashSaleRemainingStock) || 0),
+            flashSalePerOrderLimit: Math.max(0, Number(item.flashSalePerOrderLimit) || 0),
             image: item.image || FALLBACK_IMAGE,
             quantity: Math.max(1, Number(item.quantity) || 1),
             trangThai: item.trangThai || IN_STOCK_STATUS,
@@ -37,6 +44,7 @@ function normalizeCart(rawCart) {
 }
 
 let cart = normalizeCart(JSON.parse(localStorage.getItem(CART_STORAGE_KEY)) || []);
+let flashSaleCountdownTimer = null;
 
 const currencyFormatter = new Intl.NumberFormat('vi-VN');
 
@@ -167,11 +175,68 @@ function isOutOfStockProduct(product) {
     return (product?.trangThai || '').trim() === OUT_OF_STOCK_STATUS;
 }
 
+function getProductEffectivePrice(product) {
+    return Number(product?.effectivePrice ?? product?.price ?? product?.gia) || 0;
+}
+
+function getProductOriginalPrice(product) {
+    return Number(product?.originalPrice ?? product?.gia ?? product?.price) || 0;
+}
+
+function isFlashSaleProduct(product) {
+    return product?.isFlashSaleActive === true || product?.flashSaleApplied === true;
+}
+
+function getFlashSaleLimit(item) {
+    if (!item?.flashSaleApplied) {
+        return Infinity;
+    }
+
+    const limits = [];
+
+    if (Number(item.flashSaleRemainingStock) > 0) {
+        limits.push(Number(item.flashSaleRemainingStock));
+    }
+
+    if (Number(item.flashSalePerOrderLimit) > 0) {
+        limits.push(Number(item.flashSalePerOrderLimit));
+    }
+
+    return limits.length ? Math.max(1, Math.min(...limits)) : Infinity;
+}
+
+function formatFlashSaleCountdown(value) {
+    const endsAt = new Date(value || '');
+    const remainingMs = Number.isFinite(endsAt.getTime()) ? endsAt.getTime() - Date.now() : 0;
+
+    if (remainingMs <= 0) {
+        return '00:00:00';
+    }
+
+    const totalSeconds = Math.floor(remainingMs / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    return [hours, minutes, seconds]
+        .map((part) => String(part).padStart(2, '0'))
+        .join(':');
+}
+
 function toCartItem(product, quantity = 1) {
+    const flashSaleApplied = isFlashSaleProduct(product);
+
     return {
         id: product._id || product.id,
         name: product.ten || product.name,
-        price: Number(product.gia ?? product.price) || 0,
+        price: getProductEffectivePrice(product),
+        originalPrice: getProductOriginalPrice(product),
+        discountPercent: Number(product.discountPercent) || 0,
+        flashSaleApplied,
+        flashSaleTitle: flashSaleApplied ? (product.flashSaleLabel || product.flashSaleTitle || 'Flash Sale') : '',
+        flashSaleEndsAt: flashSaleApplied ? (product.flashSaleEndsAt || product.flashSale?.endsAt || null) : null,
+        flashSaleRemainingStock: flashSaleApplied ? Math.max(0, Number(product.flashSaleRemainingStock) || 0) : 0,
+        flashSalePerOrderLimit: flashSaleApplied ? Math.max(0, Number(product.flashSalePerOrderLimit) || 0) : 0,
         image: product.image || FALLBACK_IMAGE,
         quantity: Math.max(1, Number(quantity) || 1),
         trangThai: product.trangThai || IN_STOCK_STATUS,
@@ -252,8 +317,9 @@ function deriveCategoryBrowseFromProducts(products) {
             existingCategory.inStockCount += 1;
         }
 
-        if (existingCategory.minPrice === null || Number(product.gia) < existingCategory.minPrice) {
-            existingCategory.minPrice = Number(product.gia) || 0;
+        const displayPrice = getProductEffectivePrice(product);
+        if (existingCategory.minPrice === null || displayPrice < existingCategory.minPrice) {
+            existingCategory.minPrice = displayPrice;
         }
 
         if (!existingCategory.sampleImage && product.image) {
@@ -309,6 +375,14 @@ function addToCart(item) {
     const existingItem = cart.find((cartItem) => cartItem.id === item.id);
 
     if (existingItem) {
+        const nextQuantity = existingItem.quantity + 1;
+        const flashSaleLimit = getFlashSaleLimit(existingItem);
+
+        if (nextQuantity > flashSaleLimit) {
+            alert(`Sản phẩm flash sale này chỉ còn tối đa ${flashSaleLimit} sản phẩm cho giỏ hàng của bạn.`);
+            return;
+        }
+
         existingItem.quantity += 1;
     } else {
         cart.push({
@@ -336,7 +410,15 @@ function changeQuantity(index, delta) {
         return;
     }
 
-    item.quantity = Math.max(1, item.quantity + delta);
+    const nextQuantity = Math.max(1, item.quantity + delta);
+    const flashSaleLimit = getFlashSaleLimit(item);
+
+    if (delta > 0 && nextQuantity > flashSaleLimit) {
+        alert(`Sản phẩm flash sale này chỉ còn tối đa ${flashSaleLimit} sản phẩm cho giỏ hàng của bạn.`);
+        return;
+    }
+
+    item.quantity = nextQuantity;
     saveCart();
     renderCartPage();
     updateCartCount();
@@ -361,6 +443,11 @@ async function validateCartBeforeCheckout() {
 
         if (isOutOfStockProduct(syncedItem)) {
             unavailableItems.push(`${syncedItem.name} (hết hàng)`);
+        }
+
+        const flashSaleLimit = getFlashSaleLimit(syncedItem);
+        if (syncedItem.flashSaleApplied && syncedItem.quantity > flashSaleLimit) {
+            unavailableItems.push(`${syncedItem.name} (flash sale chỉ còn ${flashSaleLimit} sản phẩm)`);
         }
 
         return syncedItem;
@@ -416,9 +503,68 @@ async function checkoutCart() {
     }
 }
 
+function buildPriceMarkup(product) {
+    if (!isFlashSaleProduct(product)) {
+        return `<p class="card-price">${formatCurrency(getProductEffectivePrice(product))}</p>`;
+    }
+
+    return `
+        <div class="flash-price-stack">
+            <span class="flash-sale-badge">-${Number(product.discountPercent) || 0}%</span>
+            <p class="card-price">${formatCurrency(getProductEffectivePrice(product))}</p>
+            <p class="original-price">${formatCurrency(getProductOriginalPrice(product))}</p>
+        </div>
+    `;
+}
+
+function buildFlashSaleMarkup(product) {
+    if (!isFlashSaleProduct(product)) {
+        return '';
+    }
+
+    const remainingStock = Math.max(0, Number(product.flashSaleRemainingStock) || 0);
+    const stockLimit = Math.max(0, Number(product.flashSaleStockLimit) || 0);
+    const soldPercent = stockLimit > 0
+        ? Math.min(100, Math.max(0, ((stockLimit - remainingStock) / stockLimit) * 100))
+        : 0;
+    const stockText = stockLimit > 0
+        ? `Còn ${remainingStock}/${stockLimit} suất`
+        : `Còn ${remainingStock || Number(product.stockQuantity) || 0} sản phẩm`;
+
+    return `
+        <div class="flash-sale-card-meta">
+            <div class="flash-sale-card-top">
+                <span>${escapeHtml(product.flashSaleLabel || 'Flash Sale')}</span>
+                <strong data-flash-sale-countdown data-sale-ends-at="${escapeHtml(product.flashSaleEndsAt || '')}">
+                    ${formatFlashSaleCountdown(product.flashSaleEndsAt)}
+                </strong>
+            </div>
+            <div class="flash-sale-progress" aria-hidden="true">
+                <span style="width: ${soldPercent}%"></span>
+            </div>
+            <p>${stockText}</p>
+        </div>
+    `;
+}
+
+function updateFlashSaleCountdowns() {
+    document.querySelectorAll('[data-flash-sale-countdown]').forEach((element) => {
+        element.textContent = formatFlashSaleCountdown(element.dataset.saleEndsAt);
+    });
+}
+
+function ensureFlashSaleCountdownTimer() {
+    if (flashSaleCountdownTimer) {
+        return;
+    }
+
+    flashSaleCountdownTimer = window.setInterval(updateFlashSaleCountdowns, 1000);
+}
+
 function createProductCardElement(product) {
     const card = document.createElement('article');
-    card.className = 'product-card';
+    const flashSaleActive = isFlashSaleProduct(product);
+    card.className = `product-card${flashSaleActive ? ' product-card--flash' : ''}`;
 
     const cartItem = toCartItem(product);
     const outOfStock = isOutOfStockProduct(cartItem);
@@ -442,7 +588,8 @@ function createProductCardElement(product) {
                 <span>${product.brand ? escapeHtml(product.brand) : 'ShopOnline tuyển chọn'}</span>
                 <span>${Number(product.stockQuantity) || 0} sản phẩm</span>
             </div>
-            <p class="card-price">${formatCurrency(product.gia)}</p>
+            ${buildPriceMarkup(product)}
+            ${buildFlashSaleMarkup(product)}
             ${outOfStock ? '<p class="stock-note out-of-stock">Sản phẩm hiện đã hết hàng.</p>' : ''}
             <button type="button" class="card-button" ${outOfStock ? 'disabled' : ''}>
                 ${buttonLabel}
@@ -489,6 +636,11 @@ function renderProductGrid(container, products, options = {}) {
     products.forEach((product) => {
         container.appendChild(createProductCardElement(product));
     });
+
+    if (products.some((product) => isFlashSaleProduct(product))) {
+        updateFlashSaleCountdowns();
+        ensureFlashSaleCountdownTimer();
+    }
 }
 
 function getHomeFilteredProducts() {
@@ -672,6 +824,43 @@ function renderHomeCategoryPills(categories) {
     });
 }
 
+function getActiveFlashSaleProducts(products) {
+    return products
+        .filter((product) => isFlashSaleProduct(product) && !isOutOfStockProduct(product))
+        .sort((left, right) => new Date(left.flashSaleEndsAt || 0) - new Date(right.flashSaleEndsAt || 0));
+}
+
+function renderHomeFlashSale(products) {
+    const section = document.getElementById('flash-sale');
+    const container = document.getElementById('flash-sale-products');
+    const countdown = document.getElementById('flash-sale-countdown');
+
+    if (!section || !container) {
+        return;
+    }
+
+    const flashSaleProducts = getActiveFlashSaleProducts(products).slice(0, 4);
+
+    if (!flashSaleProducts.length) {
+        section.hidden = true;
+        container.innerHTML = '';
+        return;
+    }
+
+    section.hidden = false;
+    if (countdown) {
+        const firstEndingProduct = flashSaleProducts[0];
+        countdown.dataset.saleEndsAt = firstEndingProduct.flashSaleEndsAt || '';
+        countdown.setAttribute('data-flash-sale-countdown', '');
+        countdown.textContent = formatFlashSaleCountdown(firstEndingProduct.flashSaleEndsAt);
+    }
+
+    renderProductGrid(container, flashSaleProducts, {
+        emptyTitle: 'Chưa có flash sale đang chạy',
+        emptyDescription: 'Các ưu đãi giới hạn sẽ hiển thị tại đây khi được kích hoạt.'
+    });
+}
+
 function applyHomeCategoryFilter(categoryName, options = {}) {
     const { scroll = false } = options;
     const container = document.getElementById('products');
@@ -756,6 +945,7 @@ async function initializeHomePage() {
         initializeHomeControls();
         renderHomeCategoryCards(homeState.categories);
         renderHomeCategoryPills(homeState.categories);
+        renderHomeFlashSale(products);
 
         const hasInitialCategory = homeState.categories.some((category) => (
             normalizeCategoryValue(category.name) === normalizeCategoryValue(initialCategory)
@@ -778,6 +968,23 @@ async function initializeHomePage() {
             summary.textContent = 'Không tải được dữ liệu catalog.';
         }
     }
+}
+
+function buildCartPriceMarkup(item) {
+    if (!item.flashSaleApplied) {
+        return `<p>${formatCurrency(item.price)} / sản phẩm</p>`;
+    }
+
+    return `
+        <div class="cart-sale-price">
+            <span class="flash-sale-badge">${escapeHtml(item.flashSaleTitle || 'Flash Sale')}</span>
+            <p>
+                <span class="original-price">${formatCurrency(item.originalPrice)}</span>
+                ${formatCurrency(item.price)} / sản phẩm
+            </p>
+            ${item.flashSaleEndsAt ? `<span data-flash-sale-countdown data-sale-ends-at="${escapeHtml(item.flashSaleEndsAt)}">${formatFlashSaleCountdown(item.flashSaleEndsAt)}</span>` : ''}
+        </div>
+    `;
 }
 
 function renderCartPage() {
@@ -836,7 +1043,7 @@ function renderCartPage() {
             <div class="cart-row-info">
                 <p class="card-eyebrow">${escapeHtml(item.danhMuc || 'Sản phẩm')}</p>
                 <h3>${escapeHtml(item.name)}</h3>
-                <p>${formatCurrency(item.price)} / sản phẩm</p>
+                ${buildCartPriceMarkup(item)}
                 ${isOutOfStockProduct(item) ? '<p class="stock-note out-of-stock">Sản phẩm này hiện đã hết hàng.</p>' : ''}
             </div>
             <div class="cart-row-actions">
@@ -878,6 +1085,11 @@ function renderCartPage() {
     if (totalElement) {
         totalElement.textContent = formatCurrency(getTotalAmount());
     }
+
+    if (cart.some((item) => item.flashSaleApplied)) {
+        updateFlashSaleCountdowns();
+        ensureFlashSaleCountdownTimer();
+    }
 }
 
 function initCartPage() {
@@ -909,6 +1121,9 @@ window.Storefront = {
     syncCartWithProducts,
     toCartItem,
     isOutOfStockProduct,
+    isFlashSaleProduct,
+    getProductEffectivePrice,
+    getProductOriginalPrice,
     getCategoryTheme,
     normalizeCategoryValue,
     isHiddenStorefrontCategory,

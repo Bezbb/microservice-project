@@ -255,6 +255,35 @@ td img {
     background: var(--danger);
 }
 
+.status-sale {
+    background: rgba(220, 38, 38, 0.12);
+    color: #b91c1c;
+}
+
+.status-sale::before {
+    background: #ef4444;
+}
+
+.status-upcoming,
+.status-pending {
+    background: rgba(217, 119, 6, 0.13);
+    color: #92400e;
+}
+
+.status-upcoming::before,
+.status-pending::before {
+    background: #f59e0b;
+}
+
+.status-muted {
+    background: rgba(100, 116, 139, 0.13);
+    color: #475569;
+}
+
+.status-muted::before {
+    background: #94a3b8;
+}
+
 .header-actions {
     display: flex;
     gap: 12px;
@@ -314,6 +343,155 @@ td img {
     border-radius: 16px;
     background: #f3f4f6;
     padding: 6px;
+}
+
+.flash-sale-editor {
+    padding: 22px;
+    border-radius: 22px;
+    border: 1px solid rgba(220, 38, 38, 0.16);
+    background:
+        linear-gradient(135deg, rgba(254, 242, 242, 0.94), rgba(255, 251, 235, 0.82)),
+        rgba(255, 255, 255, 0.8);
+}
+
+.flash-sale-editor-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: flex-start;
+    margin-bottom: 18px;
+}
+
+.flash-sale-editor h3 {
+    margin-top: 10px;
+    font-family: "Space Grotesk", "Manrope", sans-serif;
+    font-size: 24px;
+    letter-spacing: -0.04em;
+    color: var(--text);
+}
+
+.flash-sale-scheduler {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    gap: 16px;
+    margin-bottom: 18px;
+    padding: 16px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.64);
+    border: 1px solid rgba(16, 32, 51, 0.08);
+}
+
+.flash-sale-delay-group,
+.flash-sale-duration-group {
+    display: grid;
+    gap: 8px;
+}
+
+.flash-sale-delay-group label,
+.flash-sale-duration-group span {
+    color: rgba(16, 32, 51, 0.72);
+    font-size: 0.92rem;
+    font-weight: 800;
+}
+
+.flash-sale-delay-controls {
+    display: grid;
+    grid-template-columns: 88px minmax(104px, 0.8fr) auto auto;
+    gap: 10px;
+    align-items: center;
+}
+
+.flash-sale-delay-controls input,
+.flash-sale-delay-controls select {
+    min-width: 0;
+}
+
+.flash-sale-delay-controls .secondary-btn,
+.flash-sale-delay-controls .edit-btn {
+    width: auto;
+    min-height: 42px;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.flash-sale-duration-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.flash-sale-duration-actions button {
+    min-height: 38px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: rgba(185, 28, 28, 0.08);
+    color: #991b1b;
+    font-weight: 800;
+}
+
+.flash-sale-duration-actions button:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.flash-sale-schedule-preview {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(100, 116, 139, 0.1);
+    color: #475569;
+    font-weight: 800;
+}
+
+.flash-sale-schedule-preview.is-upcoming {
+    background: rgba(217, 119, 6, 0.13);
+    color: #92400e;
+}
+
+.flash-sale-schedule-preview.is-active {
+    background: rgba(22, 163, 74, 0.12);
+    color: #166534;
+}
+
+.flash-sale-schedule-preview.is-warning,
+.flash-sale-schedule-preview.is-error,
+.flash-sale-schedule-preview.is-ended {
+    background: rgba(220, 38, 38, 0.12);
+    color: #b91c1c;
+}
+
+.admin-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 42px;
+    padding: 0 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.74);
+    border: 1px solid rgba(16, 32, 51, 0.1);
+    color: var(--text);
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.admin-checkbox input {
+    width: 18px;
+    height: 18px;
+    accent-color: #dc2626;
+}
+
+.flash-sale-table-cell {
+    display: grid;
+    gap: 6px;
+    min-width: 180px;
+}
+
+.flash-sale-table-cell strong {
+    color: #b91c1c;
+    font-family: "Space Grotesk", "Manrope", sans-serif;
+    font-size: 18px;
+    letter-spacing: -0.03em;
 }
 
 .table-actions {

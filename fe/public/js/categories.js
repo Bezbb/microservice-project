@@ -73,10 +73,10 @@ if (storefront) {
 
         switch (sortKey) {
         case 'price_asc':
-            sorted.sort((left, right) => (Number(left.gia) || 0) - (Number(right.gia) || 0));
+            sorted.sort((left, right) => storefront.getProductEffectivePrice(left) - storefront.getProductEffectivePrice(right));
             break;
         case 'price_desc':
-            sorted.sort((left, right) => (Number(right.gia) || 0) - (Number(left.gia) || 0));
+            sorted.sort((left, right) => storefront.getProductEffectivePrice(right) - storefront.getProductEffectivePrice(left));
             break;
         case 'name_asc':
             sorted.sort((left, right) => String(left.ten || '').localeCompare(String(right.ten || ''), 'vi'));
