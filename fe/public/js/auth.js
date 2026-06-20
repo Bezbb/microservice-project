@@ -1,5 +1,5 @@
 (() => {
-    const AUTH_API_BASE = 'http://localhost:3000';
+    const AUTH_API_BASE = 'http://192.168.26.99:30000';
     const AUTH_TOKEN_KEY = 'authToken';
     const AUTH_USER_KEY = 'authUser';
 

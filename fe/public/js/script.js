@@ -1,4 +1,4 @@
-const API_BASE = window.Auth?.API_BASE || 'http://localhost:3000';
+const API_BASE = window.Auth?.API_BASE || 'http://192.168.26.99:30000';
 const FALLBACK_IMAGE = '/images/default-product.svg';
 const CART_STORAGE_KEY = 'cart';
 const CHECKOUT_STORAGE_KEY = 'pendingCheckout';
