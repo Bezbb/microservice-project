@@ -1,4 +1,4 @@
-const API_BASE = window.Auth?.API_BASE || 'http://192.168.26.99:30000';
+const API_BASE = window.Auth?.API_BASE || window.AppConfig?.API_BASE_URL || window.__API_BASE__ || '';
 const FALLBACK_IMAGE = '/images/default-product.svg';
 const CART_STORAGE_KEY = 'cart';
 const CHECKOUT_STORAGE_KEY = 'pendingCheckout';
@@ -161,7 +161,7 @@ function getItemImage(item) {
     }
 
     if (item.image.startsWith('http')) {
-        return item.image.replace('via.placeholder.com', 'placehold.co');
+        return item.image;
     }
 
     if (item.image.startsWith('/')) {
@@ -249,7 +249,7 @@ function getCategoryTheme(index) {
 }
 
 function buildApiUrl(path, query = {}) {
-    const url = new URL(`${API_BASE}${path}`);
+    const url = new URL(path, API_BASE || window.location.origin);
 
     Object.entries(query).forEach(([key, value]) => {
         if (value === undefined || value === null || value === '') {

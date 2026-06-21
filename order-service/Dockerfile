@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Copy các file cấu hình và cài đặt thư viện
 COPY package*.json ./
-RUN npm install
+RUN npm ci --omit=dev
 
 # Copy toàn bộ code của em vào
 COPY . .

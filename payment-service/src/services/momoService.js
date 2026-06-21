@@ -12,8 +12,8 @@ const {
 const { createHttpError } = require('../utils/errors');
 
 function assertMomoConfigured() {
-    if (!MOMO_PARTNER_CODE || !MOMO_ACCESS_KEY || !MOMO_SECRET_KEY) {
-        throw createHttpError('Chua cau hinh MOMO_PARTNER_CODE, MOMO_ACCESS_KEY va MOMO_SECRET_KEY.', 500);
+    if (!MOMO_ENDPOINT || !MOMO_REDIRECT_URL || !MOMO_IPN_URL || !MOMO_PARTNER_CODE || !MOMO_ACCESS_KEY || !MOMO_SECRET_KEY) {
+        throw createHttpError('Chua cau hinh day du bien moi truong MoMo.', 500);
     }
 }
 

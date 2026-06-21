@@ -10,6 +10,11 @@ const { normalizeEmail } = require('../utils/users');
 
 async function seedDefaultAdmin() {
     const email = normalizeEmail(DEFAULT_ADMIN_EMAIL);
+
+    if (!email || !DEFAULT_ADMIN_PASSWORD) {
+        throw new Error('DEFAULT_ADMIN_EMAIL and DEFAULT_ADMIN_PASSWORD are required to seed the admin account.');
+    }
+
     const existingAdmin = await User.findOne({ email });
     const credentials = hashPassword(DEFAULT_ADMIN_PASSWORD);
 

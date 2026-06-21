@@ -1,4 +1,4 @@
-const API_BASE = window.Auth?.API_BASE || 'http://192.168.26.99:30000';
+const API_BASE = window.Auth?.API_BASE || window.AppConfig?.API_BASE_URL || window.__API_BASE__ || '';
 
 const fullNameEl = document.getElementById('account-full-name');
 const emailEl = document.getElementById('account-email');

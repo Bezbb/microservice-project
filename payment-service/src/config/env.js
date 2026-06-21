@@ -1,12 +1,30 @@
+function parseCsv(value) {
+    return String(value || '')
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean);
+}
+
+function requireEnv(name) {
+    const value = process.env[name];
+
+    if (!value) {
+        throw new Error(`${name} is required`);
+    }
+
+    return value;
+}
+
 const PORT = Number(process.env.PORT || 3003);
 const MONGODB_URI = process.env.PAYMENT_MONGODB_URI
     || process.env.MONGODB_URI
-    || 'mongodb://payment-db:27017/revo_payment_db';
-const ORDER_SERVICE_URL = process.env.ORDER_SERVICE_URL || 'http://order-service:3002';
-const INTERNAL_SERVICE_TOKEN = process.env.INTERNAL_SERVICE_TOKEN || 'local-dev-product-token';
-const PUBLIC_API_BASE_URL = process.env.PUBLIC_API_BASE_URL || 'http://localhost:3000';
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3004';
-const MOMO_ENDPOINT = process.env.MOMO_ENDPOINT || 'https://test-payment.momo.vn/v2/gateway/api/create';
+    || requireEnv('PAYMENT_MONGODB_URI');
+const ORDER_SERVICE_URL = requireEnv('ORDER_SERVICE_URL');
+const INTERNAL_SERVICE_TOKEN = requireEnv('INTERNAL_SERVICE_TOKEN');
+const PUBLIC_API_BASE_URL = process.env.PUBLIC_API_BASE_URL || '';
+const FRONTEND_URL = process.env.FRONTEND_URL || '';
+const CORS_ORIGINS = parseCsv(process.env.CORS_ORIGINS);
+const MOMO_ENDPOINT = process.env.MOMO_ENDPOINT || '';
 const MOMO_PARTNER_CODE = process.env.MOMO_PARTNER_CODE || '';
 const MOMO_ACCESS_KEY = process.env.MOMO_ACCESS_KEY || '';
 const MOMO_SECRET_KEY = process.env.MOMO_SECRET_KEY || '';
@@ -20,6 +38,7 @@ module.exports = {
     ORDER_SERVICE_URL,
     INTERNAL_SERVICE_TOKEN,
     FRONTEND_URL,
+    CORS_ORIGINS,
     MOMO_ENDPOINT,
     MOMO_PARTNER_CODE,
     MOMO_ACCESS_KEY,

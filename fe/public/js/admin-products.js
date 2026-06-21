@@ -1,4 +1,4 @@
-const API_BASE = window.Auth?.API_BASE || 'http://192.168.26.99:30000';
+const API_BASE = window.Auth?.API_BASE || window.AppConfig?.API_BASE_URL || window.__API_BASE__ || '';
 const FALLBACK_IMAGE = '/images/default-product.svg';
 const IN_STOCK_STATUS = 'Còn hàng';
 const OUT_OF_STOCK_STATUS = 'Hết hàng';

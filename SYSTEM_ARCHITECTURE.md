@@ -113,7 +113,7 @@ Chức năng chính:
 
 - Phục vụ các trang HTML tĩnh: home, categories, cart, payment, payment-result, login, register, reset-password, account, admin-products.
 - Quản lý giỏ hàng bằng `localStorage`.
-- Gọi API qua `http://localhost:3000` đến `api-gateway`.
+- Gọi API qua `PUBLIC_API_BASE_URL` đến `api-gateway`.
 - Lưu phiên đăng nhập ở client bằng token/user trong `localStorage`.
 - Trang admin gồm quản lý sản phẩm, danh mục, đơn hàng, thanh toán, đối soát, user.
 - Trang account cho người dùng cập nhật hồ sơ, đổi mật khẩu, xem đơn hàng và hủy đơn đang chờ thanh toán.
@@ -492,8 +492,8 @@ Volumes Docker:
 | Biến | Ý nghĩa |
 | --- | --- |
 | `INTERNAL_SERVICE_TOKEN` | Token xác thực nội bộ giữa gateway/service |
-| `FRONTEND_URL` | URL frontend, mặc định `http://localhost:3004` |
-| `PUBLIC_API_BASE_URL` | URL public của gateway, mặc định `http://localhost:3000` |
+| `FRONTEND_URL` | URL frontend, mặc định `FRONTEND_URL` |
+| `PUBLIC_API_BASE_URL` | URL public của gateway, mặc định `PUBLIC_API_BASE_URL` |
 | `CORS_ORIGINS` | Danh sách origin được gateway chấp nhận |
 
 ### User service
@@ -545,9 +545,9 @@ docker compose up --build
 
 URL local thường dùng:
 
-- Frontend: `http://localhost:3004`
-- API Gateway: `http://localhost:3000`
-- Mailpit UI: `http://localhost:8025`
+- Frontend: `FRONTEND_URL`
+- API Gateway: `PUBLIC_API_BASE_URL`
+- Mailpit UI: `MAILPIT_UI_URL`
 
 ## 10. Ghi chú thiết kế và điểm cần lưu ý
 
@@ -572,3 +572,5 @@ URL local thường dùng:
 - Thêm message queue/outbox pattern cho payment/order/inventory nếu cần độ bền cao hơn.
 - Thêm centralized logging và metrics.
 - Bổ sung migration/versioning schema cho MongoDB khi dữ liệu lớn hơn.
+
+

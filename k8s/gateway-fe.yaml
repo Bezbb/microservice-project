@@ -21,11 +21,20 @@ spec:
         - containerPort: 3000
         env:
         - name: INTERNAL_SERVICE_TOKEN
-          value: "local-dev-product-token"
+          valueFrom:
+            secretKeyRef:
+              name: shoponline-secrets
+              key: INTERNAL_SERVICE_TOKEN
         - name: FRONTEND_URL
-          value: "http://192.168.26.99:30004"
+          valueFrom:
+            configMapKeyRef:
+              name: shoponline-runtime-config
+              key: FRONTEND_URL
         - name: CORS_ORIGINS
-          value: "http://192.168.26.99:30004,http://localhost:3004"
+          valueFrom:
+            configMapKeyRef:
+              name: shoponline-runtime-config
+              key: CORS_ORIGINS
 ---
 apiVersion: v1
 kind: Service
@@ -62,6 +71,17 @@ spec:
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3004
+        env:
+        - name: API_BASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: shoponline-runtime-config
+              key: API_BASE_URL
+        - name: API_PROXY_TARGET
+          valueFrom:
+            configMapKeyRef:
+              name: shoponline-runtime-config
+              key: API_PROXY_TARGET
 ---
 apiVersion: v1
 kind: Service

@@ -26,7 +26,7 @@ function createCorsOptions() {
 
     return {
         origin(origin, callback) {
-            if (!origin || allowedOrigins.has(origin)) {
+            if (!origin || allowedOrigins.has('*') || allowedOrigins.has(origin)) {
                 callback(null, true);
                 return;
             }
@@ -43,7 +43,12 @@ function createApp() {
     app.use(cors(createCorsOptions()));
 
     app.get('/', (_req, res) => {
-        res.redirect(FRONTEND_URL);
+        if (FRONTEND_URL) {
+            res.redirect(FRONTEND_URL);
+            return;
+        }
+
+        res.json({ status: 'ok', service: 'api-gateway' });
     });
 
     app.get('/health', (_req, res) => {

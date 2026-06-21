@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shoponline-runtime-config
+  namespace: shoponline
+data:
+  FRONTEND_URL: "https://your-domain.example"
+  API_BASE_URL: ""
+  API_PROXY_TARGET: "http://api-gateway:3000"
+  PRODUCT_SERVICE_URL: "http://product-service:3001"
+  PUBLIC_API_BASE_URL: "https://your-domain.example"
+  CORS_ORIGINS: "https://your-domain.example"
+  GOOGLE_REDIRECT_URI: "https://your-domain.example/api/auth/google/callback"
+  GOOGLE_AUTH_URL: "https://accounts.google.com/o/oauth2/v2/auth"
+  GOOGLE_TOKEN_URL: "https://oauth2.googleapis.com/token"
+  GOOGLE_USERINFO_URL: "https://openidconnect.googleapis.com/v1/userinfo"
+  MOMO_ENDPOINT: "https://test-payment.momo.vn/v2/gateway/api/create"
+  MOMO_REQUEST_TYPE: "payWithMethod"
+  SMTP_FROM: "ShopOnline <no-reply@example.com>"

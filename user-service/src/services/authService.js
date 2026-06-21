@@ -3,9 +3,12 @@ const User = require('../models/user');
 const { USER_ROLES } = require('../config/constants');
 const {
     FRONTEND_URL,
+    GOOGLE_AUTH_URL,
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,
     GOOGLE_REDIRECT_URI,
+    GOOGLE_TOKEN_URL,
+    GOOGLE_USERINFO_URL,
     GOOGLE_STATE_SECRET,
     PASSWORD_RESET_TTL_MINUTES
 } = require('../config/env');
@@ -106,7 +109,7 @@ function readSignedState(state) {
 }
 
 function getGoogleLoginUrl(next) {
-    if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
+    if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !GOOGLE_AUTH_URL || !GOOGLE_REDIRECT_URI) {
         throw createHttpError('Đăng nhập Google chưa được cấu hình.', 503);
     }
 
@@ -119,7 +122,7 @@ function getGoogleLoginUrl(next) {
         state: createSignedState(next)
     });
 
-    return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+    return `${GOOGLE_AUTH_URL}?${params.toString()}`;
 }
 
 async function fetchJson(url, options, fallbackMessage) {
@@ -134,7 +137,11 @@ async function fetchJson(url, options, fallbackMessage) {
 }
 
 async function fetchGoogleProfile(code) {
-    const tokenPayload = await fetchJson('https://oauth2.googleapis.com/token', {
+    if (!GOOGLE_TOKEN_URL || !GOOGLE_USERINFO_URL) {
+        throw createHttpError('Google OAuth endpoint chua duoc cau hinh.', 503);
+    }
+
+    const tokenPayload = await fetchJson(GOOGLE_TOKEN_URL, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
@@ -152,7 +159,7 @@ async function fetchGoogleProfile(code) {
         throw createHttpError('Google không trả về access token hợp lệ.', 502);
     }
 
-    const profile = await fetchJson('https://openidconnect.googleapis.com/v1/userinfo', {
+    const profile = await fetchJson(GOOGLE_USERINFO_URL, {
         headers: {
             Authorization: `Bearer ${tokenPayload.access_token}`
         }
@@ -177,7 +184,7 @@ async function fetchGoogleProfile(code) {
 }
 
 async function loginWithGoogleCallback(query = {}) {
-    if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
+    if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET || !GOOGLE_REDIRECT_URI) {
         throw createHttpError('Đăng nhập Google chưa được cấu hình.', 503);
     }
 
