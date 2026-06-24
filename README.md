@@ -37,12 +37,6 @@ Start production:
 docker compose up -d --build
 ```
 
-Equivalent explicit production file:
-
-```bash
-docker compose -f docker-compose.prod.yml up -d --build
-```
-
 Check containers:
 
 ```bash

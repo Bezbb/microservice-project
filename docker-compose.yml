@@ -155,7 +155,7 @@ services:
     container_name: fe
     restart: unless-stopped
     ports:
-      - "${FE_PORT:-80}:3004"
+      - "${FE_PORT:-80}:80"
     depends_on:
       - api-gateway
     environment:
