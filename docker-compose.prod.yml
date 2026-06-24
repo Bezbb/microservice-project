@@ -153,15 +153,10 @@ services:
   fe:
     build: ./fe
     container_name: fe
-    restart: unless-stopped
     ports:
-      - "${FE_PORT:-80}:3004"
+      - "${FE_PORT:-80}:80"
     depends_on:
       - api-gateway
-    environment:
-      NODE_ENV: production
-      API_BASE_URL: ${API_BASE_URL:-}
-      API_PROXY_TARGET: ${API_PROXY_TARGET:?Set API_PROXY_TARGET in .env}
     networks:
       - app-network
 

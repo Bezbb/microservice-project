@@ -1,12 +1,6 @@
-FROM node:18-alpine
+FROM nginx:alpine
 
-WORKDIR /app
+COPY public /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-COPY package*.json ./
-RUN npm ci --omit=dev
-
-COPY . .
-
-EXPOSE 3004
-
-CMD ["npm", "start"]
+EXPOSE 80
