@@ -4,551 +4,683 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản trị hệ thống | ShopOnline</title>
-    <link rel="stylesheet" href="/css/main.css?v=2.0">
+    <link rel="stylesheet" href="/css/main.css?v=2.1">
 </head>
 <body data-requires-admin="true">
     <div class="admin-layout">
+        <!-- Sidebar Navigation -->
         <aside class="sidebar">
+            <div class="sidebar-brand">
+                <span style="font-size: 22px;">🛍️</span>
+                <h2>ShopOnline Admin</h2>
+            </div>
+
             <div id="sidebar-user-info" class="sidebar-user-card"></div>
 
-            <h2>Admin Panel</h2>
             <ul>
-                <li><a href="/admin-products.html" class="active">📊 Tổng quan</a></li>
-                <li><a href="#product-management" class="sidebar-section-link">📦 Sản phẩm</a></li>
-                <li><a href="#category-management" class="sidebar-section-link">📂 Danh mục</a></li>
-                <li><a href="#order-management" class="sidebar-section-link">🛒 Đơn hàng</a></li>
-                <li><a href="#user-management" class="sidebar-section-link">👥 Người dùng</a></li>
-                <li><a href="/">🏪 Trang bán hàng</a></li>
+                <li><button type="button" class="sidebar-tab-btn active" data-tab="overview">📊 Tổng quan cửa hàng</button></li>
+                <li><button type="button" class="sidebar-tab-btn" data-tab="products">📦 Quản lý sản phẩm</button></li>
+                <li><button type="button" class="sidebar-tab-btn" data-tab="categories">📂 Quản lý danh mục</button></li>
+                <li><button type="button" class="sidebar-tab-btn" data-tab="orders">🛒 Quản lý đơn hàng</button></li>
+                <li><button type="button" class="sidebar-tab-btn" data-tab="users">👥 Quản lý người dùng</button></li>
+                <li class="sidebar-divider"></li>
+                <li><a href="/" target="_blank">🏪 Xem trang bán hàng ↗</a></li>
                 <li><a href="/account.html">⚙️ Tài khoản của tôi</a></li>
             </ul>
         </aside>
 
+        <!-- Main Content Area -->
         <main class="content">
             <div data-message-container></div>
 
+            <!-- Page Header -->
             <header class="page-header">
                 <div>
-                    <p class="eyebrow">System Administration</p>
-                    <h1>Quản trị sản phẩm, người dùng và đơn hàng</h1>
-                    <p class="subtext">Quản lý toàn bộ cửa hàng từ một dashboard: sản phẩm, danh mục, người dùng, đơn hàng và thanh toán.</p>
+                    <p class="eyebrow">HỆ THỐNG QUẢN TRỊ</p>
+                    <h1 id="admin-page-title">Tổng quan cửa hàng</h1>
+                    <p class="subtext">Bảng điều khiển kinh doanh, sản phẩm, đơn hàng và khách hàng.</p>
                 </div>
                 <div class="header-actions">
-                    <button class="primary-btn" type="button" id="refresh-admin-button">↻ Tải dữ liệu</button>
+                    <button class="primary-btn" type="button" id="refresh-admin-button">↻ Tải lại dữ liệu</button>
+                    <a class="secondary-btn" href="/" target="_blank">🏪 Cửa hàng ↗</a>
                 </div>
             </header>
 
-            <section class="admin-overview">
-                <article class="overview-card">
-                    <span class="overview-label">Tổng sản phẩm</span>
-                    <strong class="overview-value" id="overview-products">0</strong>
-                    <p class="overview-meta">Sản phẩm đang quản lý</p>
-                </article>
-                <article class="overview-card">
-                    <span class="overview-label">Người dùng</span>
-                    <strong class="overview-value" id="overview-users">0</strong>
-                    <p class="overview-meta" id="overview-admins">0 admin, 0 khách hàng</p>
-                </article>
-                <article class="overview-card">
-                    <span class="overview-label">Đơn hàng</span>
-                    <strong class="overview-value" id="overview-orders">0</strong>
-                    <p class="overview-meta" id="overview-paid-orders">0 đơn đã thanh toán</p>
-                </article>
-                <article class="overview-card">
-                    <span class="overview-label">Doanh thu</span>
-                    <strong class="overview-value" id="overview-revenue">0 VND</strong>
-                    <p class="overview-meta">Tính từ các đơn thanh toán</p>
-                </article>
-            </section>
+            <!-- ==============================================================
+                 TAB 1: TỔNG QUAN (OVERVIEW)
+                 ============================================================== -->
+            <div class="admin-tab-pane" id="tab-overview" data-tab="overview">
+                <!-- Overview Stats Grid -->
+                <section class="admin-overview">
+                    <article class="overview-card">
+                        <span class="overview-label">Tổng sản phẩm</span>
+                        <strong class="overview-value" id="overview-products">0</strong>
+                        <p class="overview-meta">Sản phẩm đang quản lý</p>
+                    </article>
+                    <article class="overview-card">
+                        <span class="overview-label">Người dùng</span>
+                        <strong class="overview-value" id="overview-users">0</strong>
+                        <p class="overview-meta" id="overview-admins">0 admin, 0 khách hàng</p>
+                    </article>
+                    <article class="overview-card">
+                        <span class="overview-label">Đơn hàng</span>
+                        <strong class="overview-value" id="overview-orders">0</strong>
+                        <p class="overview-meta" id="overview-paid-orders">0 đơn đã thanh toán</p>
+                    </article>
+                    <article class="overview-card">
+                        <span class="overview-label">Doanh thu</span>
+                        <strong class="overview-value" id="overview-revenue">0 VND</strong>
+                        <p class="overview-meta">Tính từ các đơn thanh toán</p>
+                    </article>
+                </section>
 
-            <section class="form-section" id="product-management">
-                <div class="section-shell-head">
-                    <div>
-                        <p class="card-eyebrow">Sản phẩm</p>
-                        <h2 id="form-title">Thêm sản phẩm mới</h2>
+                <!-- Quick Action Shortcuts -->
+                <div class="admin-quick-shortcuts">
+                    <div class="shortcut-card" onclick="switchAdminTab('products')">
+                        <div class="shortcut-icon">📦</div>
+                        <div class="shortcut-info">
+                            <h3>Quản lý sản phẩm</h3>
+                            <p>Thêm mới, sửa giá, tồn kho và cấu hình flash sale</p>
+                        </div>
+                    </div>
+                    <div class="shortcut-card" onclick="switchAdminTab('orders')">
+                        <div class="shortcut-icon">🛒</div>
+                        <div class="shortcut-info">
+                            <h3>Xử lý đơn hàng</h3>
+                            <p>Xem đơn mới, xác nhận giao hàng và kiểm tra thanh toán</p>
+                        </div>
+                    </div>
+                    <div class="shortcut-card" onclick="switchAdminTab('users')">
+                        <div class="shortcut-icon">👥</div>
+                        <div class="shortcut-info">
+                            <h3>Quản trị người dùng</h3>
+                            <p>Xem danh sách khách hàng và lịch sử đơn theo người mua</p>
+                        </div>
                     </div>
                 </div>
 
-                <form id="product-form" class="product-form">
-                    <input type="hidden" id="product-id">
-
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="ten">Tên sản phẩm</label>
-                            <input type="text" id="ten" required>
+                <!-- Reconcile Status Box -->
+                <section class="reconciliation-card">
+                    <div class="section-shell-head">
+                        <div>
+                            <p class="card-eyebrow">Thanh toán & Đối soát</p>
+                            <h2>Kiểm tra giao dịch MoMo & Tiền mặt</h2>
                         </div>
-
-                        <div class="form-group">
-                            <label for="gia">Giá</label>
-                            <input type="number" id="gia" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="brand">Thương hiệu</label>
-                            <input type="text" id="brand">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="stockQuantity">Tồn kho</label>
-                            <input type="number" id="stockQuantity" min="0" value="1">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="imageFile">Chọn ảnh từ máy</label>
-                            <input type="file" id="imageFile" accept="image/*">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="categoryId">Danh mục có sẵn</label>
-                            <select id="categoryId" class="admin-select"></select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="trangThai">Trạng thái</label>
-                            <select id="trangThai">
-                                <option value="Còn hàng">Còn hàng</option>
-                                <option value="Hết hàng">Hết hàng</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="tags">Tags</label>
-                            <input type="text" id="tags" placeholder="gaming, rgb, bluetooth">
+                        <div class="header-actions">
+                            <button class="primary-btn" type="button" id="reconcile-payments-button">Kiểm tra đối soát</button>
+                            <button class="secondary-btn" type="button" id="repair-payments-button">Tự động sửa lệch</button>
                         </div>
                     </div>
+                    <p class="supporting-copy">So sánh trực tiếp trạng thái giữa order-service và payment-service để phát hiện đơn đã thanh toán nhưng chưa cập nhật.</p>
+                    <div id="reconciliation-result" class="reconciliation-result">
+                        Chưa chạy đối soát. Nhấn "Kiểm tra đối soát" để kiểm tra tính toàn vẹn giữa các service.
+                    </div>
+                </section>
+            </div>
 
-                    <div class="form-group full-width">
-                        <label for="newCategoryName">Hoặc tạo nhanh danh mục mới</label>
-                        <input type="text" id="newCategoryName" placeholder="Để trống nếu dùng danh mục có sẵn">
-                        <p class="supporting-copy">Nếu nhập ô này, hệ thống sẽ tự tạo hoặc tái sử dụng danh mục tương ứng khi lưu sản phẩm.</p>
+            <!-- ==============================================================
+                 TAB 2: SẢN PHẨM (PRODUCTS)
+                 ============================================================== -->
+            <div class="admin-tab-pane" id="tab-products" data-tab="products" hidden>
+                <!-- Product Form (Add/Edit) -->
+                <section class="form-section" id="product-management">
+                    <div class="section-shell-head">
+                        <div>
+                            <p class="card-eyebrow">Biên tập catalog</p>
+                            <h2 id="form-title">Thêm sản phẩm mới</h2>
+                        </div>
+                        <button type="button" class="secondary-btn" id="reset-product-form-button">Làm mới form</button>
                     </div>
 
-                    <div class="flash-sale-editor full-width">
-                        <div class="flash-sale-editor-head">
-                            <div>
-                                <p class="card-eyebrow">Flash sale</p>
-                                <h3>Cấu hình ưu đãi giới hạn</h3>
+                    <form id="product-form" class="product-form">
+                        <input type="hidden" id="product-id">
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="ten">Tên sản phẩm *</label>
+                                <input type="text" id="ten" placeholder="Nhập tên sản phẩm..." required>
                             </div>
-                            <label class="admin-checkbox" for="flashSaleEnabled">
-                                <input type="checkbox" id="flashSaleEnabled">
-                                <span>Kích hoạt</span>
-                            </label>
+
+                            <div class="form-group">
+                                <label for="gia">Giá bán (VND) *</label>
+                                <input type="number" id="gia" placeholder="Ví dụ: 250000" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="brand">Thương hiệu</label>
+                                <input type="text" id="brand" placeholder="Ví dụ: Apple, Nike, Xiaomi...">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="stockQuantity">Số lượng tồn kho</label>
+                                <input type="number" id="stockQuantity" min="0" value="1">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="imageFile">Tải ảnh sản phẩm từ máy tính</label>
+                                <input type="file" id="imageFile" accept="image/*">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="categoryId">Chọn danh mục</label>
+                                <select id="categoryId" class="admin-select"></select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="trangThai">Trạng thái kho</label>
+                                <select id="trangThai">
+                                    <option value="Còn hàng">Còn hàng</option>
+                                    <option value="Hết hàng">Hết hàng</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="tags">Tags từ khóa</label>
+                                <input type="text" id="tags" placeholder="gaming, bluetooth, hot...">
+                            </div>
                         </div>
 
-                        <div class="flash-sale-scheduler">
-                            <div class="flash-sale-delay-group">
-                                <label for="flashSaleDelayValue">Hẹn bắt đầu sau</label>
-                                <div class="flash-sale-delay-controls">
-                                    <input type="number" id="flashSaleDelayValue" min="0" value="0">
-                                    <select id="flashSaleDelayUnit" class="admin-select">
-                                        <option value="minutes">Phút</option>
-                                        <option value="hours">Giờ</option>
-                                        <option value="days">Ngày</option>
-                                    </select>
-                                    <button class="secondary-btn" type="button" id="flashSaleApplyDelayButton">Áp dụng</button>
-                                    <button class="edit-btn" type="button" id="flashSaleStartNowButton">Bắt đầu ngay</button>
+                        <div class="form-group full-width">
+                            <label for="newCategoryName">Hoặc tạo nhanh danh mục mới</label>
+                            <input type="text" id="newCategoryName" placeholder="Để trống nếu đã chọn danh mục có sẵn ở trên">
+                            <p class="supporting-copy">Nếu nhập ô này, hệ thống sẽ tự động tạo danh mục mới khi lưu sản phẩm.</p>
+                        </div>
+
+                        <!-- Flash Sale Editor -->
+                        <div class="flash-sale-editor full-width">
+                            <div class="flash-sale-editor-head">
+                                <div>
+                                    <p class="card-eyebrow">Khuyến mãi giờ vàng</p>
+                                    <h3>⚡ Cấu hình Flash Sale</h3>
                                 </div>
+                                <label class="admin-checkbox" for="flashSaleEnabled" style="display: flex; align-items: center; gap: 8px; font-weight: 700; cursor: pointer;">
+                                    <input type="checkbox" id="flashSaleEnabled" style="width: 18px; height: 18px;">
+                                    <span>Kích hoạt Flash Sale</span>
+                                </label>
                             </div>
 
-                            <div class="flash-sale-duration-group">
-                                <span>Thời lượng nhanh</span>
-                                <div class="flash-sale-duration-actions">
-                                    <button type="button" data-flash-sale-duration="60">1 giờ</button>
-                                    <button type="button" data-flash-sale-duration="120">2 giờ</button>
-                                    <button type="button" data-flash-sale-duration="360">6 giờ</button>
-                                    <button type="button" data-flash-sale-duration="1440">24 giờ</button>
+                            <div class="flash-sale-scheduler">
+                                <div class="flash-sale-delay-group">
+                                    <label for="flashSaleDelayValue" style="font-weight: 700; font-size: 13px;">Hẹn giờ bắt đầu:</label>
+                                    <div class="flash-sale-delay-controls">
+                                        <input type="number" id="flashSaleDelayValue" min="0" value="0" style="width: 70px;">
+                                        <select id="flashSaleDelayUnit" class="admin-select">
+                                            <option value="minutes">Phút</option>
+                                            <option value="hours">Giờ</option>
+                                            <option value="days">Ngày</option>
+                                        </select>
+                                        <button class="secondary-btn" type="button" id="flashSaleApplyDelayButton">Áp dụng</button>
+                                        <button class="primary-btn" type="button" id="flashSaleStartNowButton" style="padding: 6px 12px; font-size: 12px;">Bắt đầu ngay</button>
+                                    </div>
+                                </div>
+
+                                <div class="flash-sale-duration-group">
+                                    <span style="font-weight: 700; font-size: 13px;">Thời lượng nhanh:</span>
+                                    <div class="flash-sale-duration-actions">
+                                        <button type="button" data-flash-sale-duration="60">1 giờ</button>
+                                        <button type="button" data-flash-sale-duration="120">2 giờ</button>
+                                        <button type="button" data-flash-sale-duration="360">6 giờ</button>
+                                        <button type="button" data-flash-sale-duration="1440">24 giờ</button>
+                                    </div>
                                 </div>
                             </div>
 
                             <p id="flashSaleSchedulePreview" class="flash-sale-schedule-preview">Chưa hẹn lịch</p>
+
+                            <div class="form-grid" style="margin-top: 14px;">
+                                <div class="form-group">
+                                    <label for="flashSaleTitle">Tên sự kiện Sale</label>
+                                    <input type="text" id="flashSaleTitle" placeholder="Flash Sale Hôm Nay">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="flashSaleSalePrice">Giá Flash Sale (VND)</label>
+                                    <input type="number" id="flashSaleSalePrice" min="0" placeholder="Giá thấp hơn giá gốc">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="flashSaleStartsAt">Thời gian bắt đầu</label>
+                                    <input type="datetime-local" id="flashSaleStartsAt">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="flashSaleEndsAt">Thời gian kết thúc</label>
+                                    <input type="datetime-local" id="flashSaleEndsAt">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="flashSaleStockLimit">Số suất bán flash sale</label>
+                                    <input type="number" id="flashSaleStockLimit" min="0" value="0">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="flashSalePerOrderLimit">Giới hạn mỗi khách mua</label>
+                                    <input type="number" id="flashSalePerOrderLimit" min="0" value="0">
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="flashSaleTitle">Tên chương trình</label>
-                                <input type="text" id="flashSaleTitle" placeholder="Flash Sale cuối ngày">
-                            </div>
+                        <div class="form-group full-width">
+                            <label for="moTa">Mô tả sản phẩm</label>
+                            <textarea id="moTa" rows="3" placeholder="Chi tiết thông số, tính năng, đặc điểm sản phẩm..."></textarea>
+                        </div>
 
-                            <div class="form-group">
-                                <label for="flashSaleSalePrice">Giá flash sale</label>
-                                <input type="number" id="flashSaleSalePrice" min="0">
-                            </div>
+                        <div class="form-group full-width">
+                            <label>Xem trước ảnh tải lên:</label>
+                            <img id="preview-image" src="" alt="Xem trước ảnh" class="preview-image">
+                        </div>
 
-                            <div class="form-group">
-                                <label for="flashSaleStartsAt">Bắt đầu</label>
-                                <input type="datetime-local" id="flashSaleStartsAt">
-                            </div>
+                        <div class="form-actions">
+                            <button type="submit" class="primary-btn">💾 Lưu sản phẩm</button>
+                        </div>
+                    </form>
+                </section>
 
-                            <div class="form-group">
-                                <label for="flashSaleEndsAt">Kết thúc</label>
-                                <input type="datetime-local" id="flashSaleEndsAt">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="flashSaleStockLimit">Số lượng sale</label>
-                                <input type="number" id="flashSaleStockLimit" min="0" value="0">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="flashSalePerOrderLimit">Giới hạn mỗi đơn</label>
-                                <input type="number" id="flashSalePerOrderLimit" min="0" value="0">
-                            </div>
+                <!-- Product Table -->
+                <section class="table-section">
+                    <div class="table-header">
+                        <div>
+                            <p class="card-eyebrow">Danh sách</p>
+                            <h2>Tất cả sản phẩm trong kho</h2>
+                        </div>
+                        <div class="table-actions">
+                            <p id="product-count">0 sản phẩm</p>
+                            <button class="refresh-button" type="button" id="refresh-products-button">↻ Tải lại</button>
                         </div>
                     </div>
 
-                    <div class="form-group full-width">
-                        <label for="moTa">Mô tả</label>
-                        <textarea id="moTa" rows="4"></textarea>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label>Xem trước ảnh</label>
-                        <img id="preview-image" src="" alt="Preview" class="preview-image">
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="submit" class="primary-btn">Lưu sản phẩm</button>
-                        <button type="button" class="secondary-btn" id="reset-product-form-button">Làm mới form</button>
-                    </div>
-                </form>
-            </section>
-
-            <section class="table-section" id="category-management">
-                <div class="table-header admin-user-header">
-                    <div>
-                        <p class="card-eyebrow">Danh mục</p>
-                        <h2>Quản lý danh mục sản phẩm</h2>
-                    </div>
-                    <div class="table-actions user-table-actions">
-                        <p id="category-count">0 danh mục</p>
-                        <button class="refresh-button" type="button" id="refresh-categories-button">Tải lại danh mục</button>
-                    </div>
-                </div>
-
-                <p id="category-management-message" class="account-message"></p>
-
-                <div class="users-layout">
                     <div class="table-wrapper">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Tên danh mục</th>
+                                    <th>Ảnh</th>
+                                    <th>Tên sản phẩm</th>
+                                    <th>Giá bán</th>
+                                    <th>Flash Sale</th>
+                                    <th>Danh mục</th>
+                                    <th>Tồn kho</th>
                                     <th>Trạng thái</th>
-                                    <th>Thứ tự</th>
-                                    <th>Sản phẩm</th>
                                     <th>Thao tác</th>
                                 </tr>
                             </thead>
-                            <tbody id="category-table-body"></tbody>
+                            <tbody id="product-table-body"></tbody>
                         </table>
                     </div>
+                </section>
+            </div>
 
-                    <aside class="account-card user-detail-card category-editor-card">
-                        <div class="account-card-head">
-                            <div>
-                                <p class="card-eyebrow">Biên tập danh mục</p>
-                                <h3 id="category-form-title">Tạo danh mục mới</h3>
-                            </div>
-                            <button type="button" class="secondary-btn" id="reset-category-form-button">Làm mới</button>
+            <!-- ==============================================================
+                 TAB 3: DANH MỤC (CATEGORIES)
+                 ============================================================== -->
+            <div class="admin-tab-pane" id="tab-categories" data-tab="categories" hidden>
+                <section class="table-section" id="category-management">
+                    <div class="table-header">
+                        <div>
+                            <p class="card-eyebrow">Phân loại</p>
+                            <h2>Quản lý danh mục sản phẩm</h2>
+                        </div>
+                        <div class="table-actions">
+                            <p id="category-count">0 danh mục</p>
+                            <button class="refresh-button" type="button" id="refresh-categories-button">↻ Tải lại</button>
+                        </div>
+                    </div>
+
+                    <p id="category-management-message" class="account-message"></p>
+
+                    <!-- Category Layout -->
+                    <div class="users-layout">
+                        <!-- Table -->
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Tên danh mục</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thứ tự</th>
+                                        <th>Sản phẩm</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="category-table-body"></tbody>
+                            </table>
                         </div>
 
-                        <form id="category-form" class="product-form user-editor-form">
-                            <input type="hidden" id="category-editor-id">
-
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label for="category-name">Tên danh mục</label>
-                                    <input type="text" id="category-name" required>
+                        <!-- Editor Form -->
+                        <aside class="account-card category-editor-card">
+                            <div class="account-card-head">
+                                <div>
+                                    <p class="card-eyebrow">Biên tập</p>
+                                    <h3 id="category-form-title">Tạo danh mục mới</h3>
                                 </div>
-
-                                <div class="form-group">
-                                    <label for="category-sort-order">Thứ tự sắp xếp</label>
-                                    <input type="number" id="category-sort-order" min="0" value="0">
-                                </div>
+                                <button type="button" class="secondary-btn" id="reset-category-form-button">Làm mới</button>
                             </div>
 
-                            <div class="form-grid">
-                                <div class="form-group">
-                                    <label for="category-active">Trạng thái</label>
-                                    <select id="category-active" class="admin-select">
-                                        <option value="true">Đang sử dụng</option>
-                                        <option value="false">Tạm ẩn</option>
-                                    </select>
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Ghi chú</label>
-                                    <p class="supporting-copy">Danh mục bị tạm ẩn sẽ không hiện trong danh sách chọn khi tạo sản phẩm mới, nhưng vẫn giữ lại trên các sản phẩm đã gán.</p>
-                                </div>
-                            </div>
-
-                            <div class="form-group full-width">
-                                <label for="category-description">Mô tả ngắn</label>
-                                <textarea id="category-description" rows="4" placeholder="Mô tả ngắn cho nhóm sản phẩm này"></textarea>
-                            </div>
-
-                            <div class="form-actions">
-                                <button type="submit" class="primary-btn" id="save-category-button">Lưu danh mục</button>
-                                <button type="button" class="delete-btn" id="archive-category-button" hidden>Tạm ẩn danh mục</button>
-                                <button type="button" class="delete-btn" id="delete-category-button" hidden>Xóa hẳn danh mục</button>
-                            </div>
-                        </form>
-                    </aside>
-                </div>
-            </section>
-
-            <section class="table-section">
-                <div class="table-header">
-                    <div>
-                        <p class="card-eyebrow">Catalog</p>
-                        <h2>Danh sách sản phẩm</h2>
-                    </div>
-                    <div class="table-actions">
-                        <p id="product-count">0 sản phẩm</p>
-                        <button class="refresh-button" type="button" id="refresh-products-button">Tải lại sản phẩm</button>
-                    </div>
-                </div>
-
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Ảnh</th>
-                                <th>Tên</th>
-                                <th>Giá</th>
-                                <th>Flash sale</th>
-                                <th>Danh mục</th>
-                                <th>Tồn kho</th>
-                                <th>Trạng thái</th>
-                                <th>Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody id="product-table-body"></tbody>
-                    </table>
-                </div>
-            </section>
-
-            <section class="table-section" id="order-management">
-                <div class="table-header admin-user-header">
-                    <div>
-                        <p class="card-eyebrow">Đơn hàng</p>
-                        <h2>Quản lý tất cả đơn hàng</h2>
-                    </div>
-                    <div class="table-actions user-table-actions">
-                        <p id="all-order-count">0 đơn hàng</p>
-                        <button class="refresh-button" type="button" id="reconcile-payments-button">Đối soát</button>
-                        <button class="secondary-btn" type="button" id="repair-payments-button">Sửa lệch</button>
-                        <button class="refresh-button" type="button" id="refresh-orders-button">Tải lại đơn hàng</button>
-                    </div>
-                </div>
-
-                <div class="admin-filter-grid">
-                    <input type="search" id="order-search-input" class="admin-search-input" placeholder="Tìm mã đơn, khách hàng, email hoặc SĐT">
-                    <select id="order-status-filter" class="admin-select">
-                        <option value="all">Tất cả trạng thái</option>
-                        <option value="pending_payment">Chờ thanh toán</option>
-                        <option value="paid">Đã thanh toán</option>
-                        <option value="confirmed">Đã xác nhận</option>
-                        <option value="shipping">Đang giao</option>
-                        <option value="delivered">Đã giao</option>
-                        <option value="returned">Đã hoàn trả</option>
-                        <option value="cancelled">Đã hủy</option>
-                        <option value="payment_failed">Thanh toán thất bại</option>
-                    </select>
-                    <select id="order-payment-filter" class="admin-select">
-                        <option value="all">Tất cả thanh toán</option>
-                        <option value="pending">Đang chờ</option>
-                        <option value="paid">Đã thu tiền</option>
-                        <option value="failed">Thất bại</option>
-                        <option value="refunded">Đã hoàn tiền</option>
-                        <option value="unpaid">Chưa có giao dịch</option>
-                    </select>
-                    <input type="date" id="order-date-from" class="admin-search-input">
-                    <input type="date" id="order-date-to" class="admin-search-input">
-                </div>
-
-                <p id="order-management-message" class="account-message"></p>
-                <div id="reconciliation-result" class="reconciliation-result" hidden></div>
-
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Mã đơn</th>
-                                <th>Khách hàng</th>
-                                <th>Trạng thái</th>
-                                <th>Thanh toán</th>
-                                <th>Ngày đặt</th>
-                                <th>Dự kiến giao</th>
-                                <th>Tổng tiền</th>
-                                <th>Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody id="all-order-table-body"></tbody>
-                    </table>
-                </div>
-            </section>
-
-            <section class="table-section" id="user-management">
-                <div class="table-header admin-user-header">
-                    <div>
-                        <p class="card-eyebrow">Người dùng</p>
-                        <h2>Quản lý tài khoản và lịch sử đơn</h2>
-                    </div>
-                    <div class="table-actions user-table-actions">
-                        <input type="search" id="user-search-input" class="admin-search-input" placeholder="Tìm theo tên hoặc email">
-                        <select id="user-role-filter" class="admin-select">
-                            <option value="all">Tất cả vai trò</option>
-                            <option value="admin">Admin</option>
-                            <option value="customer">Khách hàng</option>
-                        </select>
-                        <button class="refresh-button" type="button" id="refresh-users-button">Tải lại người dùng</button>
-                    </div>
-                </div>
-
-                <p id="user-management-message" class="account-message"></p>
-
-                <div class="users-layout">
-                    <div class="table-wrapper">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Họ tên</th>
-                                    <th>Email</th>
-                                    <th>Vai trò</th>
-                                    <th>Ngày tạo</th>
-                                    <th>Đăng nhập gần nhất</th>
-                                    <th>Đơn hàng</th>
-                                    <th>Thao tác</th>
-                                </tr>
-                            </thead>
-                            <tbody id="user-table-body"></tbody>
-                        </table>
-                    </div>
-
-                    <aside class="account-card user-detail-card">
-                        <div class="account-card-head">
-                            <div>
-                                <p class="card-eyebrow">Chi tiết người dùng</p>
-                                <h3 id="selected-user-heading">Chưa chọn tài khoản</h3>
-                            </div>
-                            <button type="button" class="secondary-btn" id="clear-user-selection">Bỏ chọn</button>
-                        </div>
-
-                        <div id="selected-user-empty" class="empty-account-state">
-                            <div class="empty-cart-badge">Chưa có người dùng được chọn</div>
-                            <h3>Chọn một tài khoản để quản lý</h3>
-                            <p>Bạn có thể sửa họ tên, thay đổi vai trò hoặc xem toàn bộ đơn hàng mà tài khoản đó đã đặt.</p>
-                        </div>
-
-                        <div id="selected-user-content" hidden>
-                            <form id="user-editor-form" class="product-form user-editor-form">
-                                <input type="hidden" id="selected-user-id">
+                            <form id="category-form" class="product-form">
+                                <input type="hidden" id="category-editor-id">
 
                                 <div class="form-grid">
                                     <div class="form-group">
-                                        <label for="selected-user-full-name">Họ và tên</label>
-                                        <input type="text" id="selected-user-full-name" required>
+                                        <label for="category-name">Tên danh mục *</label>
+                                        <input type="text" id="category-name" placeholder="Ví dụ: Đồ gia dụng" required>
                                     </div>
 
                                     <div class="form-group">
-                                        <label for="selected-user-role">Vai trò</label>
-                                        <select id="selected-user-role">
-                                            <option value="customer">Khách hàng</option>
-                                            <option value="admin">Admin</option>
+                                        <label for="category-sort-order">Thứ tự hiển thị</label>
+                                        <input type="number" id="category-sort-order" min="0" value="0">
+                                    </div>
+                                </div>
+
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="category-active">Trạng thái sử dụng</label>
+                                        <select id="category-active" class="admin-select">
+                                            <option value="true">Đang sử dụng</option>
+                                            <option value="false">Tạm ẩn</option>
                                         </select>
-                                    </div>
-                                </div>
-
-                                <div class="form-grid">
-                                    <div class="form-group">
-                                        <label for="selected-user-email">Email</label>
-                                        <input type="text" id="selected-user-email" readonly>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="selected-user-created-at">Ngày tạo</label>
-                                        <input type="text" id="selected-user-created-at" readonly>
-                                    </div>
-                                </div>
-
-                                <div class="form-grid">
-                                    <div class="form-group">
-                                        <label for="selected-user-last-login">Đăng nhập gần nhất</label>
-                                        <input type="text" id="selected-user-last-login" readonly>
                                     </div>
 
                                     <div class="form-group">
                                         <label>Ghi chú</label>
-                                        <p class="supporting-copy">Xóa tài khoản sẽ không xóa lịch sử đơn hàng đã được lưu trong order-service.</p>
+                                        <p class="supporting-copy">Danh mục tạm ẩn sẽ không xuất hiện trong bộ lọc người dùng.</p>
                                     </div>
                                 </div>
 
+                                <div class="form-group full-width">
+                                    <label for="category-description">Mô tả ngắn</label>
+                                    <textarea id="category-description" rows="2" placeholder="Mô tả nhóm sản phẩm này..."></textarea>
+                                </div>
+
                                 <div class="form-actions">
-                                    <button type="submit" class="primary-btn" id="save-user-button">Lưu thay đổi</button>
-                                    <button type="button" class="delete-btn" id="delete-user-button">Xóa người dùng</button>
+                                    <button type="submit" class="primary-btn" id="save-category-button">Lưu danh mục</button>
+                                    <button type="button" class="delete-btn" id="archive-category-button" hidden>Tạm ẩn</button>
+                                    <button type="button" class="delete-btn" id="delete-category-button" hidden>Xóa hẳn</button>
                                 </div>
                             </form>
+                        </aside>
+                    </div>
+                </section>
+            </div>
 
-                            <div class="user-order-stats">
-                                <div class="account-stat">
-                                    <span>Tổng đơn</span>
-                                    <strong id="selected-user-total-orders">0</strong>
-                                </div>
-                                <div class="account-stat">
-                                    <span>Chờ thanh toán</span>
-                                    <strong id="selected-user-pending-orders">0</strong>
-                                </div>
-                                <div class="account-stat">
-                                    <span>Đã thanh toán</span>
-                                    <strong id="selected-user-paid-orders">0</strong>
-                                </div>
-                                <div class="account-stat">
-                                    <span>Tổng chi tiêu</span>
-                                    <strong id="selected-user-total-spent">0 VND</strong>
-                                </div>
-                            </div>
-
-                            <div class="user-orders-head">
-                                <div>
-                                    <p class="card-eyebrow">Lịch sử đặt hàng</p>
-                                    <h3>Đơn hàng của tài khoản này</h3>
-                                </div>
-                                <p id="selected-user-orders-caption" class="supporting-copy">0 đơn hàng</p>
-                            </div>
-
-                            <div id="selected-user-orders" class="orders-list"></div>
+            <!-- ==============================================================
+                 TAB 4: ĐƠN HÀNG (ORDERS)
+                 ============================================================== -->
+            <div class="admin-tab-pane" id="tab-orders" data-tab="orders" hidden>
+                <section class="table-section" id="order-management">
+                    <div class="table-header">
+                        <div>
+                            <p class="card-eyebrow">Đơn hàng</p>
+                            <h2>Quản lý toàn bộ đơn hàng</h2>
                         </div>
-                    </aside>
-                </div>
-            </section>
+                        <div class="table-actions">
+                            <p id="all-order-count">0 đơn hàng</p>
+                            <button class="refresh-button" type="button" id="refresh-orders-button">↻ Tải lại</button>
+                        </div>
+                    </div>
+
+                    <!-- Filter Tools -->
+                    <div class="table-actions" style="margin-bottom: 18px; gap: 10px;">
+                        <input type="search" id="order-search-input" class="admin-search-input" placeholder="🔍 Tìm mã đơn, tên khách, SĐT...">
+                        <select id="order-status-filter" class="admin-select">
+                            <option value="all">Tất cả trạng thái</option>
+                            <option value="pending_payment">Chờ thanh toán</option>
+                            <option value="paid">Đã thanh toán</option>
+                            <option value="confirmed">Đã xác nhận</option>
+                            <option value="shipping">Đang giao</option>
+                            <option value="delivered">Đã giao</option>
+                            <option value="returned">Hoàn trả</option>
+                            <option value="cancelled">Đã hủy</option>
+                            <option value="payment_failed">Thất bại</option>
+                        </select>
+                        <select id="order-payment-filter" class="admin-select">
+                            <option value="all">Tất cả phương thức</option>
+                            <option value="momo">MoMo</option>
+                            <option value="cash">Tiền mặt (COD)</option>
+                        </select>
+                        <input type="date" id="order-date-from" class="admin-search-input" style="width: auto;">
+                        <input type="date" id="order-date-to" class="admin-search-input" style="width: auto;">
+                    </div>
+
+                    <p id="order-management-message" class="account-message"></p>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Mã đơn</th>
+                                    <th>Khách hàng</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thanh toán</th>
+                                    <th>Ngày đặt</th>
+                                    <th>Dự kiến giao</th>
+                                    <th>Tổng tiền</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="all-order-table-body"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ==============================================================
+                 TAB 5: NGƯỜI DÙNG (USERS)
+                 ============================================================== -->
+            <div class="admin-tab-pane" id="tab-users" data-tab="users" hidden>
+                <section class="table-section" id="user-management">
+                    <div class="table-header">
+                        <div>
+                            <p class="card-eyebrow">Khách hàng & Tài khoản</p>
+                            <h2>Quản lý người dùng và lịch sử đơn mua</h2>
+                        </div>
+                        <div class="table-actions">
+                            <input type="search" id="user-search-input" class="admin-search-input" placeholder="🔍 Tìm theo tên hoặc email...">
+                            <select id="user-role-filter" class="admin-select">
+                                <option value="all">Tất cả vai trò</option>
+                                <option value="admin">Quản trị viên (Admin)</option>
+                                <option value="customer">Khách hàng</option>
+                            </select>
+                            <button class="refresh-button" type="button" id="refresh-users-button">↻ Tải lại</button>
+                        </div>
+                    </div>
+
+                    <p id="user-management-message" class="account-message"></p>
+
+                    <div class="users-layout">
+                        <!-- Table Wrapper with Full Width and No Squishing -->
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Họ tên</th>
+                                        <th>Email</th>
+                                        <th>Vai trò</th>
+                                        <th>Ngày tạo</th>
+                                        <th>Đăng nhập gần nhất</th>
+                                        <th>Đơn hàng</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="user-table-body"></tbody>
+                            </table>
+                        </div>
+
+                        <!-- User Detail Editor Card -->
+                        <aside class="user-detail-card">
+                            <div class="account-card-head">
+                                <div>
+                                    <p class="card-eyebrow">Chi tiết tài khoản</p>
+                                    <h3 id="selected-user-heading">Chưa chọn tài khoản</h3>
+                                </div>
+                                <button type="button" class="secondary-btn" id="clear-user-selection">Bỏ chọn</button>
+                            </div>
+
+                            <div id="selected-user-empty" class="compact-empty-state" style="text-align: center; padding: 32px 16px;">
+                                <div style="font-size: 32px; margin-bottom: 8px;">👤</div>
+                                <p style="font-weight: 700; color: var(--text-heading); margin-bottom: 4px;">Chọn một tài khoản để quản lý</p>
+                                <p style="font-size: 13px; color: var(--muted);">Bấm "Chi tiết" tại một hàng người dùng ở bảng trên để sửa thông tin hoặc xem đơn hàng của họ.</p>
+                            </div>
+
+                            <div id="selected-user-content" hidden>
+                                <form id="user-editor-form" class="product-form user-editor-form">
+                                    <input type="hidden" id="selected-user-id">
+
+                                    <div class="form-grid">
+                                        <div class="form-group">
+                                            <label for="selected-user-full-name">Họ và tên *</label>
+                                            <input type="text" id="selected-user-full-name" required>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="selected-user-role">Vai trò</label>
+                                            <select id="selected-user-role" class="admin-select">
+                                                <option value="customer">Khách hàng</option>
+                                                <option value="admin">Quản trị viên (Admin)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-grid">
+                                        <div class="form-group">
+                                            <label for="selected-user-email">Email</label>
+                                            <input type="text" id="selected-user-email" readonly style="background: #f8fafc;">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="selected-user-created-at">Ngày đăng ký</label>
+                                            <input type="text" id="selected-user-created-at" readonly style="background: #f8fafc;">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-grid">
+                                        <div class="form-group">
+                                            <label for="selected-user-last-login">Đăng nhập gần nhất</label>
+                                            <input type="text" id="selected-user-last-login" readonly style="background: #f8fafc;">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Chính sách dữ liệu</label>
+                                            <p class="supporting-copy">Xóa tài khoản không xóa lịch sử đơn hàng đã lưu trong order-service.</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-actions">
+                                        <button type="submit" class="primary-btn" id="save-user-button">💾 Lưu thay đổi</button>
+                                        <button type="button" class="delete-btn" id="delete-user-button">🗑️ Xóa người dùng</button>
+                                    </div>
+                                </form>
+
+                                <div class="user-order-stats">
+                                    <div class="account-stat">
+                                        <span>Tổng đơn</span>
+                                        <strong id="selected-user-total-orders">0</strong>
+                                    </div>
+                                    <div class="account-stat">
+                                        <span>Chờ thanh toán</span>
+                                        <strong id="selected-user-pending-orders">0</strong>
+                                    </div>
+                                    <div class="account-stat">
+                                        <span>Đã thanh toán</span>
+                                        <strong id="selected-user-paid-orders">0</strong>
+                                    </div>
+                                    <div class="account-stat">
+                                        <span>Tổng chi tiêu</span>
+                                        <strong id="selected-user-total-spent">0 VND</strong>
+                                    </div>
+                                </div>
+
+                                <div class="user-orders-head">
+                                    <div>
+                                        <p class="card-eyebrow">Lịch sử đơn mua</p>
+                                        <h3>Đơn hàng của khách hàng này</h3>
+                                    </div>
+                                    <p id="selected-user-orders-caption" class="supporting-copy">0 đơn hàng</p>
+                                </div>
+
+                                <div id="selected-user-orders" class="orders-list"></div>
+                            </div>
+                        </aside>
+                    </div>
+                </section>
+            </div>
         </main>
     </div>
 
+    <!-- Scripts -->
     <script src="/js/env.js"></script>
     <script src="/js/auth.js"></script>
     <script src="/js/admin-ui-utils.js"></script>
     <script src="/js/admin-products.js"></script>
 
+    <!-- Tab Switching Logic -->
     <script>
-        // Initialize better sidebar navigation
-        document.querySelectorAll('.sidebar-section-link').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const targetId = link.getAttribute('href').substring(1);
-                const target = document.getElementById(targetId);
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    // Highlight the link
-                    document.querySelectorAll('.sidebar-section-link').forEach(l => l.classList.remove('active'));
-                    link.classList.add('active');
-                }
+        const tabTitleMap = {
+            'overview': 'Tổng quan cửa hàng',
+            'products': 'Quản lý sản phẩm & Flash sale',
+            'categories': 'Quản lý danh mục',
+            'orders': 'Quản lý đơn hàng & Thanh toán',
+            'users': 'Quản lý người dùng & Khách hàng'
+        };
+
+        function switchAdminTab(tabName) {
+            if (!tabName) tabName = 'overview';
+
+            // Support anchor aliases
+            const aliasMap = {
+                'product-management': 'products',
+                'category-management': 'categories',
+                'order-management': 'orders',
+                'user-management': 'users'
+            };
+            if (aliasMap[tabName]) tabName = aliasMap[tabName];
+
+            // Update sidebar buttons
+            document.querySelectorAll('.sidebar-tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tab === tabName);
+            });
+
+            // Update tab panes
+            document.querySelectorAll('.admin-tab-pane').forEach(pane => {
+                const isActive = pane.dataset.tab === tabName;
+                pane.hidden = !isActive;
+                pane.style.display = isActive ? 'flex' : 'none';
+            });
+
+            // Update page header title
+            const titleEl = document.getElementById('admin-page-title');
+            if (titleEl && tabTitleMap[tabName]) {
+                titleEl.textContent = tabTitleMap[tabName];
+            }
+
+            // Sync URL hash
+            if (window.location.hash.replace('#', '') !== tabName) {
+                window.history.replaceState(null, '', '#' + tabName);
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Attach click listeners to sidebar buttons
+        document.querySelectorAll('.sidebar-tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                switchAdminTab(btn.dataset.tab);
             });
         });
 
-        // Initialize form validation
-        document.querySelectorAll('form').forEach(form => {
-            initializeFormValidation(form);
+        // Listen to hashchange
+        window.addEventListener('hashchange', () => {
+            const currentHash = window.location.hash.replace('#', '');
+            if (currentHash) switchAdminTab(currentHash);
         });
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            const initialHash = window.location.hash.replace('#', '');
+            switchAdminTab(initialHash || 'overview');
+        });
+
+        // Trigger right away if DOM is already ready
+        const currentHash = window.location.hash.replace('#', '');
+        switchAdminTab(currentHash || 'overview');
     </script>
 </body>
 </html>
