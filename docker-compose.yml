@@ -162,6 +162,8 @@ services:
       NODE_ENV: production
       API_BASE_URL: ${API_BASE_URL:-}
       API_PROXY_TARGET: ${API_PROXY_TARGET:?Set API_PROXY_TARGET in .env}
+    volumes:
+      - ./fe/public:/usr/share/nginx/html:ro
     networks:
       - app-network
 

@@ -3,63 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng nhập | ShopOnline</title>
-    <link rel="stylesheet" href="/css/main.css">
+    <title>Đăng nhập tài khoản | ShopOnline</title>
+    <link rel="stylesheet" href="/css/main.css?v=2.0">
 </head>
 <body data-auth-page="login">
+    <!-- Topbar Header -->
     <nav class="topbar">
-        <div class="brand-wrap">
-            <a class="logo" href="/">ShopOnline</a>
-            <p class="tagline">Mua sắm tiện lợi, giao hàng nhanh</p>
-        </div>
+        <div class="topbar-main">
+            <div class="brand-wrap">
+                <a class="logo" href="/">ShopOnline</a>
+                <p class="tagline">Đăng nhập tài khoản mua sắm</p>
+            </div>
 
-        <ul class="nav-links">
-            <li><a href="/">Trang chủ</a></li>
-            <li><a href="/cart.html">Giỏ hàng</a></li>
-            <li id="auth-nav-slot" class="auth-slot"></li>
-        </ul>
+            <div class="topbar-session">
+                <a class="secondary-btn" href="/">🏪 Về trang chủ</a>
+                <div id="auth-nav-slot" class="auth-slot"></div>
+            </div>
+        </div>
     </nav>
 
     <main class="login-page">
-        <section class="auth-shell single-auth-shell">
+        <section class="auth-shell">
+            <!-- Left E-commerce Welcome Banner -->
+            <div class="auth-showcase">
+                <span class="section-kicker">THÀNH VIÊN SHOPONLINE</span>
+                <h2>Mua sắm thả ga, nhận ngàn ưu đãi độc quyền</h2>
+                <p class="section-copy">Đăng nhập để theo dõi đơn hàng, lưu giỏ hàng và nhận voucher giảm giá đến 50% cùng freeship mỗi ngày.</p>
+
+                <div class="auth-metrics">
+                    <div class="auth-metric">
+                        <strong>🎁 Voucher 100K</strong>
+                        <span>Dành cho thành viên</span>
+                    </div>
+                    <div class="auth-metric">
+                        <strong>🚚 Freeship 0Đ</strong>
+                        <span>Mỗi ngày săn deal</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Login Form -->
             <div class="login-card">
-                <p class="section-kicker">Đăng nhập</p>
-                <h2>Chào mừng quay lại</h2>
-                <p class="subtext">Nhập email và mật khẩu để tiếp tục.</p>
+                <p class="section-kicker">CHÀO MỪNG BẠN</p>
+                <h2>Đăng nhập tài khoản</h2>
+                <p class="subtext">Nhập email và mật khẩu của bạn để tiếp tục mua sắm.</p>
 
                 <a href="#" id="google-login-button" class="oauth-button" aria-label="Đăng nhập bằng Google">
                     <span class="oauth-icon">G</span>
                     <span>Tiếp tục với Google</span>
                 </a>
 
-                <div class="auth-divider"><span>hoặc</span></div>
+                <div class="auth-divider"><span>hoặc bằng email</span></div>
 
                 <form id="login-form" class="login-form">
                     <div class="form-group">
-                        <label for="login-email">Email</label>
+                        <label for="login-email">Địa chỉ Email</label>
                         <input type="email" id="login-email" placeholder="ban@example.com" required>
                     </div>
 
                     <div class="form-group">
                         <label for="login-password">Mật khẩu</label>
-                        <input type="password" id="login-password" placeholder="Nhập mật khẩu" required>
+                        <input type="password" id="login-password" placeholder="Nhập mật khẩu của bạn" required>
                     </div>
 
                     <button type="submit" class="primary-btn">Đăng nhập</button>
                 </form>
 
                 <p id="login-message" class="login-message"></p>
+
                 <details class="forgot-panel">
                     <summary>Quên mật khẩu?</summary>
                     <form id="forgot-password-form" class="login-form compact-form">
                         <div class="form-group">
-                            <label for="forgot-email">Email đăng ký</label>
+                            <label for="forgot-email">Email đăng ký để nhận link:</label>
                             <input type="email" id="forgot-email" placeholder="ban@example.com">
                         </div>
-                        <button type="submit" class="secondary-btn full-width-btn">Gửi link đặt lại</button>
+                        <button type="submit" class="secondary-btn full-width-btn">Gửi link đặt lại mật khẩu</button>
                     </form>
                     <p id="forgot-message" class="login-message"></p>
                 </details>
+
                 <p class="auth-switch">
                     Chưa có tài khoản?
                     <a class="inline-link" href="/register.html">Đăng ký ngay</a>
@@ -67,6 +90,13 @@
             </div>
         </section>
     </main>
+
+    <!-- Footer -->
+    <footer class="storefront-footer">
+        <div class="footer-bottom">
+            <p>© 2026 ShopOnline E-Commerce Platform. Tất cả các quyền được bảo lưu.</p>
+        </div>
+    </footer>
 
     <script src="/js/env.js"></script>
     <script src="/js/auth.js"></script>

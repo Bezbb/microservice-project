@@ -3,95 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShopOnline | Mua sắm trực tuyến</title>
-    <link rel="stylesheet" href="/css/main.css">
+    <title>ShopOnline | Mua sắm trực tuyến giá tốt, giao nhanh</title>
+    <link rel="stylesheet" href="/css/main.css?v=2.0">
 </head>
 <body>
+    <!-- Topbar Header -->
     <nav class="topbar topbar--storefront">
+        <!-- Utility Bar (Hotline, Free Shipping, Auth) -->
+        <div class="topbar-utility">
+            <div class="topbar-utility-inner">
+                <div class="topbar-utility-left">
+                    <span>📞 Hotline CSKH: <strong>1900 6868</strong> (8h - 22h)</span>
+                    <span class="utility-divider">|</span>
+                    <a href="#about">Về ShopOnline</a>
+                    <span class="utility-divider">|</span>
+                    <a href="/categories.html">Tất cả danh mục</a>
+                </div>
+                <div class="topbar-utility-right">
+                    <span>🚚 Miễn phí vận chuyển toàn quốc cho đơn từ 150K</span>
+                    <span class="utility-divider">|</span>
+                    <div id="auth-nav-slot" class="auth-slot"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Header Bar -->
         <div class="topbar-main">
             <div class="brand-wrap">
                 <a class="logo" href="/">ShopOnline</a>
                 <p class="tagline">Mua sắm tiện lợi, giao hàng nhanh</p>
             </div>
 
-            <label class="topbar-search" for="home-search">
-                <span>Tìm kiếm sản phẩm</span>
-                <input id="home-search" type="search" placeholder="Tên sản phẩm">
-            </label>
+            <!-- Search Bar with Quick Tags -->
+            <div class="topbar-search">
+                <label class="topbar-search-input-wrap" for="home-search">
+                    <span>Tìm kiếm sản phẩm</span>
+                    <input id="home-search" type="search" placeholder="Tìm sản phẩm, thương hiệu, danh mục yêu thích...">
+                    <button type="button" class="search-submit-btn" onclick="document.getElementById('products-section')?.scrollIntoView({behavior: 'smooth'})">
+                        🔍 Tìm kiếm
+                    </button>
+                </label>
+                <div class="search-quick-tags">
+                    <span style="font-size: 11px; color: var(--muted); font-weight: 600;">Gợi ý:</span>
+                    <button type="button" class="quick-tag" onclick="quickSearch('Áo')">Áo thun</button>
+                    <button type="button" class="quick-tag" onclick="quickSearch('Điện thoại')">Điện thoại</button>
+                    <button type="button" class="quick-tag" onclick="quickSearch('Giày')">Giày sneaker</button>
+                    <button type="button" class="quick-tag" onclick="quickSearch('Tai nghe')">Tai nghe</button>
+                    <button type="button" class="quick-tag" onclick="quickSearch('Đồng hồ')">Đồng hồ</button>
+                </div>
+            </div>
 
+            <!-- Cart Button -->
             <div class="topbar-session">
                 <button id="cart-count" class="nav-cart" type="button" onclick="goToCart()">
                     Giỏ hàng (0)
                 </button>
-                <div id="auth-nav-slot" class="auth-slot"></div>
             </div>
         </div>
 
+        <!-- Sub-Nav Categories & Highlights -->
         <ul class="nav-links nav-links--primary">
-            <li><a href="#home">Trang chủ</a></li>
-            <li><a href="#categories">Danh mục</a></li>
-            <li><a href="#flash-sale">Flash sale</a></li>
-            <li><a href="#products-section">Sản phẩm</a></li>
-            <li><a href="#about">Giới thiệu</a></li>
+            <li><a href="#home" class="active">🏠 Trang chủ</a></li>
+            <li><a href="#flash-sale">⚡ Flash Sale</a></li>
+            <li><a href="#categories">📂 Danh mục nổi bật</a></li>
+            <li><a href="#products-section">📦 Gợi ý hôm nay</a></li>
+            <li><a href="/account.html">🛒 Đơn hàng của tôi</a></li>
             <li id="admin-link-slot"></li>
         </ul>
     </nav>
 
-    <header class="hero" id="home">
-        <div class="hero-overlay"></div>
-        <div class="hero-content">
-            <p class="eyebrow">Online Shopping Store</p>
-            <h1>Mua sắm trực tuyến dễ dàng, nhiều ưu đãi hấp dẫn</h1>
-            <p>Khám phá hàng loạt sản phẩm chất lượng với giao diện hiện đại, dễ chọn mua và thanh toán nhanh chóng.</p>
-
-            <div class="hero-actions">
-                <a class="primary-link" href="#products-section">Mua ngay</a>
-                <button class="secondary-link" type="button" onclick="goToCart()">Xem giỏ hàng</button>
-            </div>
-
-            <div class="hero-notes">
-                <div class="hero-note">
-                    <span class="hero-note-label">Ưu đãi</span>
-                    <strong>Giảm giá cho nhiều sản phẩm nổi bật</strong>
-                </div>
-                <div class="hero-note">
-                    <span class="hero-note-label">Giao hàng</span>
-                    <strong>Đặt hàng nhanh, xử lý đơn tiện lợi</strong>
-                </div>
-            </div>
-        </div>
-    </header>
-
+    <!-- Main Content Area -->
     <main>
-        <section class="story-strip" id="about">
-            <div class="story-card">
-                <p class="section-kicker">Mua sắm online</p>
-                <h2>Giao diện bán hàng hiện đại và dễ sử dụng</h2>
-                <p class="section-copy">
-                    Thiết kế tập trung vào trải nghiệm mua hàng: dễ xem sản phẩm, dễ thêm giỏ hàng và dễ thanh toán.
-                </p>
+        <!-- Hero Promotional Banners -->
+        <header class="hero" id="home">
+            <div class="hero-main-banner">
+                <div class="hero-content">
+                    <span class="eyebrow">SIÊU HỘI MUA SẮM 2026</span>
+                    <h1>Khám Phá Hàng Ngàn Ưu Đãi Hấp Dẫn</h1>
+                    <p>Mua sắm trực tuyến thông minh, giá tốt mỗi ngày. Giảm giá đến 50% cho các sản phẩm công nghệ, thời trang và gia dụng chính hãng.</p>
+                    <div class="hero-actions">
+                        <a class="primary-link" href="#products-section">Mua sắm ngay</a>
+                        <button class="secondary-link" type="button" onclick="goToCart()">Xem giỏ hàng</button>
+                    </div>
+                </div>
             </div>
 
-            <div class="story-stats">
-                <div class="stat-card">
-                    <span>24/7</span>
-                    <p>Hỗ trợ mua sắm trực tuyến</p>
+            <div class="hero-side-promos">
+                <div class="hero-promo-card">
+                    <span class="hero-promo-badge">⚡ Giờ vàng săn deal</span>
+                    <h3>Flash Sale Giảm Đến 70%</h3>
+                    <p>Số lượng có hạn, ưu đãi độc quyền hôm nay</p>
                 </div>
-                <div class="stat-card">
-                    <span>100%</span>
-                    <p>Tích hợp giỏ hàng và thanh toán</p>
+                <div class="hero-promo-card">
+                    <span class="hero-promo-badge">🚚 Freeship Xtra</span>
+                    <h3>Miễn Phí Vận Chuyển</h3>
+                    <p>Áp dụng cho mọi đơn hàng từ 150.000đ</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Trust & Features Strip -->
+        <section class="trust-features-strip">
+            <div class="trust-feature-item">
+                <div class="trust-feature-icon">🚚</div>
+                <div class="trust-feature-text">
+                    <strong>Freeship Toàn Quốc</strong>
+                    <span>Đơn hàng từ 150K</span>
+                </div>
+            </div>
+            <div class="trust-feature-item">
+                <div class="trust-feature-icon">🛡️</div>
+                <div class="trust-feature-text">
+                    <strong>100% Chính Hãng</strong>
+                    <span>Cam kết xuất xứ rõ ràng</span>
+                </div>
+            </div>
+            <div class="trust-feature-item">
+                <div class="trust-feature-icon">⚡</div>
+                <div class="trust-feature-text">
+                    <strong>Giao Nhanh 2H</strong>
+                    <span>Nội thành nhận hàng ngay</span>
+                </div>
+            </div>
+            <div class="trust-feature-item">
+                <div class="trust-feature-icon">🔄</div>
+                <div class="trust-feature-text">
+                    <strong>Đổi Trả 7 Ngày</strong>
+                    <span>Miễn phí đổi trả linh hoạt</span>
+                </div>
+            </div>
+            <div class="trust-feature-item">
+                <div class="trust-feature-icon">💳</div>
+                <div class="trust-feature-text">
+                    <strong>Thanh Toán Tiện Lợi</strong>
+                    <span>MoMo & Tiền mặt (COD)</span>
                 </div>
             </div>
         </section>
 
+        <!-- Categories Section -->
         <section class="categories-section" id="categories">
             <div class="section-head storefront-categories-head">
                 <div>
                     <p class="section-kicker">Danh mục nổi bật</p>
                     <h2>Mua sắm theo nhu cầu</h2>
-                    <p class="section-copy">Danh mục được tải trực tiếp từ hệ thống để bạn nhảy nhanh đến nhóm sản phẩm đang quan tâm.</p>
+                    <p class="section-copy">Khám phá các nhóm ngành hàng phong phú và lọc nhanh sản phẩm theo nhu cầu.</p>
                 </div>
-                <a class="storefront-inline-link" href="/categories.html">Mở trung tâm danh mục</a>
+                <a class="storefront-inline-link" href="/categories.html">Mở trung tâm danh mục →</a>
             </div>
 
             <div class="categories-grid" id="categories-grid">
@@ -99,21 +157,23 @@
             </div>
         </section>
 
+        <!-- Flash Sale Section (Shopee/Tiki Style) -->
         <section class="flash-sale-section" id="flash-sale" hidden>
             <div class="flash-sale-head">
-                <div>
-                    <p class="section-kicker">Flash sale</p>
-                    <h2>Ưu đãi đang chạy</h2>
-                    <p class="section-copy">Giá được khóa trực tiếp từ hệ thống khi tạo đơn.</p>
+                <div class="flash-sale-title-wrap">
+                    <span class="flash-sale-title">Flash Sale</span>
+                    <span style="font-size: 13px; color: var(--muted); font-weight: 500;">Kết thúc trong:</span>
+                    <div class="flash-sale-clock" id="flash-sale-countdown">--:--:--</div>
                 </div>
-                <div class="flash-sale-clock" id="flash-sale-countdown">--:--:--</div>
+                <a class="storefront-inline-link" href="#products-section">Xem tất cả ưu đãi →</a>
             </div>
 
             <div class="flash-sale-products" id="flash-sale-products"></div>
         </section>
 
+        <!-- Products Section & Catalog Filter Bar -->
         <section class="section-head products-head" id="products-section">
-            <p class="section-kicker">Sản phẩm hôm nay</p>
+            <p class="section-kicker">GỢI Ý HÔM NAY</p>
             <h2>Sản phẩm nổi bật</h2>
             <p class="section-copy">
                 Duyệt nhanh toàn bộ catalog hoặc lọc tức thì theo danh mục mà không cần rời trang.
@@ -123,14 +183,85 @@
                 <div class="category-pills" id="category-pills"></div>
                 <div class="catalog-toolbar-meta">
                     <p class="catalog-summary-copy" id="products-summary">Đang tải danh sách sản phẩm...</p>
-                    <a class="catalog-link" href="/categories.html">Xem toàn bộ danh mục</a>
+                    <div class="catalog-toolbar-filters">
+                        <button id="home-stock-toggle" class="toolbar-toggle-btn" type="button" aria-pressed="false">
+                            ✓ Chỉ còn hàng
+                        </button>
+                        <button id="home-reset-filters" class="ghost-button" type="button" disabled>
+                            Đặt lại
+                        </button>
+                        <a class="catalog-link" href="/categories.html" style="font-weight: 600; color: var(--primary);">Xem tất cả danh mục →</a>
+                    </div>
                 </div>
             </div>
         </section>
 
+        <!-- Products Grid -->
         <section class="products" id="products"></section>
     </main>
 
+    <!-- Modern E-Commerce Footer -->
+    <footer class="storefront-footer" id="about">
+        <div class="footer-top">
+            <div class="footer-column">
+                <h4>Chăm sóc khách hàng</h4>
+                <ul>
+                    <li><a href="#">Trung tâm trợ giúp</a></li>
+                    <li><a href="#">Hướng dẫn mua hàng</a></li>
+                    <li><a href="#">Chính sách đổi trả & hoàn tiền</a></li>
+                    <li><a href="#">Chính sách bảo hành</a></li>
+                    <li><a href="#">Vận chuyển & giao nhận</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Về ShopOnline</h4>
+                <ul>
+                    <li><a href="#">Giới thiệu ShopOnline</a></li>
+                    <li><a href="#">Điều khoản dịch vụ</a></li>
+                    <li><a href="#">Chính sách bảo mật</a></li>
+                    <li><a href="#">Tuyển dụng</a></li>
+                    <li><a href="#">Chương trình tiếp thị liên kết</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Phương thức thanh toán</h4>
+                <div class="footer-payment-badges">
+                    <span class="payment-badge">🟣 Ví MoMo</span>
+                    <span class="payment-badge">💵 Tiền mặt (COD)</span>
+                    <span class="payment-badge">💳 Thẻ ATM / Visa</span>
+                </div>
+                <h4 style="margin-top: 24px;">Đơn vị vận chuyển</h4>
+                <div class="footer-payment-badges">
+                    <span class="payment-badge">⚡ Hỏa tốc 2H</span>
+                    <span class="payment-badge">🚚 Giao Hàng Nhanh</span>
+                    <span class="payment-badge">📦 Viettel Post</span>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h4>Liên hệ với chúng tôi</h4>
+                <ul>
+                    <li>📞 Hotline: <strong>1900 6868</strong></li>
+                    <li>📧 Email: support@shoponline.vn</li>
+                    <li>🏢 Địa chỉ: Tòa nhà E-Commerce, Hà Nội</li>
+                    <li>⏰ Giờ làm việc: 8:00 - 22:00 (Cả T7 & CN)</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 ShopOnline E-Commerce Platform. Đảm bảo trải nghiệm mua sắm tiện lợi và an toàn.</p>
+        </div>
+    </footer>
+
+    <script>
+        function quickSearch(keyword) {
+            const input = document.getElementById('home-search');
+            if (input) {
+                input.value = keyword;
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                document.getElementById('products-section')?.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+    </script>
     <script src="/js/env.js"></script>
     <script src="/js/auth.js"></script>
     <script src="/js/script.js"></script>

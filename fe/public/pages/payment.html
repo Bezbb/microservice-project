@@ -3,69 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thanh toán | ShopOnline</title>
-    <link rel="stylesheet" href="/css/main.css">
+    <title>Thanh toán đơn hàng | ShopOnline</title>
+    <link rel="stylesheet" href="/css/main.css?v=2.0">
 </head>
 <body data-requires-auth="true">
+    <!-- Topbar Header -->
     <nav class="topbar">
-        <div class="brand-wrap">
-            <a class="logo" href="/">ShopOnline</a>
-            <p class="tagline">Mua sắm tiện lợi, giao hàng nhanh</p>
+        <div class="topbar-main">
+            <div class="brand-wrap">
+                <a class="logo" href="/">ShopOnline</a>
+                <p class="tagline">Xác nhận đơn & Thanh toán</p>
+            </div>
+
+            <div class="topbar-session">
+                <a class="secondary-btn" href="/cart.html">← Quay lại giỏ hàng</a>
+                <div id="auth-nav-slot" class="auth-slot"></div>
+            </div>
         </div>
+
         <ul class="nav-links">
             <li><a href="/">Trang chủ</a></li>
             <li><a href="/cart.html">Giỏ hàng</a></li>
+            <li><a href="/account.html">Đơn mua của tôi</a></li>
             <li id="admin-link-slot"></li>
-            <li id="auth-nav-slot" class="auth-slot"></li>
         </ul>
     </nav>
 
     <main class="cart-page">
+        <!-- Section Head -->
         <section class="section-head">
-            <p class="section-kicker">Thanh toán</p>
-            <h2>Xác nhận đơn hàng và thông tin nhận hàng</h2>
-            <p class="section-copy">Đơn hàng sẽ được tạo một lần cho toàn bộ giỏ hàng khi bạn xác nhận thanh toán.</p>
+            <div>
+                <p class="section-kicker">THANH TOÁN ĐƠN HÀNG</p>
+                <h2>Địa chỉ nhận hàng & Phương thức thanh toán</h2>
+                <p class="section-copy">Vui lòng điền chính xác thông tin giao hàng để quá trình vận chuyển diễn ra thuận lợi.</p>
+            </div>
+            <a class="storefront-inline-link" href="/cart.html">← Thay đổi sản phẩm trong giỏ</a>
         </section>
 
+        <!-- Checkout Layout -->
         <section class="cart-layout">
             <div class="cart-list">
+                <!-- Shipping Address Card -->
                 <div class="summary-card">
-                    <h3>Thông tin nhận hàng</h3>
-                    <p class="summary-caption">Điền đủ thông tin để hệ thống tạo đơn hàng trước khi thanh toán.</p>
+                    <h3>📍 Thông tin người nhận hàng</h3>
+                    <p class="summary-caption">Hệ thống sẽ liên hệ qua số điện thoại này khi giao hàng.</p>
 
                     <div class="payment-form">
                         <div class="payment-form-grid">
                             <div class="form-group">
-                                <label for="full-name">Họ và tên</label>
-                                <input type="text" id="full-name" placeholder="Nguyễn Văn A">
+                                <label for="full-name">Họ và tên người nhận *</label>
+                                <input type="text" id="full-name" placeholder="Ví dụ: Nguyễn Văn An" required>
                             </div>
 
                             <div class="form-group">
-                                <label for="phone">Số điện thoại</label>
-                                <input type="tel" id="phone" placeholder="09xxxxxxxx">
+                                <label for="phone">Số điện thoại *</label>
+                                <input type="tel" id="phone" placeholder="Ví dụ: 0912345678" required>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label for="address">Địa chỉ giao hàng</label>
-                            <textarea id="address" rows="4" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố"></textarea>
+                            <label for="address">Địa chỉ nhận hàng chi tiết *</label>
+                            <textarea id="address" rows="3" placeholder="Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố" required></textarea>
                         </div>
 
                         <div class="form-group">
-                            <label for="note">Ghi chú</label>
-                            <textarea id="note" rows="3" placeholder="Ví dụ: giao giờ hành chính, gọi trước khi giao..."></textarea>
+                            <label for="note">Ghi chú cho shipper (Tùy chọn)</label>
+                            <textarea id="note" rows="2" placeholder="Ví dụ: Giao giờ hành chính, gọi điện trước 15 phút..."></textarea>
                         </div>
 
                         <div class="form-group">
-                            <label for="payment-method">Phương thức thanh toán</label>
+                            <label for="payment-method">Phương thức thanh toán *</label>
                             <select id="payment-method">
-                                <option value="momo">MoMo</option>
-                                <option value="cash">Tiền mặt</option>
+                                <option value="momo">🟣 Ví MoMo (Thanh toán trực tuyến bảo mật)</option>
+                                <option value="cash">💵 Tiền mặt khi nhận hàng (COD)</option>
                             </select>
                         </div>
 
                         <button class="checkout-button" id="confirm-payment" type="button">
-                            Xác nhận thanh toán
+                            Xác nhận đặt hàng & Thanh toán
                         </button>
 
                         <p id="payment-message" class="payment-message"></p>
@@ -73,6 +88,7 @@
                 </div>
             </div>
 
+            <!-- Order Summary Sidebar -->
             <aside class="cart-summary">
                 <div class="summary-card">
                     <h3>Tóm tắt đơn hàng</h3>
@@ -83,28 +99,72 @@
                     </div>
 
                     <div class="summary-row">
-                        <span>Số sản phẩm</span>
+                        <span>Số lượng sản phẩm</span>
                         <strong id="checkout-count">0</strong>
                     </div>
 
                     <div class="summary-row">
-                        <span>Tổng tiền</span>
-                        <strong id="payment-amount">0 VND</strong>
+                        <span>Dự kiến giao hàng</span>
+                        <strong id="estimated-delivery-date" style="color: var(--secondary);">-</strong>
                     </div>
 
                     <div class="summary-row">
-                        <span>Dự kiến giao</span>
-                        <strong id="estimated-delivery-date">-</strong>
+                        <span>Phí vận chuyển</span>
+                        <strong style="color: var(--success);">Miễn phí</strong>
                     </div>
 
+                    <div class="summary-row">
+                        <span>Tổng thanh toán</span>
+                        <strong id="payment-amount">0 VND</strong>
+                    </div>
+
+                    <div style="margin-top: 14px; font-weight: 700; font-size: 13px; color: var(--text-heading);">
+                        Danh sách sản phẩm:
+                    </div>
                     <div id="checkout-items" class="checkout-items-list"></div>
                     <p id="checkout-warning" class="checkout-warning" hidden></p>
 
-                    <a class="continue-shopping" href="/cart.html">Quay lại giỏ hàng</a>
+                    <a class="continue-shopping" href="/cart.html">Chỉnh sửa lại giỏ hàng</a>
                 </div>
             </aside>
         </section>
     </main>
+
+    <!-- Footer -->
+    <footer class="storefront-footer">
+        <div class="footer-top">
+            <div class="footer-column">
+                <h4>Chăm sóc khách hàng</h4>
+                <ul>
+                    <li><a href="#">Trung tâm trợ giúp</a></li>
+                    <li><a href="#">Chính sách đổi trả & hoàn tiền</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Về ShopOnline</h4>
+                <ul>
+                    <li><a href="#">Giới thiệu ShopOnline</a></li>
+                    <li><a href="#">Chính sách bảo mật</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Thanh toán an toàn</h4>
+                <div class="footer-payment-badges">
+                    <span class="payment-badge">🟣 MoMo</span>
+                    <span class="payment-badge">💵 COD</span>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h4>Hotline hỗ trợ</h4>
+                <ul>
+                    <li>📞 Hotline: <strong>1900 6868</strong></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 ShopOnline E-Commerce Platform. Tất cả các quyền được bảo lưu.</p>
+        </div>
+    </footer>
 
     <script src="/js/env.js"></script>
     <script src="/js/auth.js"></script>

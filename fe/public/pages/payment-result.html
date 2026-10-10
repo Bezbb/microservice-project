@@ -4,49 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kết quả thanh toán | ShopOnline</title>
-    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/main.css?v=2.0">
 </head>
 <body>
+    <!-- Topbar Header -->
     <nav class="topbar">
-        <div class="brand-wrap">
-            <a class="logo" href="/">ShopOnline</a>
-            <p class="tagline">Mua sắm tiện lợi, giao hàng nhanh</p>
+        <div class="topbar-main">
+            <div class="brand-wrap">
+                <a class="logo" href="/">ShopOnline</a>
+                <p class="tagline">Trạng thái thanh toán</p>
+            </div>
+
+            <div class="topbar-session">
+                <a class="secondary-btn" href="/">🏪 Về trang chủ</a>
+                <div id="auth-nav-slot" class="auth-slot"></div>
+            </div>
         </div>
+
         <ul class="nav-links">
             <li><a href="/">Trang chủ</a></li>
             <li><a href="/cart.html">Giỏ hàng</a></li>
+            <li><a href="/account.html">Đơn mua của tôi</a></li>
             <li id="admin-link-slot"></li>
-            <li id="auth-nav-slot" class="auth-slot"></li>
         </ul>
     </nav>
 
-    <main class="cart-page">
-        <section class="section-head">
-            <p class="section-kicker">MoMo</p>
-            <h2 id="payment-result-title">Đang kiểm tra thanh toán</h2>
-            <p class="section-copy" id="payment-result-message">Vui lòng chờ trong giây lát.</p>
-        </section>
+    <main class="cart-page" style="max-width: 680px; margin: 40px auto 80px;">
+        <section class="summary-card" style="text-align: center; padding: 48px 32px;">
+            <div style="font-size: 54px; margin-bottom: 16px;">💳</div>
+            <p class="section-kicker">KẾT QUẢ GIAO DỊCH</p>
+            <h2 id="payment-result-title" style="font-size: 24px; font-weight: 800; margin-bottom: 8px;">Đang kiểm tra kết quả thanh toán</h2>
+            <p class="section-copy" id="payment-result-message" style="margin-bottom: 24px;">Vui lòng chờ trong giây lát...</p>
 
-        <section class="cart-layout">
-            <div class="cart-list">
-                <div class="summary-card">
-                    <h3>Thông tin giao dịch</h3>
-                    <div class="order-grid">
-                        <div class="order-block">
-                            <span>Mã đơn hàng</span>
-                            <strong id="payment-result-order">-</strong>
-                        </div>
-                        <div class="order-block">
-                            <span>Mã giao dịch</span>
-                            <strong id="payment-result-transaction">-</strong>
-                        </div>
-                    </div>
-                    <a class="checkout-button" href="/account.html">Xem đơn hàng</a>
-                    <a class="continue-shopping" href="/">Tiếp tục mua hàng</a>
+            <div class="order-grid" style="text-align: left; margin: 24px 0 32px;">
+                <div class="order-block">
+                    <span>Mã đơn hàng:</span>
+                    <strong id="payment-result-order">-</strong>
                 </div>
+                <div class="order-block">
+                    <span>Mã giao dịch MoMo:</span>
+                    <strong id="payment-result-transaction">-</strong>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 14px; justify-content: center;">
+                <a class="primary-btn" href="/account.html" style="padding: 12px 24px;">Xem chi tiết đơn hàng</a>
+                <a class="secondary-btn" href="/" style="padding: 12px 24px;">Tiếp tục mua sắm</a>
             </div>
         </section>
     </main>
+
+    <!-- Footer -->
+    <footer class="storefront-footer">
+        <div class="footer-bottom">
+            <p>© 2026 ShopOnline E-Commerce Platform. Tất cả các quyền được bảo lưu.</p>
+        </div>
+    </footer>
 
     <script src="/js/env.js"></script>
     <script src="/js/auth.js"></script>

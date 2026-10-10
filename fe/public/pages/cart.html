@@ -3,54 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giỏ hàng | ShopOnline</title>
-    <link rel="stylesheet" href="/css/main.css">
+    <title>Giỏ hàng của bạn | ShopOnline</title>
+    <link rel="stylesheet" href="/css/main.css?v=2.0">
 </head>
 <body>
+    <!-- Topbar Header -->
     <nav class="topbar">
-        <div class="brand-wrap">
-            <a class="logo" href="/">ShopOnline</a>
-            <p class="tagline">Mua sắm tiện lợi, giao hàng nhanh</p>
+        <div class="topbar-main">
+            <div class="brand-wrap">
+                <a class="logo" href="/">ShopOnline</a>
+                <p class="tagline">Giỏ hàng & Đặt hàng</p>
+            </div>
+
+            <div class="topbar-session">
+                <a class="secondary-btn" href="/">← Tiếp tục mua sắm</a>
+                <button id="cart-count" class="nav-cart" type="button" onclick="goToCart()">
+                    Giỏ hàng (0)
+                </button>
+                <div id="auth-nav-slot" class="auth-slot"></div>
+            </div>
         </div>
 
         <ul class="nav-links">
             <li><a href="/">Trang chủ</a></li>
-            <li><a href="/">Sản phẩm</a></li>
+            <li><a href="/#products-section">Sản phẩm</a></li>
+            <li><a href="/categories.html">Danh mục</a></li>
+            <li><a href="/account.html">Đơn mua</a></li>
             <li id="admin-link-slot"></li>
-            <li>
-                <button id="cart-count" class="nav-cart" type="button" onclick="goToCart()">
-                    Giỏ hàng (0)
-                </button>
-            </li>
-            <li id="auth-nav-slot" class="auth-slot"></li>
         </ul>
     </nav>
 
     <main class="cart-page">
+        <!-- Section Head -->
         <section class="section-head">
-            <p class="section-kicker">Giỏ hàng của bạn</p>
-            <h2>Kiểm tra sản phẩm trước khi thanh toán</h2>
-            <p class="section-copy" id="cart-count-summary">0 sản phẩm trong giỏ hàng</p>
+            <div>
+                <p class="section-kicker">GIỎ HÀNG CỦA BẠN</p>
+                <h2>Kiểm tra sản phẩm trước khi thanh toán</h2>
+                <p class="section-copy" id="cart-count-summary">0 sản phẩm trong giỏ hàng</p>
+            </div>
+            <a class="storefront-inline-link" href="/">← Chọn thêm sản phẩm khác</a>
         </section>
 
+        <!-- Two Column Cart Layout -->
         <section class="cart-layout">
             <div class="cart-list" id="cart-items"></div>
 
             <aside class="cart-summary">
                 <div class="summary-card">
                     <h3>Tóm tắt đơn hàng</h3>
+                    
                     <div class="summary-row">
-                        <span>Tổng tiền</span>
+                        <span>Phí vận chuyển</span>
+                        <strong style="color: var(--success); font-weight: 700;">Miễn phí toàn quốc</strong>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Tổng số tiền</span>
                         <strong id="cart-total">0 VND</strong>
                     </div>
+
                     <button id="checkout-button" class="checkout-button" type="button">
-                        Thanh toán tất cả
+                        Tiến hành thanh toán
                     </button>
                     <a class="continue-shopping" href="/">Tiếp tục mua hàng</a>
+
+                    <div style="margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border-subtle); font-size: 12px; color: var(--muted); display: flex; flex-direction: column; gap: 6px;">
+                        <div>🛡️ Đảm bảo an toàn thanh toán 100%</div>
+                        <div>🔄 Đổi trả miễn phí trong vòng 7 ngày</div>
+                    </div>
                 </div>
             </aside>
         </section>
     </main>
+
+    <!-- Standard Footer -->
+    <footer class="storefront-footer">
+        <div class="footer-top">
+            <div class="footer-column">
+                <h4>Chăm sóc khách hàng</h4>
+                <ul>
+                    <li><a href="#">Trung tâm trợ giúp</a></li>
+                    <li><a href="#">Hướng dẫn mua hàng</a></li>
+                    <li><a href="#">Chính sách đổi trả & hoàn tiền</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Về ShopOnline</h4>
+                <ul>
+                    <li><a href="#">Giới thiệu ShopOnline</a></li>
+                    <li><a href="#">Chính sách bảo mật</a></li>
+                    <li><a href="#">Điều khoản sử dụng</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Phương thức thanh toán</h4>
+                <div class="footer-payment-badges">
+                    <span class="payment-badge">🟣 Ví MoMo</span>
+                    <span class="payment-badge">💵 Tiền mặt (COD)</span>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h4>Liên hệ hỗ trợ</h4>
+                <ul>
+                    <li>📞 Hotline: <strong>1900 6868</strong></li>
+                    <li>📧 Email: support@shoponline.vn</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 ShopOnline E-Commerce Platform. Tất cả các quyền được bảo lưu.</p>
+        </div>
+    </footer>
 
     <script src="/js/env.js"></script>
     <script src="/js/auth.js"></script>

@@ -3,48 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tài khoản | ShopOnline</title>
-    <link rel="stylesheet" href="/css/main.css">
+    <title>Tài khoản & Đơn hàng của tôi | ShopOnline</title>
+    <link rel="stylesheet" href="/css/main.css?v=2.0">
 </head>
 <body data-requires-auth="true">
+    <!-- Topbar Header -->
     <nav class="topbar">
-        <div class="brand-wrap">
-            <a class="logo" href="/">ShopOnline</a>
-            <p class="tagline">Mua sắm tiện lợi, giao hàng nhanh</p>
+        <div class="topbar-main">
+            <div class="brand-wrap">
+                <a class="logo" href="/">ShopOnline</a>
+                <p class="tagline">Hồ sơ cá nhân & Lịch sử đơn hàng</p>
+            </div>
+
+            <div class="topbar-session">
+                <a class="secondary-btn" href="/">🏪 Tiếp tục mua sắm</a>
+                <button id="cart-count" class="nav-cart" type="button" onclick="goToCart()">
+                    Giỏ hàng (0)
+                </button>
+                <div id="auth-nav-slot" class="auth-slot"></div>
+            </div>
         </div>
 
         <ul class="nav-links">
             <li><a href="/">Trang chủ</a></li>
             <li><a href="/cart.html">Giỏ hàng</a></li>
+            <li><a href="/account.html" class="active">Hồ sơ & Đơn mua</a></li>
             <li id="admin-link-slot"></li>
-            <li id="auth-nav-slot" class="auth-slot"></li>
         </ul>
     </nav>
 
     <main class="account-page">
+        <!-- Section Head -->
         <section class="section-head">
-            <p class="section-kicker">Tài khoản của tôi</p>
-            <h2>Theo dõi hồ sơ và đơn hàng đã đặt</h2>
-            <p class="section-copy">Trang này tổng hợp thông tin tài khoản đang đăng nhập và lịch sử các đơn hàng do chính tài khoản đó tạo ra.</p>
+            <div>
+                <p class="section-kicker">TRUNG TÂM KHÁCH HÀNG</p>
+                <h2>Hồ sơ cá nhân & Theo dõi đơn hàng</h2>
+                <p class="section-copy">Quản lý thông tin tài khoản và theo dõi trạng thái các đơn hàng đã đặt.</p>
+            </div>
+            <a class="storefront-inline-link" href="/">← Quay lại mua sắm</a>
         </section>
 
+        <!-- Account Layout -->
         <section class="account-layout">
+            <!-- Sidebar: User profile & Order stats -->
             <aside class="account-sidebar">
                 <article class="account-card profile-card">
-                    <p class="card-eyebrow">Hồ sơ</p>
+                    <p class="card-eyebrow">Hồ sơ thành viên</p>
                     <h3 id="account-full-name">Đang tải...</h3>
                     <p class="account-email" id="account-email">...</p>
                     <div class="account-meta">
                         <div class="account-meta-row">
-                            <span>Vai trò</span>
+                            <span>Vai trò:</span>
                             <strong id="account-role">...</strong>
                         </div>
                         <div class="account-meta-row">
-                            <span>Ngày tạo</span>
+                            <span>Ngày tham gia:</span>
                             <strong id="account-created-at">...</strong>
                         </div>
                         <div class="account-meta-row">
-                            <span>Đăng nhập gần nhất</span>
+                            <span>Đăng nhập gần nhất:</span>
                             <strong id="account-last-login-at">...</strong>
                         </div>
                     </div>
@@ -55,7 +72,7 @@
                 </article>
 
                 <article class="account-card">
-                    <p class="card-eyebrow">Tổng quan đơn hàng</p>
+                    <p class="card-eyebrow">Thống kê mua sắm</p>
                     <div class="account-stats">
                         <div class="account-stat">
                             <span>Tổng đơn</span>
@@ -82,77 +99,33 @@
 
                 <article class="account-card account-snapshot-card">
                     <p class="card-eyebrow">Trạng thái mua hàng</p>
-                    <div id="account-current-focus" class="account-current-focus">
+                    <div id="account-current-focus" class="account-current-focus" style="font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin-top: 8px;">
                         Đang tải trạng thái đơn hàng...
                     </div>
                 </article>
             </aside>
 
+            <!-- Main Content: Profile edit & Order history -->
             <section class="account-content">
+                <!-- Order History Section (Shopee/Tiki Style) -->
                 <article class="account-card">
                     <div class="account-card-head">
                         <div>
-                            <p class="card-eyebrow">Chỉnh sửa tài khoản</p>
-                            <h3>Thông tin cá nhân</h3>
+                            <p class="card-eyebrow">Quản lý đơn hàng</p>
+                            <h3>Đơn hàng của tôi</h3>
                         </div>
-                    </div>
-
-                    <form id="account-profile-form" class="product-form account-editor-form">
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="profile-full-name">Họ và tên</label>
-                                <input type="text" id="profile-full-name" autocomplete="name" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="profile-email">Email</label>
-                                <input type="email" id="profile-email" autocomplete="email" required>
-                            </div>
-                        </div>
-
-                        <div class="account-security-panel">
-                            <p class="card-eyebrow">Bảo mật</p>
-                            <div class="form-grid account-password-grid">
-                                <div class="form-group">
-                                    <label for="profile-current-password">Mật khẩu hiện tại</label>
-                                    <input type="password" id="profile-current-password" autocomplete="current-password">
-                                </div>
-                                <div class="form-group">
-                                    <label for="profile-new-password">Mật khẩu mới</label>
-                                    <input type="password" id="profile-new-password" autocomplete="new-password" minlength="6">
-                                </div>
-                                <div class="form-group">
-                                    <label for="profile-confirm-password">Xác nhận mật khẩu</label>
-                                    <input type="password" id="profile-confirm-password" autocomplete="new-password" minlength="6">
-                                </div>
-                            </div>
-                        </div>
-
-                        <p id="account-profile-message" class="account-message"></p>
-                        <div class="form-actions account-form-actions">
-                            <button type="submit" class="primary-btn" id="save-profile-button">Lưu thay đổi</button>
-                            <button type="button" class="secondary-btn" id="reset-profile-button">Hoàn tác</button>
-                        </div>
-                    </form>
-                </article>
-
-                <article class="account-card">
-                    <div class="account-card-head">
-                        <div>
-                            <p class="card-eyebrow">Lịch sử đơn hàng</p>
-                            <h3>Đơn hàng đã đặt</h3>
-                        </div>
-                        <button type="button" class="secondary-btn" id="refresh-orders-button">Tải lại</button>
+                        <button type="button" class="secondary-btn" id="refresh-orders-button">↻ Tải lại</button>
                     </div>
 
                     <div class="account-order-tools">
-                        <input type="search" id="account-order-search" class="account-order-input" placeholder="Tìm mã đơn, sản phẩm hoặc người nhận">
+                        <input type="search" id="account-order-search" class="account-order-input" placeholder="🔍 Tìm mã đơn, tên sản phẩm hoặc người nhận...">
                         <select id="account-order-status" class="account-order-select">
                             <option value="all">Tất cả trạng thái</option>
                             <option value="pending_payment">Chờ thanh toán</option>
                             <option value="paid">Đã thanh toán</option>
                             <option value="confirmed">Đã xác nhận</option>
-                            <option value="shipping">Đang giao</option>
-                            <option value="delivered">Đã giao</option>
+                            <option value="shipping">Đang giao hàng</option>
+                            <option value="delivered">Đã giao thành công</option>
                             <option value="returned">Đã hoàn trả</option>
                             <option value="cancelled">Đã hủy</option>
                             <option value="payment_failed">Thanh toán thất bại</option>
@@ -163,13 +136,97 @@
                             <option value="amount-desc">Giá trị cao nhất</option>
                         </select>
                     </div>
+
                     <p id="account-order-count" class="account-order-count">0 đơn hàng</p>
                     <p id="account-orders-message" class="account-message"></p>
                     <div id="orders-list" class="orders-list"></div>
                 </article>
+
+                <!-- Profile Editor Section -->
+                <article class="account-card">
+                    <div class="account-card-head">
+                        <div>
+                            <p class="card-eyebrow">Cài đặt tài khoản</p>
+                            <h3>Cập nhật thông tin cá nhân</h3>
+                        </div>
+                    </div>
+
+                    <form id="account-profile-form" class="login-form account-editor-form">
+                        <div class="payment-form-grid">
+                            <div class="form-group">
+                                <label for="profile-full-name">Họ và tên</label>
+                                <input type="text" id="profile-full-name" autocomplete="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="profile-email">Địa chỉ Email</label>
+                                <input type="email" id="profile-email" autocomplete="email" required>
+                            </div>
+                        </div>
+
+                        <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius-xs); padding: 18px; margin: 10px 0;">
+                            <p style="font-weight: 700; font-size: 13px; color: var(--text-heading); margin-bottom: 12px;">Đổi mật khẩu (Bỏ trống nếu không muốn đổi):</p>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px;">
+                                <div class="form-group">
+                                    <label for="profile-current-password">Mật khẩu hiện tại</label>
+                                    <input type="password" id="profile-current-password" autocomplete="current-password">
+                                </div>
+                                <div class="form-group">
+                                    <label for="profile-new-password">Mật khẩu mới</label>
+                                    <input type="password" id="profile-new-password" autocomplete="new-password" minlength="6">
+                                </div>
+                                <div class="form-group">
+                                    <label for="profile-confirm-password">Xác nhận mật khẩu mới</label>
+                                    <input type="password" id="profile-confirm-password" autocomplete="new-password" minlength="6">
+                                </div>
+                            </div>
+                        </div>
+
+                        <p id="account-profile-message" class="account-message" style="font-size: 13px; font-weight: 600;"></p>
+                        <div style="display: flex; gap: 12px; margin-top: 10px;">
+                            <button type="submit" class="primary-btn" id="save-profile-button">Lưu thay đổi</button>
+                            <button type="button" class="secondary-btn" id="reset-profile-button">Hoàn tác</button>
+                        </div>
+                    </form>
+                </article>
             </section>
         </section>
     </main>
+
+    <!-- Footer -->
+    <footer class="storefront-footer">
+        <div class="footer-top">
+            <div class="footer-column">
+                <h4>Chăm sóc khách hàng</h4>
+                <ul>
+                    <li><a href="#">Trung tâm trợ giúp</a></li>
+                    <li><a href="#">Chính sách đổi trả & hoàn tiền</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Về ShopOnline</h4>
+                <ul>
+                    <li><a href="#">Giới thiệu ShopOnline</a></li>
+                    <li><a href="#">Chính sách bảo mật</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Thanh toán an toàn</h4>
+                <div class="footer-payment-badges">
+                    <span class="payment-badge">🟣 MoMo</span>
+                    <span class="payment-badge">💵 COD</span>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h4>Hotline hỗ trợ</h4>
+                <ul>
+                    <li>📞 Hotline: <strong>1900 6868</strong></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 ShopOnline E-Commerce Platform. Tất cả các quyền được bảo lưu.</p>
+        </div>
+    </footer>
 
     <script src="/js/env.js"></script>
     <script src="/js/auth.js"></script>

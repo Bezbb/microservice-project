@@ -4,72 +4,85 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Danh mục sản phẩm | ShopOnline</title>
-    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/main.css?v=2.0">
 </head>
 <body>
+    <!-- Topbar Header -->
     <nav class="topbar">
-        <div class="brand-wrap">
-            <a class="logo" href="/">ShopOnline</a>
-            <p class="tagline">Khám phá danh mục, lọc nhanh và mua sắm liền mạch</p>
+        <div class="topbar-main">
+            <div class="brand-wrap">
+                <a class="logo" href="/">ShopOnline</a>
+                <p class="tagline">Khám phá danh mục & Tìm kiếm sản phẩm</p>
+            </div>
+
+            <div class="topbar-session">
+                <a class="secondary-btn" href="/">🏠 Về trang chủ</a>
+                <button id="cart-count" class="nav-cart" type="button" onclick="goToCart()">
+                    Giỏ hàng (0)
+                </button>
+                <div id="auth-nav-slot" class="auth-slot"></div>
+            </div>
         </div>
 
         <ul class="nav-links">
             <li><a href="/">Trang chủ</a></li>
-            <li><a href="/categories.html" class="active">Danh mục</a></li>
-            <li><a href="/#products-section">Sản phẩm</a></li>
+            <li><a href="/categories.html" class="active">📂 Tất cả danh mục</a></li>
+            <li><a href="/#products-section">Sản phẩm nổi bật</a></li>
+            <li><a href="/account.html">Đơn mua</a></li>
             <li id="admin-link-slot"></li>
-            <li>
-                <button id="cart-count" class="nav-cart" type="button" onclick="goToCart()">
-                    Giỏ hàng (0)
-                </button>
-            </li>
-            <li id="auth-nav-slot" class="auth-slot"></li>
         </ul>
     </nav>
 
-    <header class="catalog-hero">
-        <div class="catalog-hero-copy">
-            <p class="eyebrow">Category Explorer</p>
-            <h1>Trung tâm danh mục cho trải nghiệm mua sắm rõ ràng hơn</h1>
-            <p>So sánh nhanh các nhóm sản phẩm, xem mô tả, số lượng đang bán và lọc catalog theo đúng nhu cầu của bạn.</p>
-        </div>
-
-        <div class="catalog-hero-stats">
-            <div class="catalog-stat-card">
-                <span id="catalog-total-categories">0</span>
-                <p>Danh mục đang hoạt động</p>
+    <main class="catalog-page" style="width: min(1200px, calc(100% - 32px)); margin: 24px auto 60px;">
+        <!-- Header Banner -->
+        <header class="section-head" style="margin-bottom: 24px;">
+            <div>
+                <p class="section-kicker">TRUNG TÂM DANH MỤC</p>
+                <h2>Khám phá sản phẩm theo danh mục</h2>
+                <p class="section-copy">Lọc nhanh theo nhóm sản phẩm, tình trạng kho hàng và mức giá.</p>
             </div>
-            <div class="catalog-stat-card">
-                <span id="catalog-total-products">0</span>
-                <p>Sản phẩm sẵn sàng để duyệt</p>
+            <div style="display: flex; gap: 14px; align-items: center;">
+                <div style="background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius-xs); padding: 8px 16px; text-align: center;">
+                    <span id="catalog-total-categories" style="font-size: 16px; font-weight: 800; color: var(--primary);">0</span>
+                    <span style="display: block; font-size: 11px; color: var(--muted);">Danh mục</span>
+                </div>
+                <div style="background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius-xs); padding: 8px 16px; text-align: center;">
+                    <span id="catalog-total-products" style="font-size: 16px; font-weight: 800; color: var(--secondary);">0</span>
+                    <span style="display: block; font-size: 11px; color: var(--muted);">Sản phẩm</span>
+                </div>
             </div>
-        </div>
-    </header>
+        </header>
 
-    <main class="catalog-page">
-        <section class="catalog-discovery">
+        <!-- Category Discovery Focus Card -->
+        <section class="catalog-discovery" style="margin-bottom: 24px;">
             <article class="catalog-focus-card" id="category-focus">
-                <div class="loading-card">Đang tải thông tin danh mục...</div>
+                <div class="loading-card" style="background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 24px; text-align: center;">
+                    Đang tải thông tin danh mục...
+                </div>
             </article>
         </section>
 
+        <!-- Catalog Results Shell -->
         <section class="catalog-results-shell">
-            <div class="catalog-controls">
-                <label class="catalog-search" for="catalog-search">
-                    <span>Tìm trong catalog</span>
-                    <input id="catalog-search" class="catalog-input" type="search" placeholder="Tên sản phẩm hoặc thương hiệu">
-                </label>
+            <!-- Filter & Sort Toolbar -->
+            <div class="catalog-controls" style="background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 18px 20px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between;">
+                <div style="flex: 1; min-width: 240px;">
+                    <label class="catalog-search" for="catalog-search" style="display: flex; align-items: center; border: 1px solid var(--border); border-radius: var(--radius-xs); padding: 6px 12px; background: #ffffff;">
+                        <span style="display: none;">Tìm trong catalog</span>
+                        <input id="catalog-search" class="catalog-input" type="search" placeholder="🔍 Tên sản phẩm hoặc thương hiệu..." style="width: 100%; border: none; font-size: 13px;">
+                    </label>
+                </div>
 
-                <div class="catalog-control-group">
-                    <label for="catalog-category-select">Danh mục</label>
-                    <select id="catalog-category-select" class="catalog-select">
+                <div class="catalog-control-group" style="display: flex; align-items: center; gap: 8px;">
+                    <label for="catalog-category-select" style="font-size: 13px; font-weight: 600;">Danh mục:</label>
+                    <select id="catalog-category-select" class="catalog-select" style="padding: 7px 12px; border: 1px solid var(--border); border-radius: var(--radius-xs); font-size: 13px; background: #ffffff;">
                         <option value="">Tất cả danh mục</option>
                     </select>
                 </div>
 
-                <div class="catalog-control-group">
-                    <label for="catalog-sort">Sắp xếp</label>
-                    <select id="catalog-sort" class="catalog-select">
+                <div class="catalog-control-group" style="display: flex; align-items: center; gap: 8px;">
+                    <label for="catalog-sort" style="font-size: 13px; font-weight: 600;">Sắp xếp:</label>
+                    <select id="catalog-sort" class="catalog-select" style="padding: 7px 12px; border: 1px solid var(--border); border-radius: var(--radius-xs); font-size: 13px; background: #ffffff;">
                         <option value="newest">Mới nhất</option>
                         <option value="price_asc">Giá tăng dần</option>
                         <option value="price_desc">Giá giảm dần</option>
@@ -78,20 +91,61 @@
                     </select>
                 </div>
 
-                <button id="catalog-stock-toggle" class="catalog-toggle" type="button" aria-pressed="false">
-                    Chỉ xem sản phẩm còn hàng
-                </button>
-
-                <button id="catalog-reset-filters" class="ghost-button" type="button">
-                    Đặt lại bộ lọc
-                </button>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button id="catalog-stock-toggle" class="toolbar-toggle-btn" type="button" aria-pressed="false">
+                        ✓ Chỉ còn hàng
+                    </button>
+                    <button id="catalog-reset-filters" class="ghost-button" type="button">
+                        Đặt lại
+                    </button>
+                </div>
             </div>
 
-            <p class="catalog-active-filters" id="catalog-active-filters">Đang tải trạng thái lọc...</p>
-            <p class="catalog-results-summary" id="catalog-results-summary">Đang tải sản phẩm...</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 13px; color: var(--muted);">
+                <p class="catalog-active-filters" id="catalog-active-filters">Đang tải trạng thái lọc...</p>
+                <p class="catalog-results-summary" id="catalog-results-summary" style="font-weight: 600; color: var(--text);">Đang tải sản phẩm...</p>
+            </div>
+
+            <!-- Product Grid -->
             <section class="products" id="catalog-products"></section>
         </section>
     </main>
+
+    <!-- Footer -->
+    <footer class="storefront-footer">
+        <div class="footer-top">
+            <div class="footer-column">
+                <h4>Chăm sóc khách hàng</h4>
+                <ul>
+                    <li><a href="#">Trung tâm trợ giúp</a></li>
+                    <li><a href="#">Chính sách đổi trả & hoàn tiền</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Về ShopOnline</h4>
+                <ul>
+                    <li><a href="#">Giới thiệu ShopOnline</a></li>
+                    <li><a href="#">Chính sách bảo mật</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Thanh toán an toàn</h4>
+                <div class="footer-payment-badges">
+                    <span class="payment-badge">🟣 MoMo</span>
+                    <span class="payment-badge">💵 COD</span>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h4>Hotline hỗ trợ</h4>
+                <ul>
+                    <li>📞 Hotline: <strong>1900 6868</strong></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 ShopOnline E-Commerce Platform. Tất cả các quyền được bảo lưu.</p>
+        </div>
+    </footer>
 
     <script src="/js/env.js"></script>
     <script src="/js/auth.js"></script>
