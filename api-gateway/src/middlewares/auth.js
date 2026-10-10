@@ -45,7 +45,28 @@ function requireAuthenticatedForMutations(req, res, next) {
     return requireAuthenticatedUser(req, res, next);
 }
 
+async function optionalAuthenticatedUser(req, _res, next) {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+        return next();
+    }
+
+    try {
+        const authResult = await fetchAuthenticatedUser(authHeader);
+
+        if (authResult.ok && authResult.user) {
+            req.currentUser = authResult.user;
+        }
+    } catch (_error) {
+        // Continue silently as guest
+    }
+
+    return next();
+}
+
 module.exports = {
+    optionalAuthenticatedUser,
     requireAdmin,
     requireAuthenticatedForMutations,
     requireAuthenticatedUser

@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { CORS_ORIGINS, FRONTEND_URL } = require('./config/env');
-const { requireAdmin } = require('./middlewares/auth');
+const { requireAdmin, optionalAuthenticatedUser } = require('./middlewares/auth');
 const { createRateLimiter } = require('./middlewares/rateLimit');
 const {
     requireOrderAccess,
@@ -14,6 +14,7 @@ const {
 } = require('./middlewares/headers');
 const {
     authProxy,
+    chatbotProxy,
     orderProxy,
     paymentProxy,
     productProxy,
@@ -71,6 +72,12 @@ function createApp() {
         max: 80,
         message: 'Qua nhieu yeu cau thanh toan. Vui long thu lai sau.'
     }));
+    app.use('/api/chat', createRateLimiter({
+        name: 'chat',
+        windowMs: 5 * 60 * 1000,
+        max: 60,
+        message: 'Bạn đang gửi tin nhắn quá nhanh. Vui lòng thử lại sau.'
+    }));
     app.use('/api', createRateLimiter({
         name: 'api',
         windowMs: 15 * 60 * 1000,
@@ -83,6 +90,7 @@ function createApp() {
     app.use('/api/products', requireProductAccess, attachProductServiceHeaders, productProxy);
     app.use('/api/orders', requireOrderAccess, attachCurrentUserHeaders, orderProxy);
     app.use('/api/payments', requirePaymentAccess, paymentProxy);
+    app.use('/api/chat', optionalAuthenticatedUser, chatbotProxy);
 
     return app;
 }

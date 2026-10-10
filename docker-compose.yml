@@ -43,6 +43,17 @@ services:
     networks:
       - app-network
 
+  chatbot-db:
+    image: mongo:7
+    container_name: chatbot-db
+    restart: unless-stopped
+    expose:
+      - "27017"
+    volumes:
+      - chatbot_data:/data/db
+    networks:
+      - app-network
+
   mailpit:
     image: axllent/mailpit:latest
     container_name: mailpit
@@ -167,6 +178,26 @@ services:
     networks:
       - app-network
 
+  chatbot-service:
+    build: ./chatbot-service
+    container_name: chatbot-service
+    restart: unless-stopped
+    expose:
+      - "3006"
+    depends_on:
+      - chatbot-db
+      - product-service
+    environment:
+      NODE_ENV: production
+      CHATBOT_MONGODB_URI: ${CHATBOT_MONGODB_URI:?Set CHATBOT_MONGODB_URI in .env}
+      PRODUCT_SERVICE_URL: ${PRODUCT_SERVICE_URL:?Set PRODUCT_SERVICE_URL in .env}
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN:?Set INTERNAL_SERVICE_TOKEN in .env}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-1.5-flash}
+      CORS_ORIGINS: ${CORS_ORIGINS:-}
+    networks:
+      - app-network
+
   api-gateway:
     build: ./api-gateway
     container_name: api-gateway
@@ -178,6 +209,7 @@ services:
       - order-service
       - payment-service
       - user-service
+      - chatbot-service
     environment:
       NODE_ENV: production
       INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN:?Set INTERNAL_SERVICE_TOKEN in .env}
@@ -187,6 +219,7 @@ services:
       PRODUCT_SERVICE_URL: ${PRODUCT_SERVICE_URL:?Set PRODUCT_SERVICE_URL in .env}
       ORDER_SERVICE_URL: ${ORDER_SERVICE_URL:?Set ORDER_SERVICE_URL in .env}
       PAYMENT_SERVICE_URL: ${PAYMENT_SERVICE_URL:?Set PAYMENT_SERVICE_URL in .env}
+      CHATBOT_SERVICE_URL: ${CHATBOT_SERVICE_URL:?Set CHATBOT_SERVICE_URL in .env}
     networks:
       - app-network
 
@@ -195,6 +228,7 @@ volumes:
   order_data:
   payment_data:
   user_data:
+  chatbot_data:
   product_uploads:
 
 networks:

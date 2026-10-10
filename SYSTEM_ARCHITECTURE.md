@@ -12,6 +12,7 @@ Hệ thống là một ứng dụng thương mại điện tử/ShopOnline đư�
 - `product-service`: quản lý catalog sản phẩm, danh mục, ảnh upload, tồn kho, flash sale.
 - `order-service`: tạo đơn hàng, giữ/hoàn/xác nhận tồn kho, quản lý trạng thái đơn hàng.
 - `payment-service`: tạo giao dịch thanh toán, xử lý MoMo callback/IPN, ghi nhận tiền mặt, đối soát và hoàn tiền.
+- `chatbot-service`: trợ lý AI tư vấn mua sắm, đề xuất sản phẩm trực tiếp từ catalog, lưu lịch sử hội thoại theo tài khoản người dùng và ghi nhớ các sản phẩm khách hàng đang quan tâm/tham khảo.
 
 Mỗi service nghiệp vụ có MongoDB riêng, dùng mô hình "database per service". Giao tiếp giữa các service hiện tại là HTTP đồng bộ qua nội bộ Docker network.
 

@@ -1,5 +1,9 @@
 const { INTERNAL_SERVICE_TOKEN } = require('../config/env');
 
+function encodeHeaderValue(value) {
+    return encodeURIComponent(String(value || ''));
+}
+
 function applyCurrentUserHeaders(proxyReq, req) {
     if (!req.currentUser) {
         return;
@@ -7,14 +11,14 @@ function applyCurrentUserHeaders(proxyReq, req) {
 
     proxyReq.setHeader('x-user-id', req.currentUser.id || '');
     proxyReq.setHeader('x-user-email', req.currentUser.email || '');
-    proxyReq.setHeader('x-user-full-name', req.currentUser.fullName || '');
+    proxyReq.setHeader('x-user-full-name', encodeHeaderValue(req.currentUser.fullName || ''));
     proxyReq.setHeader('x-user-role', req.currentUser.role || 'customer');
 }
 
 function attachCurrentUserHeaders(req, _res, next) {
     req.headers['x-user-id'] = req.currentUser?.id || '';
     req.headers['x-user-email'] = req.currentUser?.email || '';
-    req.headers['x-user-full-name'] = req.currentUser?.fullName || '';
+    req.headers['x-user-full-name'] = encodeHeaderValue(req.currentUser?.fullName || '');
     req.headers['x-user-role'] = req.currentUser?.role || 'customer';
     return next();
 }

@@ -4,12 +4,28 @@ const {
     ORDER_SERVICE_URL,
     PAYMENT_SERVICE_URL,
     PRODUCT_SERVICE_URL,
-    USER_SERVICE_URL
+    USER_SERVICE_URL,
+    CHATBOT_SERVICE_URL
 } = require('../config/env');
 const {
     applyCurrentUserHeaders,
     applyProductServiceHeaders
 } = require('../middlewares/headers');
+
+const chatbotProxy = createProxyMiddleware({
+    target: CHATBOT_SERVICE_URL,
+    changeOrigin: true,
+    headers: {
+        'x-internal-service-token': INTERNAL_SERVICE_TOKEN,
+        'x-internal-service': 'api-gateway'
+    },
+    pathRewrite: (path) => `/api/chat${path}`,
+    on: {
+        proxyReq(proxyReq, req) {
+            applyCurrentUserHeaders(proxyReq, req);
+        }
+    }
+});
 
 const uploadsStaticProxy = createProxyMiddleware({
     target: PRODUCT_SERVICE_URL,
@@ -68,6 +84,7 @@ const userProxy = createProxyMiddleware({
 
 module.exports = {
     authProxy,
+    chatbotProxy,
     orderProxy,
     paymentProxy,
     productProxy,
